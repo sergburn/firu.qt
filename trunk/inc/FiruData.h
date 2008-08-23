@@ -91,6 +91,22 @@ public:
     void AddTestL( CFiruTest* );
     CFiruTest* NextTest();
 
+    class Stats
+    {
+    public:
+        Stats( TInt passed, TInt asked ) : iPassed( passed ), iAsked( asked ) {};
+
+        TInt Passed() const { return iPassed; };
+        TInt Asked() const { return iAsked; };
+    private:
+        Stats();
+
+        TInt iPassed;
+        TInt iAsked;
+    };
+
+    Stats GetStats() const;
+
 protected:
 private:
     RPointerArray<CFiruTest> iTests;

@@ -41,7 +41,7 @@
 // ]]] end generated region [Generated Constants]
 
 const TInt KNumTotalTests = 20;
-const TInt KNumNewTests = 7;
+const TInt KNumNewTests = 15;
 const TInt KNumVariants = 6;
 
 /**
@@ -191,9 +191,13 @@ void CFiruTrainerListBoxView::NextTestL()
     {
         iExercise = Data().CreateExerciseL( KNumTotalTests, KNumNewTests, KNumVariants );
     }
+
     iCurrentTest = iExercise->NextTest();
     if ( !iCurrentTest )
     {
+        // exercise complete, show stats
+        ShowStatsL( *iExercise );
+
         delete iExercise;
         iExercise = NULL;
         iCurrentTest = NULL;
@@ -402,3 +406,16 @@ CFiruData& CFiruTrainerListBoxView::Data()
     return doc->Data();
 }
 
+// ----------------------------------------------------------
+
+void CFiruTrainerListBoxView::ShowStatsL( const CFiruExercise& aExercise )
+{
+    _LIT( KFormatStats, "You have passed\n%d tests\nout of %d" );
+
+    CFiruExercise::Stats stat = aExercise.GetStats();
+
+    TBuf<128> text;
+    text.Format( KFormatStats(), stat.Passed(), stat.Asked() );
+
+    CFiruAppUi::RunInfoNoteL( &text );
+}

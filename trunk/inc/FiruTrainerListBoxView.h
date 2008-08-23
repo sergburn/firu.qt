@@ -82,6 +82,7 @@ protected:
 	// ]]] end [Protected Section]
 
     void NextTestL();
+    void ShowStatsL( const CFiruExercise& aExercise );
 
 	// [[[ begin [Private Section]
 private:

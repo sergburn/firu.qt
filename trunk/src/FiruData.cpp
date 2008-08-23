@@ -674,7 +674,7 @@ void CFiruData::SaveTestResultL( const CFiruTest& aTest )
     }
     else
     {
-        AdjustMarkL( aTest.Entry().Id(), -aTest.NumMistakes(), aTest.IsReversed(), ETrue );
+        AdjustMarkL( aTest.Entry().Id(), -1, aTest.IsReversed(), ETrue );
     }
 }
 
@@ -879,4 +879,25 @@ CFiruTest* CFiruExercise::NextTest()
         return iTests[iCounter++];
     else
         return NULL;
+}
+
+// ----------------------------------------------------------
+
+CFiruExercise::Stats CFiruExercise::GetStats() const
+{
+    TInt passed = 0, asked = 0;
+    for ( int i = 0; i < iTests.Count(); ++i )
+    {
+        CFiruTest* test = iTests[i];
+        if ( test->IsPassed() && test->NumMistakes() == 0 )
+        {
+            asked++;
+            passed++;
+        }
+        else if ( test->NumMistakes() > 0 )
+        {
+            asked++;
+        }
+    }
+    return Stats( passed, asked );
 }
