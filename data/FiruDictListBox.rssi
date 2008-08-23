@@ -1,0 +1,68 @@
+/*
+========================================================================
+ Name        : FiruDictListBox.rssi
+ Author      : 
+ Copyright   : Your copyright notice
+ Description : 
+========================================================================
+*/
+#include "FiruDictListBox.hrh"
+#include "FiruDictListBox.loc"
+
+RESOURCE AVKON_VIEW r_firu_dict_list_box_firu_dict_list_box_view
+	{
+	cba = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+	menubar = r_firu_dict_list_box_options_menu;
+	toolbar = 0;
+	}
+RESOURCE MENU_BAR r_firu_dict_list_box_options_menu
+	{titles =
+			{
+			MENU_TITLE
+				{
+				menu_pane = r_firu_dict_list_box_menu_pane1_menu_pane;
+				}
+			};
+
+	}
+RESOURCE STATUS_PANE_APP_MODEL r_firu_dict_list_box_status_pane
+	{
+	panes =
+		{
+		SPANE_PANE
+			{
+			id = EEikStatusPaneUidTitle;
+			type = EAknCtTitlePane;
+			resource = r_firu_dict_list_box_title_resource;
+			}
+		};
+	}
+RESOURCE TITLE_PANE r_firu_dict_list_box_title_resource
+	{
+	txt = STR_FiruDictListBoxView_1;
+	}
+RESOURCE LISTBOX r_firu_dict_list_box_list_box
+	{
+	flags = EAknListBoxSelectionList;
+	}
+RESOURCE MENU_PANE r_firu_dict_list_box_menu_pane1_menu_pane
+	{
+	items =
+		{
+		MENU_ITEM
+			{
+			command = EFiruDictListBoxViewOpenMenuItemCommand;
+			txt = STR_FiruDictListBoxView_2;
+			},
+		MENU_ITEM
+			{
+			command = EFiruDictListBoxViewReverseMenuItemCommand;
+			txt = STR_FiruDictListBoxView_9;
+			},
+		MENU_ITEM
+			{
+			command = EAknCmdExit;
+			txt = STR_FiruDictListBoxView_3;
+			}
+		};
+	}
