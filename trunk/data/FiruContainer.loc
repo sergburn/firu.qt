@@ -1,0 +1,11 @@
+/*
+========================================================================
+ Name        : FiruContainer.loc
+ Author      : 
+ Copyright   : Your copyright notice
+ Description : 
+========================================================================
+*/
+#ifdef LANGUAGE_01
+#include "FiruContainer.l01"
+#endif

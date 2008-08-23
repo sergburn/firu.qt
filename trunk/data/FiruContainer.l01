@@ -1,0 +1,15 @@
+/*
+========================================================================
+ Name        : FiruContainer.l01
+ Author      : 
+ Copyright   : Your copyright notice
+ Description : 
+========================================================================
+*/
+// localized strings for language: UK English (01)
+#define STR_FiruContainerView_1 ""
+#define STR_FiruContainerView_2 ""
+#define STR_FiruContainerView_3 ""
+#define STR_FiruContainerView_4 "FiruContainer"
+#define STR_FiruContainerView_5 "row1\nrow2"
+#define STR_FiruContainerView_7 "Edit text"

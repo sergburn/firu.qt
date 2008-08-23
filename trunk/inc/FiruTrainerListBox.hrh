@@ -1,0 +1,19 @@
+/*
+========================================================================
+ Name        : FiruTrainerListBox.hrh
+ Author      : ${author}
+ Copyright   : ${copyright}
+ Description : 
+========================================================================
+*/
+enum TFiruTrainerListBoxViewCommands
+	{
+	EFiruTrainerListBoxViewReset_statsMenuItemCommand = 0x6000,
+	EFiruTrainerListBoxViewSelectMenuItemCommand,
+	EFiruTrainerListBoxViewShow_detailsMenuItemCommand,
+	EFiruTrainerListBoxViewCancelMenuItemCommand
+	};
+enum TFiruTrainerListBoxViewControls
+	{
+	EFiruTrainerListBoxViewQrySure = 1
+	};

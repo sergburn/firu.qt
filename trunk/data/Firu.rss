@@ -1,0 +1,94 @@
+/*
+========================================================================
+ Name        : Firu.rss
+ Author      :
+ Copyright   : Your copyright notice
+ Description :
+========================================================================
+*/
+NAME FIRU
+
+#include <avkon.rsg>
+#include <avkon.rh>
+#include <eikon.rh>
+#include <appinfo.rh>
+#include "Firu.hrh"
+#include "Firu.loc"
+
+RESOURCE RSS_SIGNATURE
+	{
+	}
+RESOURCE TBUF
+	{
+	buf = "Firu";
+	}
+RESOURCE EIK_APP_INFO r_application_firu_app_ui
+	{
+	cba = R_AVKON_SOFTKEYS_OPTIONS_EXIT;
+	status_pane = r_application_status_pane;
+	}
+RESOURCE STATUS_PANE_APP_MODEL r_application_status_pane
+	{
+	}
+RESOURCE LOCALISABLE_APP_INFO r_localisable_app_info
+	{
+	short_caption = STR_FiruApplication_2;
+	caption_and_icon = CAPTION_AND_ICON_INFO
+		{
+		caption = STR_FiruApplication_1;
+		number_of_icons = 0;
+		};
+	}
+
+RESOURCE TBUF r_application_akn_view_reference2
+	{
+	}
+
+RESOURCE TBUF r_application_akn_view_reference3
+	{
+	}
+
+
+
+RESOURCE TBUF r_application_akn_view_reference1
+	{
+	}
+
+RESOURCE TBUF r_application_akn_view_reference4
+	{
+	}
+
+RESOURCE TBUF r_application_akn_view_reference4_2
+    {
+    }
+
+
+RESOURCE LABEL r_firu_trainer_label1
+    {
+    txt = "";
+    horiz_align = EEikLabelAlignHCenter;
+    }
+
+RESOURCE EDWIN r_firu_dict_edit1
+    {
+    maxlength = 255;
+    default_case = EAknEditorLowerCase;
+    allowed_case_modes = EAknEditorAllCaseModes;
+    numeric_keymap = EAknEditorStandardNumberModeKeymap;
+    default_input_mode = EAknEditorTextInputMode;
+    allowed_input_modes = EAknEditorTextInputMode;
+    }
+
+RESOURCE TBUF r_application_error_note
+	{
+	buf = STR_FiruApplication_6;
+	}
+RESOURCE TBUF r_application_info_note
+	{
+	buf = STR_FiruApplication_7;
+	}
+
+#include "FiruListBox.rssi"
+#include "FiruDictListBox.rssi"
+#include "FiruTrainerListBox.rssi"
+#include "FiruContainer.rssi"

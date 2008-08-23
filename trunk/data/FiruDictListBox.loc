@@ -1,0 +1,11 @@
+/*
+========================================================================
+ Name        : FiruDictListBox.loc
+ Author      : 
+ Copyright   : Your copyright notice
+ Description : 
+========================================================================
+*/
+#ifdef LANGUAGE_01
+#include "FiruDictListBox.l01"
+#endif

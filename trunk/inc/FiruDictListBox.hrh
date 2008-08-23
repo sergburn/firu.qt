@@ -1,0 +1,14 @@
+/*
+========================================================================
+ Name        : FiruDictListBox.hrh
+ Author      : 
+ Copyright   : Your copyright notice
+ Description : 
+========================================================================
+*/
+enum TFiruDictListBoxViewCommands
+	{
+	EFiruDictListBoxViewOpenMenuItemCommand = 0x6000,
+	EFiruDictListBoxViewExitMenuItemCommand,
+	EFiruDictListBoxViewReverseMenuItemCommand
+	};

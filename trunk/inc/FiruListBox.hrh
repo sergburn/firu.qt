@@ -1,0 +1,4 @@
+enum TFiruListBoxViewCommands
+	{
+	EFiruListBoxViewOpenMenuItemCommand = 0x6000
+	};

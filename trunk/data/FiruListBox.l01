@@ -1,0 +1,17 @@
+/*
+========================================================================
+ Name        : FiruListBox.l01
+ Author      : 
+ Copyright   : Your copyright notice
+ Description : 
+========================================================================
+*/
+// localized strings for language: UK English (01)
+#define STR_FiruListBoxView_1 "FiruListBox"
+#define STR_FiruListBoxView_2 "Dictionary"
+#define STR_FiruListBoxView_4 "Trainer"
+#define STR_FiruListBoxView_6 "Exit"
+#define STR_FiruListBoxView_7 "Open"
+#define STR_FiruListBoxView_3 ""
+#define STR_FiruListBoxView_5 ""
+#define STR_FiruListBoxView_8 ""
