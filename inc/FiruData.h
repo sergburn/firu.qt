@@ -56,6 +56,7 @@ public:
     TPtrC Answer() const;
 
     TBool TryVariant( TUint aIndex );
+    TBool TryAnswer( const TDesC& aText );
     const RPointerArray<HBufC>& AllVariants() const;
 
     TBool IsPassed() const { return iPassed; };
@@ -143,6 +144,15 @@ public:
 
     void SaveTestResultL( const CFiruTest& aTest );
 
+    struct Stats
+    {
+        TInt iTotalEntries;
+        TInt iNotAsked;
+        TInt iPositives[3]; // [0]- +0, [1]- +1, [2]- >=2
+        TInt iNegatives[3]; // [0]- -1, [1]- -2, [2]- <-2
+    };
+
+    Stats GetStats();
     void ResetStatsL();
     void ClearDictionaryL();
 
@@ -172,9 +182,6 @@ protected:
         TBool aReversed );
 
 private:
-    static HBufC* DictionaryTableNameLC( TLanguage aInputLanguage, TLanguage aOutputLanguage );
-    static HBufC* ForwardIndexNameLC( const TDesC& aTableName );
-    static HBufC* ReverseIndexNameLC( const TDesC& aTableName );
 
     void SetTableIndexL();
 
@@ -185,8 +192,14 @@ private:
 
     RFs& iFs;
     RDbNamedDatabase iDb;
-    HBufC*  iTableName;
-    RDbTable iTable;
+
+    HBufC*  iTableNameEntries;
+    HBufC*  iTableNameTranslations;
+    HBufC*  iTableNameExamples;
+
+    RDbTable iTableEntries;
+    RDbTable iTableTranslations;
+    RDbTable iTableExamples;
 
     TInt64 iRandSeed;
 };

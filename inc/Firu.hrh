@@ -9,7 +9,8 @@
 enum TfiruViewUids
 	{
     EFiruListBoxViewId = 1,
-	EFiruDictListBoxViewId,
-	EFiruTrainerListBoxViewId,
-    EFiruContainerViewId
+    EFiruDictListBoxViewId,
+    EFiruTrainerListBoxViewId,
+    EFiruContainerViewId,
+    EFiruTesterViewId
 	};

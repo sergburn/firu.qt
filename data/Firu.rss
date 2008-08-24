@@ -88,7 +88,12 @@ RESOURCE TBUF r_application_info_note
 	buf = STR_FiruApplication_7;
 	}
 
+RESOURCE TBUF r_application_akn_view_reference5
+	{
+	}
+
 #include "FiruListBox.rssi"
 #include "FiruDictListBox.rssi"
 #include "FiruTrainerListBox.rssi"
 #include "FiruContainer.rssi"
+#include "FiruTester.rssi"

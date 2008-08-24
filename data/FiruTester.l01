@@ -1,0 +1,15 @@
+/*
+========================================================================
+ Name        : FiruTester.l01
+ Author      : ${author}
+ Copyright   : ${copyright}
+ Description : 
+========================================================================
+*/
+// localized strings for language: UK English (01)
+#define STR_FiruTesterView_1 ""
+#define STR_FiruTesterView_2 ""
+#define STR_FiruTesterView_3 ""
+#define STR_FiruTesterView_4 "FiruTester"
+#define STR_FiruTesterView_5 "suomi"
+#define STR_FiruTesterView_6 "russky"

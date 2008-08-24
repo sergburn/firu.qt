@@ -1,51 +1,8 @@
 #include <e32math.h>
 #include <d32dbms.h>
 
+#include "firudbschema.h"
 #include "firudata.h"
-
-_LIT( KDatabaseFile, "c:\\private\\E0EDB1C1\\dicts.db" );
-_LIT( KDirTableNameFmt, "from_%02d_to_%02d" );
-_LIT( KDirTableIdIndexNameFmt, "ind_%S_id" );
-_LIT( KDirTableSrcIndexNameFmt, "ind_%S_src" );
-_LIT( KDirTableTrgIndexNameFmt, "ind_%S_trg" );
-
-_LIT( KSqlViewAll, "SELECT * FROM %S");
-_LIT( KSqlViewWhere, "SELECT * FROM %S WHERE ");
-_LIT( KSqlDeleteAll, "DELETE FROM %S");
-_LIT( KSqlLike, " %S LIKE '%S' ");
-_LIT( KSqlLessEqual, " %S <= %d ");
-_LIT( KSqlEqual, " %S = %d ");
-_LIT( KSqlOrder, " ORDER BY %S");
-_LIT( KWildCardStar, "*" );
-
-// first version employs simplest data structure
-// single table of following format
-// id - record id, int32, autoinc
-// source - source text, unicode
-// target - target text, unicode
-// forward - from source to target association mark, int
-// reverse - from target to source association mark, int
-
-_LIT( KColId, "id" );
-_LIT( KColSource, "source" );
-_LIT( KColTarget, "target" );
-_LIT( KColForward, "forward" );
-_LIT( KColReverse, "reverse" );
-_LIT( KColFwdCounter, "fwd_count" );
-_LIT( KColRevCounter, "rev_count" );
-
-const TInt KColumnId = 1;
-const TInt KColumnSource = 2;
-const TInt KColumnTarget = 3;
-const TInt KColumnForward = 4;
-const TInt KColumnReverse = 5;
-const TInt KColumnFwdCounter = 6;
-const TInt KColumnRevCounter = 7;
-
-const TInt KMaxTextColumnLength = 64;
-const TInt KMaxTextColIndexLength = 16;
-
-const TInt KIntStringMaxLength = 11;
 
 const TInt KMinGoodRate = 3;
 
@@ -163,6 +120,7 @@ CFiruData::~CFiruData()
 {
     delete iTableName;
     iTable.Close();
+    iDb.Compact();
     iDb.Close();
 }
 
@@ -195,18 +153,22 @@ void CFiruData::OpenDatabaseL()
 
 void CFiruData::SelectDictionaryL( TLanguage aInputLanguage, TLanguage aOutputLanguage )
 {
-    iTable.Close();
+    iTableEntries.Close();
+    iTableTranslations.Close();
+    iTableExamples.Close();
 
-    iTableName = DictionaryTableNameLC( aInputLanguage, aOutputLanguage );
-    CleanupStack::Pop( iTableName );
+    iTableNameEntries = EntryTableNameLC( aInputLanguage );
+    CleanupStack::Pop( iTableNameEntries );
 
-    CreateDictionaryL( *iTableName );
+    CreateDictionaryL( *iTableNameEntries, *iTableNameTranslations, *iTableExamples );
 
     iSourceLang = aInputLanguage;
     iTargetLang = aOutputLanguage;
     iReversed = EFalse;
 
-    iTable.Open( iDb, *iTableName, RDbTable::EUpdatable );
+    iTableEntries.Open( iDb, *iTableNameEntries, RDbTable::EReadOnly );
+    iTableTranslations.Open( iDb, *iTableNameTranslations, RDbTable::EUpdatable );
+    iTableExamples.Open( iDb, *iTableNameExamples, RDbTable::EReadOnly );
     SetTableIndexL();
 }
 
@@ -236,11 +198,13 @@ void CFiruData::SetTableIndexL()
 {
     HBufC* indexName = NULL;
     if ( iReversed )
-        indexName = ReverseIndexNameLC( *iTableName );
+        indexName = ReverseIndexNameLC( *iTableNameEntries );
     else
-        indexName = ForwardIndexNameLC( *iTableName );
+        indexName = ForwardIndexNameLC( *iTableNameEntries );
 
-    User::LeaveIfError( iTable.SetIndex( *indexName ) );
+    User::LeaveIfError( iTableEntries.SetIndex( *indexName ) );
+    User::LeaveIfError( iTableTranslations.SetIndex( *indexName ) );
+    User::LeaveIfError( iTableExamples.SetIndex( *indexName ) );
     CleanupStack::PopAndDestroy( indexName );
 }
 
@@ -252,65 +216,6 @@ void CFiruData::GetLanguagesL( TLanguage& aInputLanguage, TLanguage& aOutputLang
     aOutputLanguage = iTargetLang;
 }
 
-// ----------------------------------------------------------
-
-void CFiruData::CreateDictionaryL( const TDesC& aDictName )
-{
-    CDbTableNames* tables = iDb.TableNamesL();
-    CleanupStack::PushL( tables );
-
-    TBool tableExists = EFalse;
-    for ( int i = 0; i < tables->Count(); i++ )
-    {
-        if ( (*tables)[i].Compare( aDictName ) == 0 )
-        {
-            tableExists = ETrue;
-            break;
-        }
-    }
-
-    if ( !tableExists )
-    {
-        CDbColSet* cols = CDbColSet::NewLC();
-        TDbCol id( KColId, EDbColUint32);
-        id.iAttributes = TDbCol::EAutoIncrement | TDbCol::ENotNull;
-        cols->AddL( id );
-        cols->AddL( TDbCol( KColSource, EDbColText16, KMaxTextColumnLength ) );
-        cols->AddL( TDbCol( KColTarget, EDbColText16, KMaxTextColumnLength ) );
-        cols->AddL( TDbCol( KColForward, EDbColInt16 ) );
-        cols->AddL( TDbCol( KColReverse, EDbColInt16 ) );
-        cols->AddL( TDbCol( KColFwdCounter, EDbColInt16 ) );
-        cols->AddL( TDbCol( KColRevCounter, EDbColInt16 ) );
-        User::LeaveIfError( iDb.CreateTable( aDictName, *cols ) );
-        CleanupStack::PopAndDestroy( cols );
-
-        TBuf<64> indexName;
-
-        // ID index
-        CDbKey* key = CDbKey::NewLC();
-        key->AddL( TDbKeyCol( KColId ) );
-        indexName.Format( KDirTableIdIndexNameFmt, &aDictName );
-        User::LeaveIfError( iDb.CreateIndex( indexName, aDictName, *key ) );
-
-        // Source text index
-        key->Clear();
-        key->AddL( TDbKeyCol( KColSource, KMaxTextColIndexLength ) );
-        HBufC* srcIndex = ForwardIndexNameLC( aDictName );
-        User::LeaveIfError( iDb.CreateIndex( *srcIndex, aDictName, *key ) );
-        CleanupStack::PopAndDestroy( srcIndex );
-
-        // Target text index
-        key->Clear();
-        key->AddL( TDbKeyCol( KColTarget, KMaxTextColIndexLength ) );
-        HBufC* trgIndex = ReverseIndexNameLC( aDictName );
-        User::LeaveIfError( iDb.CreateIndex( *trgIndex, aDictName, *key ) );
-        CleanupStack::PopAndDestroy( trgIndex );
-
-        CleanupStack::PopAndDestroy( key );
-    }
-
-    CleanupStack::PopAndDestroy( tables );
-}
 
 // ----------------------------------------------------------
 
@@ -340,6 +245,49 @@ void CFiruData::AddPairL( const TDesC& aEntry, const TDesC& aTranslation )
 //    iDb.UpdateStats();
 //    RDbNamedDatabase::TSize size = iDb.Size();
 //    RDebug::Print(_L("Firu: added pair; db size %d, usage %d"), size.iSize, size.iUsage );
+}
+
+// ----------------------------------------------------------
+
+TInt CFiruData::AddEntryL(
+    const TDesC& aEntry,
+    CDesCArray& aTranslations )
+{
+    iTableEntries.InsertL();
+    iTable.SetColL( KColumnSource, aEntry.Left( KMaxTextColumnLength ) );
+    iTableEntries.PutL();
+    return iTableEntries.ColUint32(  )
+
+    iTableTranslations.InsertL();
+    iTable.SetColL( KColumnTarget, aTranslation.Left( KMaxTextColumnLength ) );
+    iTable.SetColL( KColumnForward, 0 );
+    iTable.SetColL( KColumnReverse, 0 );
+    iTable.SetColL( KColumnFwdCounter, 0 );
+    iTable.SetColL( KColumnRevCounter, 0 );
+    iTableTranslations.PutL();
+
+
+//    iDb.UpdateStats();
+//    RDbNamedDatabase::TSize size = iDb.Size();
+//    RDebug::Print(_L("Firu: added pair; db size %d, usage %d"), size.iSize, size.iUsage );
+}
+
+// ----------------------------------------------------------
+
+TInt CFiruData::AddTranslationL(
+    TInt aEntryId,
+    const TDesC& aTranslation )
+{
+
+}
+
+// ----------------------------------------------------------
+
+TInt CFiruData::AddExampleL(
+    TInt aEntryId,
+    const TDesC& aTranslation )
+{
+
 }
 
 // ----------------------------------------------------------
@@ -721,39 +669,42 @@ void CFiruData::ClearDictionaryL()
 
 // ----------------------------------------------------------
 
-HBufC* CFiruData::DictionaryTableNameLC( TLanguage aInputLanguage, TLanguage aOutputLanguage )
-{
-    HBufC* name = HBufC::NewLC( KDirTableNameFmt().Length() + 2 * KIntStringMaxLength );
-    TPtr buf = name->Des();
-    buf.Format( KDirTableNameFmt, aInputLanguage, aOutputLanguage );
-    return name;
-}
-
-// ----------------------------------------------------------
-
-HBufC* CFiruData::ForwardIndexNameLC( const TDesC& aTableName )
-{
-    HBufC* name = HBufC::NewLC( KDirTableSrcIndexNameFmt().Length() + 2 * KIntStringMaxLength );
-    TPtr buf = name->Des();
-    buf.Format( KDirTableSrcIndexNameFmt, &aTableName );
-    return name;
-}
-
-// ----------------------------------------------------------
-
-HBufC* CFiruData::ReverseIndexNameLC( const TDesC& aTableName )
-{
-    HBufC* name = HBufC::NewLC( KDirTableTrgIndexNameFmt().Length() + 2 * KIntStringMaxLength );
-    TPtr buf = name->Des();
-    buf.Format( KDirTableTrgIndexNameFmt, &aTableName );
-    return name;
-}
-
-// ----------------------------------------------------------
-
 void CFiruData::CompactL()
 {
     User::LeaveIfError( iDb.Compact() );
+}
+
+// ----------------------------------------------------------
+CFiruData::Stats CFiruData::GetStats()
+{
+    Stats stats;
+
+    // total
+    stats.iTotalEntries = iTable.CountL();
+
+    TBuf<128> query;
+    // not asked
+    _LIT( KSqlNotAskedEntries, "SELECT * FROM %S WHERE %S = 0");
+    if ( !iReversed )
+    {
+        query.Format( KSqlNotAskedEntries(), iTableName, &KColFwdCounter );
+    }
+    else
+    {
+        query.Format( KSqlNotAskedEntries(), iTableName, &KColRevCounter );
+    }
+
+    RDbView view;
+    CleanupClosePushL( view );
+    EvaluateViewL( view, query );
+    stats.iNotAsked = view.CountL();
+    CleanupStack::PopAndDestroy( &view );
+
+    // positives
+
+    // negatives
+
+    return stats;
 }
 
 // ----------------------------------------------------------
@@ -832,6 +783,22 @@ TBool CFiruTest::TryVariant( TUint aIndex )
 {
     // assuming there are no correct answers in wrong variants
     if ( aIndex == iCorrectTranslationIndex )
+    {
+        iPassed = ETrue;
+        return ETrue;
+    }
+    else
+    {
+        iNumMistakes++;
+        return EFalse;
+    }
+}
+
+// ----------------------------------------------------------
+
+TBool CFiruTest::TryAnswer( const TDesC& aText )
+{
+    if ( aText.MatchC( iEntry->Translation( 0 ) ) == 0 )
     {
         iPassed = ETrue;
         return ETrue;

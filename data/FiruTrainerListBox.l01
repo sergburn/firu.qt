@@ -17,3 +17,4 @@
 #define STR_FiruTrainerListBoxView_16 "Cancel"
 #define STR_FiruTrainerListBoxView_8 "Show details"
 #define STR_FiruTrainerListBoxView_9 "Select"
+#define STR_FiruTrainerListBoxView_10 "Show stats"
