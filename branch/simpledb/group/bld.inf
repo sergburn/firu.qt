@@ -1,0 +1,14 @@
+
+PRJ_PLATFORMS
+WINSCW ARMV5 GCCE
+
+PRJ_EXPORTS
+../data/suomi.txt /epoc32/winscw/c/private/E0EDB1C1/suomi.txt
+../data/russian.txt /epoc32/winscw/c/private/E0EDB1C1/russian.txt
+
+PRJ_MMPFILES
+
+gnumakefile icons_aif_scalable_dc.mk
+
+
+Firu.mmp

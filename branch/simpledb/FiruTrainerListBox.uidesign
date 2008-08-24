@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<designerData version="1.1.0">
+  <componentManifest>
+    <manifestEntry id="com.nokia.sdt.series60.CAknView" version="1.2.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.DesignTimeContainer" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.CommonBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.StatusPane" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.ControlBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.StatusPaneTitle" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.StatusPaneTitleBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.CBA" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.CBABase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.CCoeControl" version="1.2.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.ContainerBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.CAknListBox" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.CCoeControlBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.MenuBar" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.MenuBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.MenuPane" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.MenuItem" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.MenuItemBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.ConfirmationQuery" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.NonLayoutBase" version="1.0.0"/>
+  </componentManifest>
+  <property id="com.nokia.sdt.symbian.dm.RESOURCE_DIRECTORY_ID">data</property>
+  <property id="com.nokia.sdt.component.symbian.vendor">com.nokia.series60</property>
+  <property id="com.nokia.sdt.component.symbian.version">3.2.0</property>
+  <property id="com.nokia.sdt.symbian.dm.COMPONENT_PROVIDER">com.nokia.sdt.component.symbian.Symbian-Provider</property>
+  <property id="com.nokia.sdt.symbian.dm.INCLUDE_DIRECTORY_ID">inc</property>
+  <property id="com.nokia.sdt.symbian.dm.SOURCE_DIRECTORY_ID">src</property>
+  <property id="com.nokia.sdt.symbian.dm.SOURCEGEN_PROVIDER">com.nokia.sdt.sourcegen.Symbian-Provider</property>
+  <property id="com.nokia.sdt.symbian.dm.BUILD_DIRECTORY_ID">group</property>
+  <component id="com.nokia.sdt.series60.CAknView">
+    <property id="className">CFiruTrainerListBoxView</property>
+    <compoundProperty id="location">
+      <property id="x">51</property>
+      <property id="y">44</property>
+    </compoundProperty>
+    <property id="optionsMenu" type="componentRef">optionsMenu</property>
+    <property id="name">FiruTrainerListBoxView</property>
+    <compoundProperty id="size">
+      <property id="width">240</property>
+      <property id="height">320</property>
+    </compoundProperty>
+    <component id="com.nokia.sdt.series60.StatusPane">
+      <compoundProperty id="location">
+        <property id="x">20</property>
+      </compoundProperty>
+      <property id="name">statusPane</property>
+      <compoundProperty id="size">
+        <property id="width">204</property>
+        <property id="height">63</property>
+      </compoundProperty>
+      <component id="com.nokia.sdt.series60.StatusPaneTitle">
+        <compoundProperty id="location">
+          <property id="x">56</property>
+        </compoundProperty>
+        <property id="name">title</property>
+        <property id="titleText" type="i18n">STR_FiruTrainerListBoxView_1</property>
+        <compoundProperty id="size">
+          <property id="width">148</property>
+          <property id="height">43</property>
+        </compoundProperty>
+        <compoundProperty id="image"/>
+      </component>
+    </component>
+    <component id="com.nokia.sdt.series60.CBA">
+      <compoundProperty id="location">
+        <property id="y">288</property>
+      </compoundProperty>
+      <compoundProperty id="info">
+        <property id="leftText" type="i18n">STR_FiruTrainerListBoxView_5</property>
+        <property id="rightText" type="i18n">STR_FiruTrainerListBoxView_6</property>
+        <property id="middleText" type="i18n">STR_FiruTrainerListBoxView_7</property>
+        <property id="type">CUSTOM</property>
+        <property id="rightId">EAknSoftkeyNext</property>
+      </compoundProperty>
+      <property id="name">controlPane</property>
+      <compoundProperty id="size">
+        <property id="width">240</property>
+        <property id="height">32</property>
+      </compoundProperty>
+      <eventBinding id="rightSoftKeyPressed" handlerDisplay="HandleControlPaneRightSoftKeyPressedL" handlerSymbol="cpp@src//FiruTrainerListBoxView.cpp/function(CFiruTrainerListBoxView::HandleControlPaneRightSoftKeyPressedL(TInt))"/>
+    </component>
+    <component id="com.nokia.sdt.series60.CCoeControl">
+      <property id="initialFocus" type="componentRef">listBox</property>
+      <compoundProperty id="location">
+        <property id="y">66</property>
+      </compoundProperty>
+      <property id="className">CFiruTrainerListBox</property>
+      <property id="name">FiruTrainerListBox</property>
+      <property id="exitsApp">false</property>
+      <compoundProperty id="size">
+        <property id="width">240</property>
+        <property id="height">222</property>
+      </compoundProperty>
+      <component id="com.nokia.sdt.series60.CAknListBox">
+        <sequenceProperty id="extraImages"/>
+        <compoundProperty id="location">
+          <property id="x">0</property>
+          <property id="y">0</property>
+        </compoundProperty>
+        <compoundProperty id="markIcon"/>
+        <property id="name">listBox</property>
+        <sequenceProperty id="alignmentInfo">
+          <element>Default</element>
+        </sequenceProperty>
+        <compoundProperty id="size">
+          <property id="width">240</property>
+          <property id="height">222</property>
+        </compoundProperty>
+      </component>
+    </component>
+    <component id="com.nokia.sdt.series60.MenuBar">
+      <compoundProperty id="location">
+        <property id="x">6</property>
+        <property id="y">161</property>
+      </compoundProperty>
+      <property id="name">optionsMenu</property>
+      <compoundProperty id="size">
+        <property id="height">127</property>
+        <property id="width">228</property>
+      </compoundProperty>
+      <component id="com.nokia.sdt.series60.MenuPane">
+        <compoundProperty id="location"/>
+        <property id="name">menuPane1</property>
+        <compoundProperty id="size">
+          <property id="height">127</property>
+          <property id="width">228</property>
+        </compoundProperty>
+        <component id="com.nokia.sdt.series60.MenuItem">
+          <compoundProperty id="location">
+            <property id="x">5</property>
+            <property id="y">2</property>
+          </compoundProperty>
+          <property id="name">selectMenuItem</property>
+          <property id="text" type="i18n">STR_FiruTrainerListBoxView_9</property>
+          <compoundProperty id="size">
+            <property id="width">213</property>
+            <property id="height">28</property>
+          </compoundProperty>
+          <eventBinding id="selected" handlerDisplay="HandleSelectMenuItemSelectedL" handlerSymbol="cpp@src//FiruTrainerListBoxView.cpp/function(CFiruTrainerListBoxView::HandleSelectMenuItemSelectedL(TInt))"/>
+        </component>
+        <component id="com.nokia.sdt.series60.MenuItem">
+          <compoundProperty id="location">
+            <property id="x">5</property>
+            <property id="y">32</property>
+          </compoundProperty>
+          <property id="name">show_detailsMenuItem</property>
+          <property id="text" type="i18n">STR_FiruTrainerListBoxView_8</property>
+          <compoundProperty id="size">
+            <property id="width">213</property>
+            <property id="height">28</property>
+          </compoundProperty>
+          <eventBinding id="selected" handlerDisplay="HandleShow_detailsMenuItemSelectedL" handlerSymbol="cpp@src//FiruTrainerListBoxView.cpp/function(CFiruTrainerListBoxView::HandleShow_detailsMenuItemSelectedL(TInt))"/>
+        </component>
+        <component id="com.nokia.sdt.series60.MenuItem">
+          <compoundProperty id="location">
+            <property id="x">5</property>
+            <property id="y">62</property>
+          </compoundProperty>
+          <property id="name">toolsMenuItem</property>
+          <property id="text" type="i18n">STR_FiruTrainerListBoxView_2</property>
+          <compoundProperty id="size">
+            <property id="width">213</property>
+            <property id="height">28</property>
+          </compoundProperty>
+          <component id="com.nokia.sdt.series60.MenuPane">
+            <compoundProperty id="location">
+              <property id="x">213</property>
+            </compoundProperty>
+            <property id="name">menuPane2</property>
+            <compoundProperty id="size"/>
+            <component id="com.nokia.sdt.series60.MenuItem">
+              <compoundProperty id="location">
+                <property id="x">5</property>
+                <property id="y">2</property>
+              </compoundProperty>
+              <property id="name">reset_statsMenuItem</property>
+              <property id="text" type="i18n">STR_FiruTrainerListBoxView_3</property>
+              <compoundProperty id="size"/>
+              <eventBinding id="selected" handlerDisplay="HandleReset_statsMenuItemSelectedL" handlerSymbol="cpp@src//FiruTrainerListBoxView.cpp/function(CFiruTrainerListBoxView::HandleReset_statsMenuItemSelectedL(TInt))"/>
+            </component>
+          </component>
+        </component>
+        <component id="com.nokia.sdt.series60.MenuItem">
+          <compoundProperty id="location">
+            <property id="x">5</property>
+            <property id="y">92</property>
+          </compoundProperty>
+          <property id="name">cancelMenuItem</property>
+          <property id="text" type="i18n">STR_FiruTrainerListBoxView_16</property>
+          <compoundProperty id="size">
+            <property id="width">213</property>
+            <property id="height">28</property>
+          </compoundProperty>
+          <eventBinding id="selected" handlerDisplay="HandleCancelMenuItemSelectedL" handlerSymbol="cpp@src//FiruTrainerListBoxView.cpp/function(CFiruTrainerListBoxView::HandleCancelMenuItemSelectedL(TInt))"/>
+        </component>
+      </component>
+    </component>
+    <component id="com.nokia.sdt.series60.ConfirmationQuery">
+      <compoundProperty id="location">
+        <property id="x">0</property>
+        <property id="y">186</property>
+      </compoundProperty>
+      <property id="name">qrySure</property>
+      <property id="text" type="i18n">STR_FiruTrainerListBoxView_4</property>
+      <compoundProperty id="size">
+        <property id="width">240</property>
+        <property id="height">134</property>
+      </compoundProperty>
+    </component>
+  </component>
+  <stringBundle>
+    <stringTable language="LANG_English">
+      <string id="STR_FiruTrainerListBoxView_1">Trainer</string>
+      <string id="STR_FiruTrainerListBoxView_2">Tools</string>
+      <string id="STR_FiruTrainerListBoxView_3">Reset stats</string>
+      <string id="STR_FiruTrainerListBoxView_4">Are you sure? This action cannot be undone.</string>
+      <string id="STR_FiruTrainerListBoxView_5">Options</string>
+      <string id="STR_FiruTrainerListBoxView_6">Next</string>
+      <string id="STR_FiruTrainerListBoxView_7"/>
+      <string id="STR_FiruTrainerListBoxView_8">Show details</string>
+      <string id="STR_FiruTrainerListBoxView_9">Select</string>
+      <string id="STR_FiruTrainerListBoxView_16">Cancel</string>
+    </stringTable>
+  </stringBundle>
+  <macroTable/>
+  <sourceMappingState>
+    <resourceMappings>
+      <resourceMapping instanceName="listBox">r_firu_trainer_list_box_list_box</resourceMapping>
+      <resourceMapping instanceName="qrySure">r_firu_trainer_list_box_qry_sure</resourceMapping>
+      <resourceMapping instanceName="optionsMenu">r_firu_trainer_list_box_options_menu</resourceMapping>
+      <resourceMapping instanceName="FiruTrainerListBoxView">r_firu_trainer_list_box_firu_trainer_list_box_view</resourceMapping>
+      <resourceMapping instanceName="controlPane">r_firu_trainer_list_box_control_pane</resourceMapping>
+      <resourceMapping instanceName="statusPane">r_firu_trainer_list_box_status_pane</resourceMapping>
+      <resourceMapping instanceName="title">r_firu_trainer_list_box_title_resource</resourceMapping>
+      <resourceMapping instanceName="menuPane1">r_firu_trainer_list_box_menu_pane1_menu_pane</resourceMapping>
+      <resourceMapping instanceName="menuPane2">r_firu_trainer_list_box_menu_pane2</resourceMapping>
+    </resourceMappings>
+    <enumMappings>
+      <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_CONTROL_TYPE">EAknCtTitlePane</enumMapping>
+      <enumMapping instanceName="reset_statsMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewReset_statsMenuItemCommand</enumMapping>
+      <enumMapping instanceName="qrySure" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_DIALOG_LINE_ID">EFiruTrainerListBoxViewQrySure</enumMapping>
+      <enumMapping instanceName="controlPane" propertyId="middleId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyEmpty</enumMapping>
+      <enumMapping instanceName="show_detailsMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewShow_detailsMenuItemCommand</enumMapping>
+      <enumMapping instanceName="listBox" propertyId="type">EAknListBoxSelectionList</enumMapping>
+      <enumMapping instanceName="selectMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewSelectMenuItemCommand</enumMapping>
+      <enumMapping instanceName="cancelMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewCancelMenuItemCommand</enumMapping>
+      <enumMapping instanceName="controlPane" propertyId="leftId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyOptions</enumMapping>
+      <enumMapping instanceName="controlPane" propertyId="rightId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyNext</enumMapping>
+      <enumMapping instanceName="FiruTrainerListBoxView" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruTrainerListBoxViewId</enumMapping>
+      <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_STATUS_PANE_ID">EEikStatusPaneUidTitle</enumMapping>
+    </enumMappings>
+    <arrayMappings/>
+  </sourceMappingState>
+  <generatedFiles>
+    <file>src/firutrainerlistbox.cpp</file>
+    <file>inc/firutrainerlistboxview.h</file>
+    <file>inc/firutrainerlistbox.h</file>
+    <file>src/firutrainerlistboxview.cpp</file>
+    <file>data/firu.rss</file>
+    <file>data/firutrainerlistbox.rssi</file>
+    <file>inc/firu.hrh</file>
+    <file>data/firulistbox.rssi</file>
+    <file>inc/firulistbox.hrh</file>
+    <file>data/firudictlistbox.rssi</file>
+    <file>inc/firudictlistbox.hrh</file>
+    <file>inc/firutrainerlistbox.hrh</file>
+    <file>data/firucontainer.rssi</file>
+    <file>data/firu.loc</file>
+    <file>data/firu.l01</file>
+    <file>data/firulistbox.loc</file>
+    <file>data/firulistbox.l01</file>
+    <file>data/firudictlistbox.loc</file>
+    <file>data/firudictlistbox.l01</file>
+    <file>data/firutrainerlistbox.loc</file>
+    <file>data/firutrainerlistbox.l01</file>
+    <file>data/firucontainer.loc</file>
+    <file>data/firucontainer.l01</file>
+  </generatedFiles>
+</designerData>

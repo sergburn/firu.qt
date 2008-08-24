@@ -1,0 +1,16 @@
+/*
+========================================================================
+ Name        : Firu.l01
+ Author      : 
+ Copyright   : Your copyright notice
+ Description : 
+========================================================================
+*/
+// localized strings for language: UK English (01)
+#define STR_FiruApplication_1 "Firu"
+#define STR_FiruApplication_2 "Firu"
+#define STR_FiruApplication_5 ""
+#define STR_FiruApplication_3 ""
+#define STR_FiruApplication_4 ""
+#define STR_FiruApplication_6 "Note"
+#define STR_FiruApplication_7 "Note"

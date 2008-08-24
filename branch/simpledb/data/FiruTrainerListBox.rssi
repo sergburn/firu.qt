@@ -1,0 +1,123 @@
+/*
+========================================================================
+ Name        : FiruTrainerListBox.rssi
+ Author      : 
+ Copyright   : Your copyright notice
+ Description : 
+========================================================================
+*/
+#include "FiruTrainerListBox.hrh"
+#include "FiruTrainerListBox.loc"
+
+RESOURCE AVKON_VIEW r_firu_trainer_list_box_firu_trainer_list_box_view
+	{
+	cba = r_firu_trainer_list_box_control_pane;
+	menubar = r_firu_trainer_list_box_options_menu;
+	toolbar = 0;
+	}
+RESOURCE MENU_BAR r_firu_trainer_list_box_options_menu
+	{titles =
+			{
+			MENU_TITLE
+				{
+				menu_pane = r_firu_trainer_list_box_menu_pane1_menu_pane;
+				}
+			};
+
+	}
+RESOURCE STATUS_PANE_APP_MODEL r_firu_trainer_list_box_status_pane
+	{
+	panes =
+		{
+		SPANE_PANE
+			{
+			id = EEikStatusPaneUidTitle;
+			type = EAknCtTitlePane;
+			resource = r_firu_trainer_list_box_title_resource;
+			}
+		};
+	}
+RESOURCE TITLE_PANE r_firu_trainer_list_box_title_resource
+	{
+	txt = STR_FiruTrainerListBoxView_1;
+	}
+RESOURCE LISTBOX r_firu_trainer_list_box_list_box
+	{
+	flags = EAknListBoxSelectionList;
+	}
+RESOURCE MENU_PANE r_firu_trainer_list_box_menu_pane1_menu_pane
+	{
+	items =
+		{
+		MENU_ITEM
+			{
+			command = EFiruTrainerListBoxViewSelectMenuItemCommand;
+			txt = STR_FiruTrainerListBoxView_9;
+			},
+		MENU_ITEM
+			{
+			command = EFiruTrainerListBoxViewShow_detailsMenuItemCommand;
+			txt = STR_FiruTrainerListBoxView_8;
+			},
+		MENU_ITEM
+			{
+			cascade = r_firu_trainer_list_box_menu_pane2;
+			txt = STR_FiruTrainerListBoxView_2;
+			},
+		MENU_ITEM
+			{
+			command = EFiruTrainerListBoxViewCancelMenuItemCommand;
+			txt = STR_FiruTrainerListBoxView_16;
+			}
+		};
+	}
+RESOURCE MENU_PANE r_firu_trainer_list_box_menu_pane2
+	{
+	items =
+		{
+		MENU_ITEM
+			{
+			command = EFiruTrainerListBoxViewReset_statsMenuItemCommand;
+			txt = STR_FiruTrainerListBoxView_3;
+			}
+		};
+	}
+RESOURCE DIALOG r_firu_trainer_list_box_qry_sure
+	{
+	flags = EAknGeneralQueryFlags;
+	buttons = R_AVKON_SOFTKEYS_YES_NO;
+	items =
+		{
+		DLG_LINE
+			{
+			type = EAknCtQuery;
+			id = EFiruTrainerListBoxViewQrySure;
+			control = AVKON_CONFIRMATION_QUERY
+				{
+				layout = EConfirmationQueryLayout;
+				label = STR_FiruTrainerListBoxView_4;
+				};
+			}
+		};
+	}
+RESOURCE CBA r_firu_trainer_list_box_control_pane
+	{
+	buttons =
+		{
+		CBA_BUTTON
+			{
+			id = EAknSoftkeyOptions;
+			txt = STR_FiruTrainerListBoxView_5;
+			},
+		CBA_BUTTON
+			{
+			id = EAknSoftkeyNext;
+			txt = STR_FiruTrainerListBoxView_6;
+			},
+		CBA_BUTTON
+			{
+			id = EAknSoftkeyEmpty;
+			txt = STR_FiruTrainerListBoxView_7;
+			}
+		};
+	}
