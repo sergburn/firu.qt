@@ -26,6 +26,7 @@
 #include "FiruDictListBoxView.h"
 #include "FiruTrainerListBoxView.h"
 #include "FiruContainerView.h"
+#include "FiruTesterView.h"
 // ]]] end generated region [Generated User Includes]
 
 #include "FiruDocument.h"
@@ -66,6 +67,8 @@ void CFiruAppUi::InitializeContainersL()
 	AddViewL( iFiruTrainerListBoxView );
 	iFiruContainerView = CFiruContainerView::NewL();
 	AddViewL( iFiruContainerView );
+	iFiruTesterView = CFiruTesterView::NewL();
+	AddViewL( iFiruTesterView );
 	}
 // ]]] end generated function
 

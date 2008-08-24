@@ -91,10 +91,6 @@
         <property id="height">222</property>
       </compoundProperty>
       <component id="com.nokia.sdt.series60.CAknListBox">
-        <sequenceProperty id="extraImages"/>
-        <compoundProperty id="location"/>
-        <compoundProperty id="markIcon"/>
-        <property id="name">listBox</property>
         <sequenceProperty id="alignmentInfo">
           <element>Default</element>
         </sequenceProperty>
@@ -102,6 +98,10 @@
           <property id="width">240</property>
           <property id="height">222</property>
         </compoundProperty>
+        <compoundProperty id="location"/>
+        <compoundProperty id="markIcon"/>
+        <sequenceProperty id="extraImages"/>
+        <property id="name">listBox</property>
         <eventBinding id="stateChanged" handlerDisplay="HandleListBoxStateChangedL" handlerSymbol="cpp@src//FiruDictListBox.cpp/function(CFiruDictListBox::HandleListBoxStateChangedL(CCoeControl*,TCoeEvent))"/>
       </component>
     </component>
@@ -182,17 +182,17 @@
       <resourceMapping instanceName="title">r_firu_dict_list_box_title_resource</resourceMapping>
       <resourceMapping instanceName="optionsMenu">r_firu_dict_list_box_options_menu</resourceMapping>
       <resourceMapping instanceName="listBox">r_firu_dict_list_box_list_box</resourceMapping>
-      <resourceMapping instanceName="menuPane1">r_firu_dict_list_box_menu_pane1_menu_pane</resourceMapping>
       <resourceMapping instanceName="statusPane">r_firu_dict_list_box_status_pane</resourceMapping>
+      <resourceMapping instanceName="menuPane1">r_firu_dict_list_box_menu_pane1_menu_pane</resourceMapping>
     </resourceMappings>
     <enumMappings>
       <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_CONTROL_TYPE">EAknCtTitlePane</enumMapping>
       <enumMapping instanceName="openMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruDictListBoxViewOpenMenuItemCommand</enumMapping>
-      <enumMapping instanceName="reverseMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruDictListBoxViewReverseMenuItemCommand</enumMapping>
       <enumMapping instanceName="FiruDictListBoxView" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruDictListBoxViewId</enumMapping>
+      <enumMapping instanceName="reverseMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruDictListBoxViewReverseMenuItemCommand</enumMapping>
       <enumMapping instanceName="listBox" propertyId="type">EAknListBoxSelectionList</enumMapping>
-      <enumMapping instanceName="exitMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknCmdExit</enumMapping>
       <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_STATUS_PANE_ID">EEikStatusPaneUidTitle</enumMapping>
+      <enumMapping instanceName="exitMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknCmdExit</enumMapping>
     </enumMappings>
     <arrayMappings/>
   </sourceMappingState>
@@ -202,14 +202,15 @@
     <file>src/firudictlistbox.cpp</file>
     <file>inc/firudictlistbox.h</file>
     <file>data/firu.rss</file>
+    <file>data/firudictlistbox.rssi</file>
     <file>inc/firu.hrh</file>
     <file>data/firulistbox.rssi</file>
     <file>inc/firulistbox.hrh</file>
-    <file>data/firudictlistbox.rssi</file>
     <file>inc/firudictlistbox.hrh</file>
     <file>data/firutrainerlistbox.rssi</file>
     <file>inc/firutrainerlistbox.hrh</file>
     <file>data/firucontainer.rssi</file>
+    <file>data/firutester.rssi</file>
     <file>data/firu.loc</file>
     <file>data/firu.l01</file>
     <file>data/firulistbox.loc</file>
@@ -220,5 +221,7 @@
     <file>data/firutrainerlistbox.l01</file>
     <file>data/firucontainer.loc</file>
     <file>data/firucontainer.l01</file>
+    <file>data/firutester.loc</file>
+    <file>data/firutester.l01</file>
   </generatedFiles>
 </designerData>

@@ -11,7 +11,8 @@ enum TFiruTrainerListBoxViewCommands
 	EFiruTrainerListBoxViewReset_statsMenuItemCommand = 0x6000,
 	EFiruTrainerListBoxViewSelectMenuItemCommand,
 	EFiruTrainerListBoxViewShow_detailsMenuItemCommand,
-	EFiruTrainerListBoxViewCancelMenuItemCommand
+	EFiruTrainerListBoxViewCancelMenuItemCommand,
+	EFiruTrainerListBoxViewShow_statsMenuItemCommand
 	};
 enum TFiruTrainerListBoxViewControls
 	{

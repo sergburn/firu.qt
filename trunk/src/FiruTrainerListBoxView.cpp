@@ -139,6 +139,9 @@ void CFiruTrainerListBoxView::HandleCommandL( TInt aCommand )
         case EFiruTrainerListBoxViewShow_detailsMenuItemCommand:
             commandHandled = HandleShow_detailsMenuItemSelectedL( aCommand );
             break;
+        case EFiruTrainerListBoxViewShow_statsMenuItemCommand:
+            commandHandled = HandleShow_statsMenuItemSelectedL( aCommand );
+            break;
         case EFiruTrainerListBoxViewReset_statsMenuItemCommand:
             commandHandled = HandleReset_statsMenuItemSelectedL( aCommand );
             break;
@@ -187,22 +190,24 @@ void CFiruTrainerListBoxView::DoActivateL( const TVwsViewId& /*aPrevViewId*/,
 
 void CFiruTrainerListBoxView::NextTestL()
 {
-    if ( !iExercise )
+    if ( iExercise )
     {
-        iExercise = Data().CreateExerciseL( KNumTotalTests, KNumNewTests, KNumVariants );
+        iCurrentTest = iExercise->NextTest();
+        if ( !iCurrentTest )
+        {
+            // exercise complete, show stats
+            ShowExerciseStatsL( *iExercise );
+
+            delete iExercise;
+            iExercise = NULL;
+            iCurrentTest = NULL;
+        }
     }
 
-    iCurrentTest = iExercise->NextTest();
-    if ( !iCurrentTest )
+    if ( !iExercise )
     {
-        // exercise complete, show stats
-        ShowStatsL( *iExercise );
-
-        delete iExercise;
-        iExercise = NULL;
-        iCurrentTest = NULL;
-
-        iExercise = Data().CreateExerciseL( KNumTotalTests, KNumNewTests, KNumVariants );
+        iExercise = Data().CreateExerciseL(
+            KNumTotalTests, KNumNewTests, iFiruTrainerListBox->ListRows() );
 
         iCurrentTest = iExercise->NextTest();
         if ( !iCurrentTest )
@@ -340,32 +345,24 @@ TInt CFiruTrainerListBoxView::RunQrySureL( const TDesC* aOverrideText )
 }
 // ]]] end generated function
 
-/**
- * Handle the selected event.
- * @param aCommand the command id invoked
- * @return ETrue if the command was handled, EFalse if not
- */
+// ----------------------------------------------------------
+
 TBool CFiruTrainerListBoxView::HandleCancelMenuItemSelectedL( TInt aCommand )
 {
     AppUi()->ActivateLocalViewL( TUid::Uid( EFiruListBoxViewId ) );
     return ETrue;
 }
 
-/**
- * Handle the rightSoftKeyPressed event.
- * @return ETrue if the command was handled, EFalse if not
- */
+// ----------------------------------------------------------
+
 TBool CFiruTrainerListBoxView::HandleControlPaneRightSoftKeyPressedL( TInt aCommand )
 {
     HandleSelectMenuItemSelectedL( aCommand );
     return EFalse;
 }
 
-/**
- * Handle the selected event.
- * @param aCommand the command id invoked
- * @return ETrue if the command was handled, EFalse if not
- */
+// ----------------------------------------------------------
+
 TBool CFiruTrainerListBoxView::HandleSelectMenuItemSelectedL( TInt aCommand )
 {
     TInt selection = iFiruTrainerListBox->ListBox()->CurrentItemIndex();
@@ -387,11 +384,8 @@ TBool CFiruTrainerListBoxView::HandleSelectMenuItemSelectedL( TInt aCommand )
     return ETrue;
 }
 
-/**
- * Handle the selected event.
- * @param aCommand the command id invoked
- * @return ETrue if the command was handled, EFalse if not
- */
+// ----------------------------------------------------------
+
 TBool CFiruTrainerListBoxView::HandleShow_detailsMenuItemSelectedL( TInt aCommand )
 {
     // TODO: implement selected event handler
@@ -408,7 +402,7 @@ CFiruData& CFiruTrainerListBoxView::Data()
 
 // ----------------------------------------------------------
 
-void CFiruTrainerListBoxView::ShowStatsL( const CFiruExercise& aExercise )
+void CFiruTrainerListBoxView::ShowExerciseStatsL( const CFiruExercise& aExercise )
 {
     _LIT( KFormatStats, "You have passed\n%d tests\nout of %d" );
 
@@ -419,3 +413,19 @@ void CFiruTrainerListBoxView::ShowStatsL( const CFiruExercise& aExercise )
 
     CFiruAppUi::RunInfoNoteL( &text );
 }
+
+// ----------------------------------------------------------
+
+TBool CFiruTrainerListBoxView::HandleShow_statsMenuItemSelectedL( TInt aCommand )
+{
+    CFiruData::Stats stats = Data().GetStats();
+    TInt notAskedShare = stats.iNotAsked * 100 / stats.iTotalEntries;
+
+    TBuf<128> text;
+    _LIT( KFormatStats, "Total entries: %d\nNot asked: %d%%(%d)" );
+    text.Format( KFormatStats(), stats.iTotalEntries, notAskedShare, stats.iNotAsked );
+
+    CFiruAppUi::RunInfoNoteL( &text );
+    return ETrue;
+}
+

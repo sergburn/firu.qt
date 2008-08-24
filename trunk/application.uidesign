@@ -136,6 +136,11 @@
             <property id="height">99</property>
           </compoundProperty>
         </component>
+        <component id="com.nokia.sdt.series60.AvkonViewReference">
+          <property id="filePath">FiruTester.uidesign</property>
+          <property id="baseName">FiruTester</property>
+          <property id="name">aknViewReference5</property>
+        </component>
       </component>
     </component>
   </component>
@@ -159,40 +164,44 @@
       <resourceMapping instanceName="FiruAppUi">r_application_firu_app_ui</resourceMapping>
       <resourceMapping instanceName="FiruAppUi" rsrcId="localisable_app_info">r_localisable_app_info</resourceMapping>
       <resourceMapping instanceName="infoNote">r_application_info_note</resourceMapping>
-      <resourceMapping instanceName="errorNote">r_application_error_note</resourceMapping>
+      <resourceMapping instanceName="aknViewReference5" rsrcId="tabText">r_application_akn_view_reference5</resourceMapping>
       <resourceMapping instanceName="aknViewReference1" rsrcId="tabText">r_application_akn_view_reference1</resourceMapping>
+      <resourceMapping instanceName="errorNote">r_application_error_note</resourceMapping>
       <resourceMapping instanceName="aknViewReference3" rsrcId="tabText">r_application_akn_view_reference3</resourceMapping>
     </resourceMappings>
     <enumMappings>
       <enumMapping instanceName="aknViewReference3" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruTrainerListBoxViewId</enumMapping>
       <enumMapping instanceName="aknViewReference4" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruContainerViewId</enumMapping>
+      <enumMapping instanceName="aknViewReference5" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruTesterViewId</enumMapping>
       <enumMapping instanceName="aknViewReference2" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruDictListBoxViewId</enumMapping>
       <enumMapping instanceName="aknViewReference1" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruListBoxViewId</enumMapping>
     </enumMappings>
     <arrayMappings/>
   </sourceMappingState>
   <generatedFiles>
+    <file>inc/firutesterview.h</file>
     <file>src/firudocument.cpp</file>
     <file>inc/firuapplication.h</file>
-    <file>src/firudictlistboxview.cpp</file>
     <file>inc/firudictlistboxview.h</file>
+    <file>src/firudictlistboxview.cpp</file>
     <file>src/firutrainerlistboxview.cpp</file>
     <file>src/firucontainerview.cpp</file>
+    <file>src/firutesterview.cpp</file>
     <file>src/firulistboxview.cpp</file>
     <file>inc/firuappui.h</file>
-    <file>inc/firutrainerlistboxview.h</file>
     <file>inc/firulistboxview.h</file>
+    <file>inc/firutrainerlistboxview.h</file>
     <file>inc/firudocument.h</file>
     <file>src/firuappui.cpp</file>
-    <file>inc/firucontainerview.h</file>
     <file>src/firuapplication.cpp</file>
+    <file>inc/firucontainerview.h</file>
     <file>data/firu.rss</file>
+    <file>data/firutrainerlistbox.rssi</file>
     <file>inc/firu.hrh</file>
     <file>data/firulistbox.rssi</file>
     <file>inc/firulistbox.hrh</file>
     <file>data/firudictlistbox.rssi</file>
     <file>inc/firudictlistbox.hrh</file>
-    <file>data/firutrainerlistbox.rssi</file>
     <file>inc/firutrainerlistbox.hrh</file>
     <file>data/firucontainer.rssi</file>
     <file>data/firu.loc</file>
@@ -205,5 +214,8 @@
     <file>data/firutrainerlistbox.l01</file>
     <file>data/firucontainer.loc</file>
     <file>data/firucontainer.l01</file>
+    <file>data/firutester.rssi</file>
+    <file>data/firutester.l01</file>
+    <file>data/firutester.loc</file>
   </generatedFiles>
 </designerData>

@@ -114,18 +114,18 @@
     <component id="com.nokia.sdt.series60.MenuBar">
       <compoundProperty id="location">
         <property id="x">6</property>
-        <property id="y">161</property>
+        <property id="y">131</property>
       </compoundProperty>
       <property id="name">optionsMenu</property>
       <compoundProperty id="size">
-        <property id="height">127</property>
+        <property id="height">157</property>
         <property id="width">228</property>
       </compoundProperty>
       <component id="com.nokia.sdt.series60.MenuPane">
         <compoundProperty id="location"/>
         <property id="name">menuPane1</property>
         <compoundProperty id="size">
-          <property id="height">127</property>
+          <property id="height">157</property>
           <property id="width">228</property>
         </compoundProperty>
         <component id="com.nokia.sdt.series60.MenuItem">
@@ -170,15 +170,34 @@
               <property id="x">213</property>
             </compoundProperty>
             <property id="name">menuPane2</property>
-            <compoundProperty id="size"/>
+            <compoundProperty id="size">
+              <property id="width">152</property>
+              <property id="height">85</property>
+            </compoundProperty>
             <component id="com.nokia.sdt.series60.MenuItem">
               <compoundProperty id="location">
                 <property id="x">5</property>
                 <property id="y">2</property>
               </compoundProperty>
+              <property id="name">show_statsMenuItem</property>
+              <property id="text" type="i18n">STR_FiruTrainerListBoxView_10</property>
+              <compoundProperty id="size">
+                <property id="width">137</property>
+                <property id="height">24</property>
+              </compoundProperty>
+              <eventBinding id="selected" handlerDisplay="HandleShow_statsMenuItemSelectedL" handlerSymbol="cpp@src//FiruTrainerListBoxView.cpp/function(CFiruTrainerListBoxView::HandleShow_statsMenuItemSelectedL(TInt))"/>
+            </component>
+            <component id="com.nokia.sdt.series60.MenuItem">
+              <compoundProperty id="location">
+                <property id="x">5</property>
+                <property id="y">28</property>
+              </compoundProperty>
               <property id="name">reset_statsMenuItem</property>
               <property id="text" type="i18n">STR_FiruTrainerListBoxView_3</property>
-              <compoundProperty id="size"/>
+              <compoundProperty id="size">
+                <property id="width">137</property>
+                <property id="height">24</property>
+              </compoundProperty>
               <eventBinding id="selected" handlerDisplay="HandleReset_statsMenuItemSelectedL" handlerSymbol="cpp@src//FiruTrainerListBoxView.cpp/function(CFiruTrainerListBoxView::HandleReset_statsMenuItemSelectedL(TInt))"/>
             </component>
           </component>
@@ -223,6 +242,7 @@
       <string id="STR_FiruTrainerListBoxView_8">Show details</string>
       <string id="STR_FiruTrainerListBoxView_9">Select</string>
       <string id="STR_FiruTrainerListBoxView_16">Cancel</string>
+      <string id="STR_FiruTrainerListBoxView_10">Show stats</string>
     </stringTable>
   </stringBundle>
   <macroTable/>
@@ -241,16 +261,17 @@
     <enumMappings>
       <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_CONTROL_TYPE">EAknCtTitlePane</enumMapping>
       <enumMapping instanceName="reset_statsMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewReset_statsMenuItemCommand</enumMapping>
-      <enumMapping instanceName="qrySure" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_DIALOG_LINE_ID">EFiruTrainerListBoxViewQrySure</enumMapping>
-      <enumMapping instanceName="controlPane" propertyId="middleId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyEmpty</enumMapping>
       <enumMapping instanceName="show_detailsMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewShow_detailsMenuItemCommand</enumMapping>
-      <enumMapping instanceName="listBox" propertyId="type">EAknListBoxSelectionList</enumMapping>
       <enumMapping instanceName="selectMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewSelectMenuItemCommand</enumMapping>
-      <enumMapping instanceName="cancelMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewCancelMenuItemCommand</enumMapping>
       <enumMapping instanceName="controlPane" propertyId="leftId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyOptions</enumMapping>
       <enumMapping instanceName="controlPane" propertyId="rightId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyNext</enumMapping>
-      <enumMapping instanceName="FiruTrainerListBoxView" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruTrainerListBoxViewId</enumMapping>
       <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_STATUS_PANE_ID">EEikStatusPaneUidTitle</enumMapping>
+      <enumMapping instanceName="qrySure" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_DIALOG_LINE_ID">EFiruTrainerListBoxViewQrySure</enumMapping>
+      <enumMapping instanceName="controlPane" propertyId="middleId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyEmpty</enumMapping>
+      <enumMapping instanceName="show_statsMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewShow_statsMenuItemCommand</enumMapping>
+      <enumMapping instanceName="listBox" propertyId="type">EAknListBoxSelectionList</enumMapping>
+      <enumMapping instanceName="cancelMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewCancelMenuItemCommand</enumMapping>
+      <enumMapping instanceName="FiruTrainerListBoxView" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruTrainerListBoxViewId</enumMapping>
     </enumMappings>
     <arrayMappings/>
   </sourceMappingState>

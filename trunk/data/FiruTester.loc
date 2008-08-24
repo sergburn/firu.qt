@@ -1,0 +1,11 @@
+/*
+========================================================================
+ Name        : FiruTester.loc
+ Author      : ${author}
+ Copyright   : ${copyright}
+ Description : 
+========================================================================
+*/
+#ifdef LANGUAGE_01
+#include "FiruTester.l01"
+#endif

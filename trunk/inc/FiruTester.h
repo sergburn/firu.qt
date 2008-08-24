@@ -1,62 +1,62 @@
 /*
 ========================================================================
- Name        : FiruTrainerListBox.h
- Author      :
- Copyright   : Your copyright notice
- Description :
+ Name        : FiruTester.h
+ Author      : ${author}
+ Copyright   : ${copyright}
+ Description : 
 ========================================================================
 */
-#ifndef FIRUTRAINERLISTBOX_H
-#define FIRUTRAINERLISTBOX_H
+#ifndef FIRUTESTER_H
+#define FIRUTESTER_H
 
 // [[[ begin generated region: do not modify [Generated Includes]
-#include <coecntrl.h>
+#include <coecntrl.h>		
 // ]]] end generated region [Generated Includes]
 
-#include "FiruData.h"
 
 // [[[ begin [Event Handler Includes]
 // ]]] end [Event Handler Includes]
 
 // [[[ begin generated region: do not modify [Generated Forward Declarations]
-class MEikCommandObserver;
-class CAknSingleStyleListBox;
-class CEikTextListBox;
+class MEikCommandObserver;		
+class CEikLabel;
+class CEikEdwin;
+class CEikImage;
 // ]]] end generated region [Generated Forward Declarations]
 
 /**
- * Container class for FiruTrainerListBox
- *
- * @class	CFiruTrainerListBox FiruTrainerListBox.h
+ * Container class for FiruTester
+ * 
+ * @class	CFiruTester FiruTester.h
  */
-class CFiruTrainerListBox : public CCoeControl
+class CFiruTester : public CCoeControl
 	{
 public:
 	// constructors and destructor
-	CFiruTrainerListBox();
-	static CFiruTrainerListBox* NewL(
-		const TRect& aRect,
-		const CCoeControl* aParent,
+	CFiruTester();
+	static CFiruTester* NewL( 
+		const TRect& aRect, 
+		const CCoeControl* aParent, 
 		MEikCommandObserver* aCommandObserver );
-	static CFiruTrainerListBox* NewLC(
-		const TRect& aRect,
-		const CCoeControl* aParent,
+	static CFiruTester* NewLC( 
+		const TRect& aRect, 
+		const CCoeControl* aParent, 
 		MEikCommandObserver* aCommandObserver );
-	void ConstructL(
-		const TRect& aRect,
-		const CCoeControl* aParent,
+	void ConstructL( 
+		const TRect& aRect, 
+		const CCoeControl* aParent, 
 		MEikCommandObserver* aCommandObserver );
-	virtual ~CFiruTrainerListBox();
+	virtual ~CFiruTester();
 
 public:
 	// from base class CCoeControl
 	TInt CountComponentControls() const;
 	CCoeControl* ComponentControl( TInt aIndex ) const;
-	TKeyResponse OfferKeyEventL(
-			const TKeyEvent& aKeyEvent,
+	TKeyResponse OfferKeyEventL( 
+			const TKeyEvent& aKeyEvent, 
 			TEventCode aType );
 	void HandleResourceChange( TInt aType );
-
+	
 protected:
 	// from base class CCoeControl
 	void SizeChanged();
@@ -67,70 +67,48 @@ private:
 
 private:
 	void InitializeControlsL();
-    void InitializeControls2L();
 	void LayoutControls();
-    void LayoutControls2();
 	CCoeControl* iFocusControl;
 	MEikCommandObserver* iCommandObserver;
 	// [[[ begin generated region: do not modify [Generated Methods]
-public:
-	static void AddListBoxItemL(
-			CEikTextListBox* aListBox,
-			const TDesC& aString );
-	static RArray< TInt >* GetSelectedListBoxItemsLC( CEikTextListBox* aListBox );
-	static void DeleteSelectedListBoxItemsL( CEikTextListBox* aListBox );
-	CAknSingleStyleListBox* ListBox();
-	static void CreateListBoxItemL( TDes& aBuffer,
-			const TDesC& aMainText );
-	void AddListBoxResourceArrayItemL( TInt aResourceId );
-	void SetupListBoxIconsL();
-	TBool HandleMarkableListCommandL( TInt aCommand );
+public: 
 	// ]]] end generated region [Generated Methods]
-
+	
 	// [[[ begin generated region: do not modify [Generated Type Declarations]
-public:
+public: 
 	// ]]] end generated region [Generated Type Declarations]
-
-    void ShowTestL( CFiruTest& );
-    TInt ListRows() const { return iListRows; };
-
+	
 	// [[[ begin generated region: do not modify [Generated Instance Variables]
-private:
-	CAknSingleStyleListBox* iListBox;
+private: 
+	CEikLabel* iLabel1;
+	CEikEdwin* iEdit1;
+	CEikImage* iImage1;
 	// ]]] end generated region [Generated Instance Variables]
-    CEikLabel* iLabel;
-    TInt iListRows;
-
+	
+	
 	// [[[ begin [Overridden Methods]
-protected:
+protected: 
 	// ]]] end [Overridden Methods]
-
-
+	
+	
 	// [[[ begin [User Handlers]
-protected:
+protected: 
 	// ]]] end [User Handlers]
-
-public:
+	
+public: 
 	enum TControls
 		{
 		// [[[ begin generated region: do not modify [Generated Contents]
-		EListBox,
-
+		ELabel1,
+		EEdit1,
+		EImage1,
+		
 		// ]]] end generated region [Generated Contents]
-
+		
 		// add any user-defined entries here...
-
-		ELabel,
+		
 		ELastControl
 		};
-	enum TListBoxImages
-		{
-		// [[[ begin generated region: do not modify [Generated Enums]
-		EListBoxFirstUserImageIndex
-
-		// ]]] end generated region [Generated Enums]
-
-		};
 	};
-
-#endif // FIRUTRAINERLISTBOX_H
+				
+#endif // FIRUTESTER_H

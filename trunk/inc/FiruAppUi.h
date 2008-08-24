@@ -18,6 +18,7 @@ class CFiruListBoxView;
 class CFiruDictListBoxView;
 class CFiruTrainerListBoxView;
 class CFiruContainerView;
+class CFiruTesterView;
 // ]]] end generated region [Generated Forward Declarations]
 
 class CFiruData;
@@ -67,6 +68,7 @@ private:
 	CFiruDictListBoxView* iFiruDictListBoxView;
 	CFiruTrainerListBoxView* iFiruTrainerListBoxView;
 	CFiruContainerView* iFiruContainerView;
+	CFiruTesterView* iFiruTesterView;
 	// ]]] end generated region [Generated Instance Variables]
 	
 	

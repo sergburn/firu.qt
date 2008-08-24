@@ -41,4 +41,4 @@ DEBUGGABLE
 
 SOURCE FiruListBox.cpp FiruListBoxView.cpp FiruDocument.cpp FiruAppUi.cpp FiruApplication.cpp FiruDictListBoxView.cpp FiruDictListBox.cpp
 SOURCEPATH ..\src
-SOURCE FiruData.cpp FiruTrainerListBox.cpp FiruTrainerListBoxView.cpp FiruDictListBoxModel.cpp FiruContainer.cpp FiruContainerView.cpp
+SOURCE FiruData.cpp FiruTrainerListBox.cpp FiruTrainerListBoxView.cpp FiruDictListBoxModel.cpp FiruContainer.cpp FiruContainerView.cpp FiruTester.cpp FiruTesterView.cpp FiruDbSchema.cpp

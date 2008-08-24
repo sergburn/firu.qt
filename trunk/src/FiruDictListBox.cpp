@@ -53,7 +53,7 @@ CFiruDictListBox::~CFiruDictListBox( )
     // [[[ begin generated region: do not modify [Generated Contents]
 	delete iListBox;
 	iListBox = NULL;
-	iControlEventDispatch.Close();		
+	iControlEventDispatch.Close();
     // ]]] end generated region [Generated Contents]
     delete iSearchField;
 
@@ -181,7 +181,7 @@ void CFiruDictListBox::SizeChanged( )
     CCoeControl::SizeChanged( );
     LayoutControls2( );
     // [[[ begin generated region: do not modify [Generated Contents]
-			
+
     // ]]] end generated region [Generated Contents]
 
 }
@@ -227,13 +227,13 @@ TKeyResponse CFiruDictListBox::OfferKeyEventL( const TKeyEvent& aKeyEvent, TEven
     }
 
     // [[[ begin generated region: do not modify [Generated Contents]
-	if ( aKeyEvent.iCode == EKeyLeftArrow 
+	if ( aKeyEvent.iCode == EKeyLeftArrow
 		|| aKeyEvent.iCode == EKeyRightArrow )
 		{
 		// Listbox takes all events even if it doesn't use them
 		return EKeyWasNotConsumed;
 		}
-	
+
     // ]]] end generated region [Generated Contents]
 
     if ( iFocusControl != NULL && iFocusControl->OfferKeyEventL( aKeyEvent, aType )
@@ -247,7 +247,7 @@ TKeyResponse CFiruDictListBox::OfferKeyEventL( const TKeyEvent& aKeyEvent, TEven
 // [[[ begin generated function: do not modify
 /**
  *	Initialize each control upon creation.
- */				
+ */
 void CFiruDictListBox::InitializeControlsL()
 	{
 	iListBox = new ( ELeave ) CAknSingleStyleListBox;
@@ -260,21 +260,21 @@ void CFiruDictListBox::InitializeControlsL()
 		}
 	// the listbox owns the items in the list and will free them
 	iListBox->Model()->SetOwnershipType( ELbmOwnsItemArray );
-	
+
 	// setup the icon array so graphics-style boxes work
 	SetupListBoxIconsL();
-	
-	
+
+
 	// add list items
 	iListBox->SetObserver( this );
-	AddControlEventHandlerL( 
-			iListBox, 
-			EEventStateChanged, 
+	AddControlEventHandlerL(
+			iListBox,
+			EEventStateChanged,
 			&CFiruDictListBox::HandleListBoxStateChangedL );
-	
+
 	iListBox->SetFocus( ETrue );
 	iFocusControl = iListBox;
-	
+
 	}
 // ]]] end generated function
 
@@ -322,7 +322,7 @@ void CFiruDictListBox::Draw( const TRect& aRect ) const
     // [[[ begin generated region: do not modify [Generated Contents]
 	CWindowGc& gc = SystemGc();
 	gc.Clear( aRect );
-	
+
     // ]]] end generated region [Generated Contents]
 
 }
@@ -331,7 +331,7 @@ void CFiruDictListBox::Draw( const TRect& aRect ) const
 /**
  *	Add a list box item to a list.
  */
-void CFiruDictListBox::AddListBoxItemL( 
+void CFiruDictListBox::AddListBoxItemL(
 		CEikTextListBox* aListBox,
 		const TDesC& aString )
 	{
@@ -351,32 +351,32 @@ void CFiruDictListBox::AddListBoxItemL(
  * the first with no argument (referring to the internal resource) and the
  * second with the array pointer.
  * @return newly allocated array, which is left on the cleanup stack;
- *	or NULL for empty list. 
+ *	or NULL for empty list.
  */
 RArray< TInt >* CFiruDictListBox::GetSelectedListBoxItemsLC( CEikTextListBox* aListBox )
 	{
-	CAknFilteredTextListBoxModel* model = 
+	CAknFilteredTextListBoxModel* model =
 		static_cast< CAknFilteredTextListBoxModel *> ( aListBox->Model() );
 	if ( model->NumberOfItems() == 0 )
 		return NULL;
-		
+
 	// get currently selected indices
 	const CListBoxView::CSelectionIndexArray* selectionIndexes =
 		aListBox->SelectionIndexes();
 	TInt selectedIndexesCount = selectionIndexes->Count();
 	if ( selectedIndexesCount == 0 )
 		return NULL;
-		
+
 	// copy the indices and sort numerically
-	RArray<TInt>* orderedSelectedIndices = 
+	RArray<TInt>* orderedSelectedIndices =
 		new (ELeave) RArray< TInt >( selectedIndexesCount );
-	
+
 	// push the allocated array
 	CleanupStack::PushL( orderedSelectedIndices );
-	
+
 	// dispose the array resource
 	CleanupClosePushL( *orderedSelectedIndices );
-	
+
 	// see if the search field is enabled
 	CAknListBoxFilterItems* filter = model->Filter();
 	if ( filter != NULL )
@@ -394,8 +394,8 @@ RArray< TInt >* CFiruDictListBox::GetSelectedListBoxItemsLC( CEikTextListBox* aL
 		// the selection indices refer directly to the model
 		for ( TInt idx = 0; idx < selectedIndexesCount; idx++ )
 			orderedSelectedIndices->InsertInOrder( ( *selectionIndexes ) [ idx ] );
-		}	
-		
+		}
+
 	return orderedSelectedIndices;
 	}
 
@@ -407,31 +407,31 @@ RArray< TInt >* CFiruDictListBox::GetSelectedListBoxItemsLC( CEikTextListBox* aL
  */
 void CFiruDictListBox::DeleteSelectedListBoxItemsL( CEikTextListBox* aListBox )
 	{
-	CAknFilteredTextListBoxModel* model = 
+	CAknFilteredTextListBoxModel* model =
 		static_cast< CAknFilteredTextListBoxModel *> ( aListBox->Model() );
 	if ( model->NumberOfItems() == 0 )
 		return;
-	
-	RArray< TInt >* orderedSelectedIndices = GetSelectedListBoxItemsLC( aListBox );		
+
+	RArray< TInt >* orderedSelectedIndices = GetSelectedListBoxItemsLC( aListBox );
 	if ( !orderedSelectedIndices )
 		return;
-		
+
 	// Delete selected items from bottom up so indices don't change on us
 	CDesCArray* itemArray = static_cast< CDesCArray* > ( model->ItemTextArray() );
 	TInt currentItem = 0;
-	
-	for ( TInt idx = orderedSelectedIndices->Count(); idx-- > 0; ) 
+
+	for ( TInt idx = orderedSelectedIndices->Count(); idx-- > 0; )
 		{
 		currentItem = ( *orderedSelectedIndices )[ idx ];
 		itemArray->Delete ( currentItem );
 		}
-	
+
 	// dispose the array resources
 	CleanupStack::PopAndDestroy();
-	
+
 	// dispose the array pointer
 	CleanupStack::PopAndDestroy( orderedSelectedIndices );
-	
+
 	// refresh listbox's cursor now that items are deleted
 	AknListBoxUtils::HandleItemRemovalAndPositionHighlightL(
 		aListBox, currentItem, ETrue );
@@ -454,14 +454,14 @@ CAknSingleStyleListBox* CFiruDictListBox::ListBox()
 /**
  *	Create a list box item with the given column values.
  */
-void CFiruDictListBox::CreateListBoxItemL( TDes& aBuffer, 
+void CFiruDictListBox::CreateListBoxItemL( TDes& aBuffer,
 		const TDesC& aMainText )
 	{
 	_LIT ( KStringHeader, "\t%S" );
-	
+
 	aBuffer.Format( KStringHeader(), &aMainText );
-	} 
-				
+	}
+
 // ]]] end generated function
 
 // [[[ begin generated function: do not modify
@@ -471,20 +471,20 @@ void CFiruDictListBox::CreateListBoxItemL( TDes& aBuffer,
  *	in the list box's icon array.
  *	@param aResourceId id of an ARRAY resource containing the textual
  *	items in the columns
- *	
+ *
  */
 void CFiruDictListBox::AddListBoxResourceArrayItemL( TInt aResourceId )
 	{
 	CDesCArray* array = iCoeEnv->ReadDesCArrayResourceL( aResourceId );
 	CleanupStack::PushL( array );
-	// This is intended to be large enough, but if you get 
+	// This is intended to be large enough, but if you get
 	// a USER 11 panic, consider reducing string sizes.
-	TBuf<512> listString; 
+	TBuf<512> listString;
 	CreateListBoxItemL( listString, ( *array ) [ 0 ] );
 	AddListBoxItemL( iListBox, listString );
 	CleanupStack::PopAndDestroy( array );
-	} 
-				
+	}
+
 // ]]] end generated function
 
 // [[[ begin generated function: do not modify
@@ -493,8 +493,8 @@ void CFiruDictListBox::AddListBoxResourceArrayItemL( TInt aResourceId )
  */
 void CFiruDictListBox::SetupListBoxIconsL()
 	{
-	CArrayPtr< CGulIcon >* icons = NULL;		
-	
+	CArrayPtr< CGulIcon >* icons = NULL;
+
 	if ( icons != NULL )
 		{
 		iListBox->ItemDrawer()->ColumnData()->SetIconArray( icons );
@@ -504,7 +504,7 @@ void CFiruDictListBox::SetupListBoxIconsL()
 // ]]] end generated function
 
 // [[[ begin generated function: do not modify
-/** 
+/**
  *	Handle commands relating to markable lists.
  */
 TBool CFiruDictListBox::HandleMarkableListCommandL( TInt aCommand )

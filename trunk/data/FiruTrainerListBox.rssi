@@ -77,6 +77,11 @@ RESOURCE MENU_PANE r_firu_trainer_list_box_menu_pane2
 		{
 		MENU_ITEM
 			{
+			command = EFiruTrainerListBoxViewShow_statsMenuItemCommand;
+			txt = STR_FiruTrainerListBoxView_10;
+			},
+		MENU_ITEM
+			{
 			command = EFiruTrainerListBoxViewReset_statsMenuItemCommand;
 			txt = STR_FiruTrainerListBoxView_3;
 			}
