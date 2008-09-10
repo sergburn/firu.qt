@@ -1,15 +1,18 @@
 /*
  ========================================================================
  Name        : FiruAppUi.cpp
- Author      : 
+ Author      :
  Copyright   : Your copyright notice
- Description : 
+ Description :
  ========================================================================
  */
 // [[[ begin generated region: do not modify [Generated System Includes]
 #include <eikmenub.h>
 #include <akncontext.h>
 #include <akntitle.h>
+#include <aknnavide.h>
+#include <aknnavi.h>
+#include <akntabgrp.h>
 #include <aknnotewrappers.h>
 #include <barsread.h>
 #include <stringloader.h>
@@ -22,11 +25,13 @@
 #include "FiruListBox.hrh"
 #include "FiruDictListBox.hrh"
 #include "FiruTrainerListBox.hrh"
+#include "FiruApplication.h"
 #include "FiruListBoxView.h"
 #include "FiruDictListBoxView.h"
 #include "FiruTrainerListBoxView.h"
 #include "FiruContainerView.h"
 #include "FiruTesterView.h"
+#include "FiruEntryViewView.h"
 // ]]] end generated region [Generated User Includes]
 
 #include "FiruDocument.h"
@@ -40,17 +45,23 @@
 CFiruAppUi::CFiruAppUi( )
 {
     // [[[ begin generated region: do not modify [Generated Contents]
+	iNaviDecorator_ = NULL;
     // ]]] end generated region [Generated Contents]
 
 }
 
-/** 
+/**
  * The appui's destructor removes the container from the control
  * stack and destroys it.
  */
 CFiruAppUi::~CFiruAppUi( )
 {
     // [[[ begin generated region: do not modify [Generated Contents]
+	if ( iNaviDecorator_ != NULL )
+		{
+		delete iNaviDecorator_;
+		iNaviDecorator_ = NULL;
+		}
     // ]]] end generated region [Generated Contents]
 
 }
@@ -58,17 +69,29 @@ CFiruAppUi::~CFiruAppUi( )
 // [[[ begin generated function: do not modify
 void CFiruAppUi::InitializeContainersL()
 	{
+	CAknNavigationControlContainer* naviPane = ( CAknNavigationControlContainer* )
+		StatusPane()->ControlL( TUid::Uid( EEikStatusPaneUidNavi ) );
+	iNaviDecorator_ = naviPane->ResourceDecorator();
+	if ( iNaviDecorator_ != NULL )
+		{
+		iNaviTabs1 = ( CAknTabGroup* ) iNaviDecorator_->DecoratedControl();
+	
+		}
+				
 	iFiruListBoxView = CFiruListBoxView::NewL();
 	AddViewL( iFiruListBoxView );
-	SetDefaultViewL( *iFiruListBoxView );
 	iFiruDictListBoxView = CFiruDictListBoxView::NewL();
 	AddViewL( iFiruDictListBoxView );
+	SetDefaultViewL( *iFiruDictListBoxView );
+	SetActiveTabByViewId( iFiruDictListBoxView->Id() );
 	iFiruTrainerListBoxView = CFiruTrainerListBoxView::NewL();
 	AddViewL( iFiruTrainerListBoxView );
 	iFiruContainerView = CFiruContainerView::NewL();
 	AddViewL( iFiruContainerView );
 	iFiruTesterView = CFiruTesterView::NewL();
 	AddViewL( iFiruTesterView );
+	iFiruEntryViewView = CFiruEntryViewView::NewL();
+	AddViewL( iFiruEntryViewView );
 	}
 // ]]] end generated function
 
@@ -98,7 +121,7 @@ void CFiruAppUi::HandleCommandL( TInt aCommand )
 
 }
 
-/** 
+/**
  * Override of the HandleResourceChangeL virtual function
  */
 void CFiruAppUi::HandleResourceChangeL( TInt aType )
@@ -109,28 +132,62 @@ void CFiruAppUi::HandleResourceChangeL( TInt aType )
 
 }
 
-/** 
+/**
  * Override of the HandleKeyEventL virtual function
  * @return EKeyWasConsumed if event was handled, EKeyWasNotConsumed if not
- * @param aKeyEvent 
- * @param aType 
+ * @param aKeyEvent
+ * @param aType
  */
 TKeyResponse CFiruAppUi::HandleKeyEventL(
-    const TKeyEvent& /*aKeyEvent*/,
+    const TKeyEvent& aKeyEvent,
     TEventCode /*aType*/)
 {
     // The inherited HandleKeyEventL is private and cannot be called
     // [[[ begin generated region: do not modify [Generated Contents]
+	TVwsViewId activeViewId;
+	if ( GetActiveViewId( activeViewId ) == KErrNone 
+		&& iNaviTabs1->TabIndexFromId( activeViewId.iViewUid.iUid ) 
+			== KErrNotFound )
+		{
+		return EKeyWasNotConsumed;
+		}
+	
+	TInt active = iNaviTabs1->ActiveTabIndex();
+	TInt count = iNaviTabs1->TabCount();
+	
+	switch ( aKeyEvent.iCode )
+		{
+		case EKeyLeftArrow:
+			if ( active > 0 )
+				{
+				active--;
+				ActivateLocalViewL( TUid::Uid( iNaviTabs1->TabIdFromIndex( active ) ) );
+				return EKeyWasConsumed;
+				}
+			break;
+		case EKeyRightArrow:
+			if ( active + 1 < count )
+				{
+				active++;
+				ActivateLocalViewL( TUid::Uid( iNaviTabs1->TabIdFromIndex( active ) ) );
+				return EKeyWasConsumed;
+				}
+			break;
+		default:
+			return EKeyWasNotConsumed;
+		}
+	
+				
     // ]]] end generated region [Generated Contents]
 
     return EKeyWasNotConsumed;
 }
 
-/** 
+/**
  * Override of the HandleViewDeactivation virtual function
  *
- * @param aViewIdToBeDeactivated 
- * @param aNewlyActivatedViewId 
+ * @param aViewIdToBeDeactivated
+ * @param aNewlyActivatedViewId
  */
 void CFiruAppUi::HandleViewDeactivation(
     const TVwsViewId& aViewIdToBeDeactivated,
@@ -139,13 +196,17 @@ void CFiruAppUi::HandleViewDeactivation(
     CAknViewAppUi::HandleViewDeactivation( aViewIdToBeDeactivated,
         aNewlyActivatedViewId );
     // [[[ begin generated region: do not modify [Generated Contents]
+	if ( aNewlyActivatedViewId.iAppUid == KUidFiruApplication )
+		{
+		SetActiveTabByViewId( aNewlyActivatedViewId.iViewUid );
+		}
     // ]]] end generated region [Generated Contents]
 
 }
 
 /**
- * @brief Completes the second phase of Symbian object construction. 
- * Put initialization code that could leave here. 
+ * @brief Completes the second phase of Symbian object construction.
+ * Put initialization code that could leave here.
  */
 void CFiruAppUi::ConstructL( )
 {
@@ -212,6 +273,17 @@ void CFiruAppUi::RunInfoNoteL( const TDesC* aOverrideText )
 	else
 		{
 		note->ExecuteLD( *aOverrideText );
+		}
+	}
+// ]]] end generated function
+
+// [[[ begin generated function: do not modify
+void CFiruAppUi::SetActiveTabByViewId( TUid aViewId )
+	{
+	if ( iNaviTabs1 != NULL 
+		&& iNaviTabs1->TabIndexFromId( aViewId.iUid ) != KErrNotFound )
+		{
+		iNaviTabs1->SetActiveTabById( aViewId.iUid );
 		}
 	}
 // ]]] end generated function

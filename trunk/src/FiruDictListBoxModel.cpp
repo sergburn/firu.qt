@@ -82,7 +82,7 @@ CDesCArray* CFiruDictListBoxModel::GetTextListLC( )
 
 // ------------------------------------------------------
 
-CFiruDataEntry* CFiruDictListBoxModel::Entry( TInt aPos )
+CFiruEntry* CFiruDictListBoxModel::Entry( TInt aPos )
 {
     if ( aPos >=0 && aPos < iEntries.Count() )
         return iEntries[aPos];

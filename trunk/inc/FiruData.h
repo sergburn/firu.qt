@@ -5,38 +5,52 @@
 #include <d32dbms.h>
 #include <badesca.h>
 
+class CFiruTranslation;
+
 // ----------------------------------------------------------
 
-class CFiruDataEntry : public CBase
+class CFiruEntry : public CBase
 {
 public:
-    static CFiruDataEntry* NewLC(
-        TInt aId, const TDesC& aText, TInt aCounter, TInt aRate );
+    static CFiruEntry* NewLC( TInt aId, const TDesC& aText );
 
-    virtual ~CFiruDataEntry();
+    virtual ~CFiruEntry();
 
-    TInt Id() const;
-    TPtrC Text() const;
+    TInt Id() const { return iId; };
+    TPtrC Text() const { return *iText; };
 
-    TInt Counter() const { return iCounter; };
-    TInt Rate() const { return iRate; };
-
+    void AddTranslationL( CFiruTranslation* aTarget );
     TUint NumTranslations() const;
-    TPtrC Translation( TUint aIndex ) const;
 
-    const MDesC16Array& Translations() const;
-
-    void AddTranslationL( const TDesC& aText );
+    CFiruTranslation* Translation( TUint aIndex );
+    TPtrC TranslationText( TUint aIndex ) const;
 
 protected:
-    CFiruDataEntry();
+    CFiruEntry();
 
 private:
     TInt iId;
     HBufC* iText;
+    RPointerArray<CFiruTranslation> iTranslations;
+};
+
+// ----------------------------------------------------------
+
+class CFiruTranslation : public CBase
+{
+public:
+    CFiruTranslation( CFiruEntry* aEntry, TInt aCounter, TInt aRate )
+    : iEntry( aEntry ), iCounter( aCounter ), iRate( aRate ) {};
+
+    TInt Counter() const { return iCounter; };
+    TInt Rate() const { return iRate; };
+
+    CFiruEntry& Entry() { return *iEntry; };
+
+private:
+    CFiruEntry* iEntry;
     TInt iCounter;
     TInt iRate;
-    CDesC16ArrayFlat* iTranslations;
 };
 
 // ----------------------------------------------------------
@@ -47,13 +61,14 @@ public:
     virtual ~CFiruTest();
 
     static CFiruTest* NewLC(
-        CFiruDataEntry* aEntry,
+        CFiruEntry* aQuestion,
+        CFiruEntry* aAnswer,
         TBool aReversed );
 
-    void AddWrongVariantL( const TDesC& entry );
+    void AddWrongVariantL( const TDesC& text );
 
-    TPtrC Question() const;
-    TPtrC Answer() const;
+    TPtrC QuestionText() const;
+    TPtrC AnswerText() const;
 
     TBool TryVariant( TUint aIndex );
     TBool TryAnswer( const TDesC& aText );
@@ -63,13 +78,14 @@ public:
     TUint NumMistakes() const { return iNumMistakes; };
 
     TBool IsReversed() const { return iReversed; };
-    const CFiruDataEntry& Entry() const { return *iEntry; };
+    const CFiruEntry& Question() const { return *iQuestion; };
+    const CFiruEntry& Answer() const { return *iAnswer; };
 
 protected:
     CFiruTest();
 
 private:
-    CFiruDataEntry* iEntry;
+    CFiruEntry* iQuestion, *iAnswer;
     TBool iReversed;
 
     TInt iCorrectTranslationIndex;
@@ -77,8 +93,6 @@ private:
 
     TBool iPassed;
     TUint iNumMistakes;
-
-    TInt64 iRandSeed;
 };
 
 // ----------------------------------------------------------
@@ -127,21 +141,14 @@ public:
 	void GetLanguagesL( TLanguage& aInputLanguage, TLanguage& aOutputLanguage ) const;
 	TInt NumEntriesL() const;
 
-//    void AddPair( const TDesC& aEntry, const TDesC& aTranslation );
-//    void AddPairL( const TDesC& aEntry, const TDesC& aTranslation );
-
     TInt AddEntryL( const TDesC& aEntry );
     TInt AddTranslationL( TInt aEntryId, const TDesC& aTranslation );
     TInt AddExampleL( TInt aEntryId, TInt aTranslationId, const TDesC& aExample );
 
+    void GetEntriesL( RPointerArray<CFiruEntry>& aEntries, const TDesC& aPattern, TInt aMax = 10 );
+    void GetMoreEntriesL( RPointerArray<CFiruEntry>& aEntries, TInt aMax = 10 );
 
-//    void SetFilterL( const TDesC& aEntryPattern );
-//    void ResetFilterL();
-
-    void GetEntriesL( RPointerArray<CFiruDataEntry>& aEntries, const TDesC& aPattern, TInt aMax = 10 );
-    void GetMoreEntriesL( RPointerArray<CFiruDataEntry>& aEntries, TInt aMax = 10 );
-
-    CFiruDataEntry* TranslationLC( TInt aEntryID );
+    void GetTranslationsL( CFiruEntry& aEntry );
 
     CFiruExercise* CreateExerciseL(
         TInt numTotalTests,
@@ -149,6 +156,7 @@ public:
         TInt numVariants );
 
     void SaveTestResultL( const CFiruTest& aTest );
+    void AddEntryToLearningSetL( TInt aEntryId );
 
     struct Stats
     {
@@ -170,22 +178,29 @@ protected:
 
 	void OpenDatabaseL();
 	void CreateDictionaryL( const TDesC& aDictName );
-	CFiruDataEntry* CreateEntryLC( RDbRowSet& aView, TBool aReverse );
-	void FindEntryRowL( RDbView& aView, TInt aEntryID );
-	void AdjustMarkL( TInt aEntryID, TInt aCorrection, TBool aReversed, TBool aUpdateCounter );
+	CFiruEntry* CreateEntryLC( RDbRowSet& aView );
 	void EvaluateViewL( RDbView& aView, const TDesC& query );
 
     void ReadTopEntriesL(
         RDbRowSet& aView,
-        RPointerArray<CFiruDataEntry>& entries,
+        RPointerArray<CFiruEntry>& entries,
         TInt aCount,
         TBool aReversed );
 
     void ReadRandomEntriesL(
         RDbRowSet& aView,
-        RPointerArray<CFiruDataEntry>& entries,
+        RPointerArray<CFiruEntry>& entries,
         TInt aCount,
         TBool aReversed );
+
+    TBool FindTranslationRowL( RDbView& aView, TInt aEntryId, TInt aTargetId );
+
+    TInt AddEntryL( const TDesC& aEntry, TBool aReversed );
+
+    void AdjustMarkL(
+        TInt aEntryID, TInt aTargetID,
+        TInt aMark, TBool aShiftMark,
+        TBool aUpdateCounter );
 
 private:
 
@@ -199,15 +214,13 @@ private:
     RFs& iFs;
     RDbNamedDatabase iDb;
 
-    HBufC*  iTableNameEntries;
+    HBufC*  iTableNameSources;
+    HBufC*  iTableNameTargets;
     HBufC*  iTableNameTranslations;
-    HBufC*  iTableNameExamples;
 
-    RDbTable iTableEntries;
+    RDbTable iTableSources;
+    RDbTable iTableTargets;
     RDbTable iTableTranslations;
-    RDbTable iTableExamples;
-
-    TInt64 iRandSeed;
 };
 
 #endif /*CFIRUDATA_H_*/

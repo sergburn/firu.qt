@@ -12,85 +12,58 @@ TInt64 gRandSeed;
 
 void ResetAndDestroyDataEntryArray( TAny* aPtr )
 {
-    RPointerArray<CFiruDataEntry>* array =
-        reinterpret_cast<RPointerArray<CFiruDataEntry>*>(aPtr);
+    RPointerArray<CFiruEntry>* array = reinterpret_cast<RPointerArray<CFiruEntry>*> ( aPtr );
     array->ResetAndDestroy();
 }
 
 // ----------------------------------------------------------
 // ----------------------------------------------------------
 
-CFiruDataEntry* CFiruDataEntry::NewLC(
-    TInt aId, const TDesC& aText,
-    TInt aCounter, TInt aRate )
+CFiruEntry* CFiruEntry::NewLC( TInt aId, const TDesC& aText )
 {
-    CFiruDataEntry* self = new (ELeave) CFiruDataEntry;
+    CFiruEntry* self = new ( ELeave ) CFiruEntry;
     CleanupStack::PushL( self );
     self->iId = aId;
     self->iText = aText.AllocL();
-    self->iCounter = aCounter;
-    self->iRate = aRate;
-    self->iTranslations = new ( ELeave ) CDesC16ArrayFlat( 1 );
     return self;
 }
 
 // ----------------------------------------------------------
 
-CFiruDataEntry::CFiruDataEntry()
+CFiruEntry::CFiruEntry()
 {
 }
 
 // ----------------------------------------------------------
 
-CFiruDataEntry::~CFiruDataEntry()
+CFiruEntry::~CFiruEntry()
 {
     delete iText;
-    delete iTranslations;
+    iTranslations.ResetAndDestroy();
 }
 
 // ----------------------------------------------------------
 
-TInt CFiruDataEntry::Id() const
+TUint CFiruEntry::NumTranslations() const
 {
-    return iId;
+    return iTranslations.Count();
 }
 
 // ----------------------------------------------------------
 
-TPtrC CFiruDataEntry::Text() const
+TPtrC CFiruEntry::TranslationText( TUint aIndex ) const
 {
-    return *iText;
-}
-
-// ----------------------------------------------------------
-
-TUint CFiruDataEntry::NumTranslations() const
-{
-    return iTranslations->Count();
-}
-
-// ----------------------------------------------------------
-
-TPtrC CFiruDataEntry::Translation( TUint aIndex ) const
-{
-    if ( aIndex < iTranslations->Count() )
-        return iTranslations->MdcaPoint( aIndex );
+    if ( aIndex < iTranslations.Count() )
+        return iTranslations[aIndex]->Entry().Text();
     else
         return TPtrC();
 }
 
 // ----------------------------------------------------------
 
-const MDesC16Array& CFiruDataEntry::Translations() const
+void CFiruEntry::AddTranslationL( CFiruTranslation* aTranslation )
 {
-    return *iTranslations;
-}
-
-// ----------------------------------------------------------
-
-void CFiruDataEntry::AddTranslationL( const TDesC& aText )
-{
-    iTranslations->AppendL( aText );
+    iTranslations.AppendL( aTranslation );
 }
 
 // ----------------------------------------------------------
@@ -98,7 +71,7 @@ void CFiruDataEntry::AddTranslationL( const TDesC& aText )
 
 CFiruData* CFiruData::NewL( RFs& aFs )
 {
-    CFiruData* self = new (ELeave) CFiruData( aFs );
+    CFiruData* self = new ( ELeave ) CFiruData( aFs );
     CleanupStack::PushL( self );
     self->ConstructL();
     CleanupStack::Pop( self );
@@ -108,7 +81,7 @@ CFiruData* CFiruData::NewL( RFs& aFs )
 // ----------------------------------------------------------
 
 CFiruData::CFiruData( RFs& aFs ) :
-    iFs(aFs)
+    iFs( aFs )
 {
     iSourceLang = ELangFinnish;
     iTargetLang = ELangRussian;
@@ -118,12 +91,12 @@ CFiruData::CFiruData( RFs& aFs ) :
 
 CFiruData::~CFiruData()
 {
-    delete iTableNameExamples;
+    delete iTableNameSources;
     delete iTableNameTranslations;
-    delete iTableNameExamples;
-    iTableExamples.Close();
+    delete iTableNameTargets;
+    iTableSources.Close();
     iTableTranslations.Close();
-    iTableExamples.Close();
+    iTableTargets.Close();
     iDb.Compact();
     iDb.Close();
 }
@@ -157,9 +130,9 @@ void CFiruData::OpenDatabaseL()
 
 void CFiruData::SelectDictionaryL( TLanguage aInputLanguage, TLanguage aOutputLanguage )
 {
-    iTableEntries.Close();
+    iTableSources.Close();
+    iTableTargets.Close();
     iTableTranslations.Close();
-    iTableExamples.Close();
 
     FiruDbSchema::CreateDictionaryL( iDb, aInputLanguage, aOutputLanguage );
 
@@ -167,18 +140,20 @@ void CFiruData::SelectDictionaryL( TLanguage aInputLanguage, TLanguage aOutputLa
     iTargetLang = aOutputLanguage;
     iReversed = EFalse;
 
-    iTableNameEntries = FiruDbSchema::EntriesTableNameLC( aInputLanguage );
-    CleanupStack::Pop( iTableNameEntries );
-    iTableEntries.Open( iDb, *iTableNameEntries, RDbTable::EUpdatable );
+    iTableNameSources = FiruDbSchema::EntriesTableNameLC( aInputLanguage );
+    CleanupStack::Pop( iTableNameSources );
+    iTableSources.Open( iDb, *iTableNameSources, RDbTable::EUpdatable );
 
-    iTableNameTranslations = FiruDbSchema::TranslationsTableNameLC( aInputLanguage, aOutputLanguage );
+    iTableNameTargets = FiruDbSchema::EntriesTableNameLC( aInputLanguage );
+    CleanupStack::Pop( iTableNameTargets );
+    iTableTargets.Open( iDb, *iTableNameTargets, RDbTable::EUpdatable );
+
+    iTableNameTranslations
+        = FiruDbSchema::TranslationsTableNameLC( aInputLanguage, aOutputLanguage );
     CleanupStack::Pop( iTableNameTranslations );
     iTableTranslations.Open( iDb, *iTableNameTranslations, RDbTable::EUpdatable );
 
-    iTableNameExamples = FiruDbSchema::ExamplesTableNameLC( aInputLanguage, aOutputLanguage );
-    CleanupStack::Pop( iTableNameExamples );
-    iTableExamples.Open( iDb, *iTableNameExamples, RDbTable::EUpdatable );
-//    SetTableIndexL();
+    SetTableIndexL();
 }
 
 // ----------------------------------------------------------
@@ -186,10 +161,10 @@ void CFiruData::SelectDictionaryL( TLanguage aInputLanguage, TLanguage aOutputLa
 void CFiruData::EvaluateViewL( RDbView& aView, const TDesC& aQuery )
 {
     TInt err = aView.Prepare( iDb, aQuery );
-    RDebug::Print( _L("Prepare query '%S', error %d"), &aQuery, err );
+//    RDebug::Print( _L("Prepare query '%S', error %d"), &aQuery, err );
     User::LeaveIfError( err );
     err = aView.EvaluateAll();
-    RDebug::Print( _L("Evaluate query '%S', error %d, count %d"), &aQuery, err, aView.CountL() );
+//    RDebug::Print( _L("Evaluate query '%S', error %d, count %d"), &aQuery, err, aView.CountL() );
     User::LeaveIfError( err );
 }
 
@@ -205,16 +180,12 @@ void CFiruData::ReverseDictionaryL()
 
 void CFiruData::SetTableIndexL()
 {
-    HBufC* indexName = NULL;
-    if ( iReversed )
-        indexName = FiruDbSchema::ReverseIndexNameLC( *iTableNameEntries );
+    User::LeaveIfError( iTableSources.SetIndex( KTextIndexName ) );
+    User::LeaveIfError( iTableTargets.SetIndex( KTextIndexName ) );
+    if ( !iReversed )
+        User::LeaveIfError( iTableTranslations.SetIndex( KSourceFkIndexName ) );
     else
-        indexName = FiruDbSchema::ForwardIndexNameLC( *iTableNameEntries );
-
-    User::LeaveIfError( iTableEntries.SetIndex( *indexName ) );
-    User::LeaveIfError( iTableTranslations.SetIndex( *indexName ) );
-    User::LeaveIfError( iTableExamples.SetIndex( *indexName ) );
-    CleanupStack::PopAndDestroy( indexName );
+        User::LeaveIfError( iTableTranslations.SetIndex( KTargetFkIndexName ) );
 }
 
 // ----------------------------------------------------------
@@ -225,119 +196,95 @@ void CFiruData::GetLanguagesL( TLanguage& aInputLanguage, TLanguage& aOutputLang
     aOutputLanguage = iTargetLang;
 }
 
-
-// ----------------------------------------------------------
-
-//void CFiruData::AddPair( const TDesC& aEntry, const TDesC& aTranslation )
-//{
-//    TRAPD( err, AddPairL( aEntry, aTranslation ) );
-//    if ( err )
-//    {
-////        iView.Cancel();
-//        RDebug::Print( _L("Couldn't (%d) add pair: %S - %S"), err, &aEntry, &aTranslation );
-//    }
-//}
-//
-//// ----------------------------------------------------------
-//
-//void CFiruData::AddPairL( const TDesC& aEntry, const TDesC& aTranslation )
-//{
-//    iTable.InsertL();
-//    iTable.SetColL( KColumnSource, aEntry.Left( KMaxTextColumnLength ) );
-//    iTable.SetColL( KColumnTarget, aTranslation.Left( KMaxTextColumnLength ) );
-//    iTable.SetColL( KColumnForward, 0 );
-//    iTable.SetColL( KColumnReverse, 0 );
-//    iTable.SetColL( KColumnFwdCounter, 0 );
-//    iTable.SetColL( KColumnRevCounter, 0 );
-//    iTable.PutL();
-//
-////    iDb.UpdateStats();
-////    RDbNamedDatabase::TSize size = iDb.Size();
-////    RDebug::Print(_L("Firu: added pair; db size %d, usage %d"), size.iSize, size.iUsage );
-//}
-
 // ----------------------------------------------------------
 
 TInt CFiruData::AddEntryL( const TDesC& aEntry )
 {
-    return FiruDbSchema::AddEntryL( iTableEntries, aEntry );
-//    iDb.UpdateStats();
-//    RDbNamedDatabase::TSize size = iDb.Size();
-//    RDebug::Print(_L("Firu: added pair; db size %d, usage %d"), size.iSize, size.iUsage );
+    return AddEntryL( aEntry, iReversed );
 }
 
 // ----------------------------------------------------------
 
-TInt CFiruData::AddTranslationL(
-    TInt aEntryId,
-    const TDesC& aTranslation )
+TInt CFiruData::AddEntryL( const TDesC& aEntry, TBool aReversed )
 {
-    return FiruDbSchema::AddTranslationL( iTableTranslations, aEntryId, aTranslation );
+    TUint32 id = 0;
+    RDbTable* table = aReversed ? &iTableTargets : &iTableSources;
+
+    // avoid duplicate entries
+    if ( table->SeekL( aEntry ) )
+    {
+        table->GetL();
+        id = table->ColUint32( KColumnId );
+    }
+    else
+    {
+        id = FiruDbSchema::AddEntryL( *table, aEntry );
+    }
+    return id;
 }
 
 // ----------------------------------------------------------
 
-TInt CFiruData::AddExampleL(
-    TInt aEntryId,
-    TInt aTranslationId,
-    const TDesC& aExample )
+TInt CFiruData::AddTranslationL( TInt aEntryId, const TDesC& aTranslation )
 {
-    return FiruDbSchema::AddExampleL( iTableExamples, aEntryId, aTranslationId, aExample );
+    TUint32 targetId = AddEntryL( aTranslation, !iReversed );
+
+    // avoid duplicate links
+    RDbView view;
+    CleanupClosePushL( view );
+    if ( !FindTranslationRowL( view, aEntryId, targetId ) )
+    {
+        if ( !iReversed )
+            FiruDbSchema::AddTranslationL( iTableTranslations, aEntryId, targetId );
+        else
+            FiruDbSchema::AddTranslationL( iTableTranslations, targetId, aEntryId );
+    }
+    CleanupStack::PopAndDestroy( &view );
+    return targetId;
 }
+
+// ----------------------------------------------------------
+
+TBool CFiruData::FindTranslationRowL( RDbView& aView, TInt aEntryId, TInt aTargetId )
+{
+    TBuf<128> query;
+    _LIT( KSqlFromTranslations, "SELECT * FROM %S");
+    _LIT( KSqlWhereFKeys, " WHERE %S = %d AND %S = %d" );
+    query.Format( KSqlFromTranslations(), iTableNameTranslations );
+    if ( !iReversed )
+        query.AppendFormat( KSqlWhereFKeys(), &KColSourceFk, aEntryId, &KColTargetFk, aTargetId );
+    else
+        query.AppendFormat( KSqlWhereFKeys(), &KColTargetFk, aTargetId, &KColSourceFk, aEntryId );
+
+    EvaluateViewL( aView, query );
+
+    return aView.FirstL();
+}
+
+// ----------------------------------------------------------
+
+//TInt CFiruData::AddExampleL(
+//    TInt aEntryId,
+//    TInt aTranslationId,
+//    const TDesC& aExample )
+//{
+//    return FiruDbSchema::AddExampleL( iTableExamples, aEntryId, aTranslationId, aExample );
+//}
 
 // ----------------------------------------------------------
 
 TInt CFiruData::NumEntriesL() const
 {
-    return iTableEntries.CountL();
+    if ( !iReversed )
+        return iTableSources.CountL();
+    else
+        return iTableTargets.CountL();
 }
 
 // ----------------------------------------------------------
 
-//void CFiruData::SetFilterL( const TDesC& aFilter )
-//{
-//    HBufC* filter = HBufC::NewLC( aFilter.Length() + 1 );
-//    filter->Des().Copy( aFilter );
-//    filter->Des().Append( KWildCardStar );
-//
-//    HBufC* query = HBufC::NewLC( filter->Length() + KSqlViewWhere().Length() + KSqlLike().Length() );
-//    query->Des().Format( KSqlViewWhere, &iTableName );
-//    if ( !iReversed )
-//    {
-//        query->Des().AppendFormat( KSqlLike, &KColSource, &aFilter );
-//        query->Des().AppendFormat( KSqlOrder, &KColSource );
-//    }
-//    else
-//    {
-//        query->Des().AppendFormat( KSqlLike, &KColTarget, &aFilter );
-//        query->Des().AppendFormat( KSqlOrder, &KColTarget );
-//    }
-//    EvaluateViewL( iView, *query );
-//    CleanupStack::PopAndDestroy( filter );
-//}
-//
-//// ----------------------------------------------------------
-//// ----------------------------------------------------------
-////
-//void CFiruData::ResetFilterL()
-//{
-//    TBuf<128> query;
-//    query.Format( KSqlViewAll, &iTableName );
-//    if ( !iReversed )
-//    {
-//        query.AppendFormat( KSqlOrder, &KColSource );
-//    }
-//    else
-//    {
-//        query.AppendFormat( KSqlOrder, &KColTarget );
-//    }
-//    EvaluateViewL( iView, query );
-//}
-
-// ----------------------------------------------------------
-
 void CFiruData::GetEntriesL(
-    RPointerArray<CFiruDataEntry>& aEntries,
+    RPointerArray<CFiruEntry>& aEntries,
     const TDesC& aPattern,
     TInt aMaximum )
 {
@@ -345,118 +292,108 @@ void CFiruData::GetEntriesL(
 
     TInt count = 0;
     TDbSeekKey key( aPattern );
-    iTableEntries.SeekL( key, RDbTable::EGreaterEqual );
-    while ( iTableEntries.AtRow() && count < aMaximum )
+    RDbTable* table = iReversed ? &iTableTargets : &iTableSources;
+
+    table->SeekL( key, RDbTable::EGreaterEqual );
+    while ( table->AtRow() && count < aMaximum )
     {
-        iTableEntries.GetL();
-        CFiruDataEntry* entry = CreateEntryLC( iTableEntries, iReversed );
+        table->GetL();
+        CFiruEntry* entry = CreateEntryLC( *table );
         aEntries.AppendL( entry );
         CleanupStack::Pop( entry );
         count++;
-        iTableEntries.NextL();
+        table->NextL();
     }
 }
 
 // ----------------------------------------------------------
 
-void CFiruData::GetMoreEntriesL(
-    RPointerArray<CFiruDataEntry>& aEntries,
-    TInt aMaximum )
+void CFiruData::GetMoreEntriesL( RPointerArray<CFiruEntry>& aEntries, TInt aMaximum )
 {
     TInt count = 0;
-    while ( iTableEntries.AtRow() && count < aMaximum )
+    RDbTable* table = iReversed ? &iTableTargets : &iTableSources;
+    while ( table->AtRow() && count < aMaximum )
     {
-        iTableEntries.GetL();
-        CFiruDataEntry* entry = CreateEntryLC( iTableEntries, iReversed );
+        table->GetL();
+        CFiruEntry* entry = CreateEntryLC( *table );
         aEntries.AppendL( entry );
         CleanupStack::Pop( entry );
         count++;
-        iTableEntries.NextL();
+        table->NextL();
     }
 }
 
 // ----------------------------------------------------------
 
-CFiruDataEntry* CFiruData::CreateEntryLC(
-    RDbRowSet& aView,
-    TBool aReverse )
+CFiruEntry* CFiruData::CreateEntryLC( RDbRowSet& aView )
 {
     TInt id = aView.ColUint32( KColumnId );
+    TPtrC text( aView.ColDes16( KColumnText ) );
 
-    TPtrC text;
-    TPtrC trans;
-    TInt counter;
-    TInt rate;
-
-    if ( !aReverse )
-    {
-        text.Set( aView.ColDes16( KColumnSource ) );
-//        trans.Set( aView.ColDes16( KColumnTarget ) );
-//        counter = aView.ColInt( KColumnFwdCounter );
-//        rate = aView.ColInt( KColumnForward );
-    }
-    else
-    {
-//        text.Set( aView.ColDes16( KColumnTarget ) );
-        trans.Set( aView.ColDes16( KColumnSource ) );
-//        counter = aView.ColInt( KColumnRevCounter );
-//        rate = aView.ColInt( KColumnReverse );
-    }
-
-    CFiruDataEntry* entry = CFiruDataEntry::NewLC( id, text, counter, rate );
-    entry->AddTranslationL( trans );
-    return entry;
+    return CFiruEntry::NewLC( id, text );
 }
 
 // ----------------------------------------------------------
 
-CFiruDataEntry* CFiruData::TranslationLC( TInt aEntryID )
+void CFiruData::GetTranslationsL( CFiruEntry& aEntry )
 {
+    RDbTable* targets = iReversed ? &iTableSources : &iTableTargets;
+
     RDbView view;
     CleanupClosePushL( view );
-    FindEntryRowL( view, aEntryID );
 
-    view.GetL();
-    CFiruDataEntry* entry = CreateEntryLC( view, !iReversed );
-    CleanupStack::Pop( entry );
-    CleanupStack::PopAndDestroy( &view );
-    CleanupStack::PushL( entry );
-    return entry;
-}
-
-// ----------------------------------------------------------
-
-void CFiruData::FindEntryRowL( RDbView& aView, TInt aEntryID )
-{
     TBuf<128> query;
-    query.Format( KSqlViewWhere, iTableNameEntries );
-    query.AppendFormat( KSqlEqual, &KColId, aEntryID );
+    query.Format( KSqlViewWhere(), iTableNameTranslations );
+    if ( !iReversed )
+        query.AppendFormat( KSqlEqual(), &KColTargetFk, aEntry.Id() );
+    else
+        query.AppendFormat( KSqlEqual(), &KColSourceFk, aEntry.Id() );
 
-    EvaluateViewL( aView, query );
-    aView.FirstL();
-    if ( aView.AtEnd() )
+    EvaluateViewL( view, query );
+
+    view.FirstL();
+    while ( !view.AtEnd() )
     {
-        User::Leave( KErrNotFound );
+        view.GetL();
+
+        TInt counter = view.ColInt( iReversed ? KColumnReverseCount : KColumnForwardCount );
+        TInt rate = view.ColInt( iReversed ? KColumnReverseMark : KColumnForwardMark );
+
+        TDbSeekKey key( view.ColUint( iReversed ? KColumnSourceFk : KColumnTargetFk ) );
+        if ( targets->SeekL( key ) )
+        {
+            CFiruEntry* entry = CreateEntryLC( *targets );
+            CFiruTranslation* trans = new ( ELeave ) CFiruTranslation( entry, counter, rate );
+            CleanupStack::Pop( entry );
+            CleanupStack::PushL( trans );
+            aEntry.AddTranslationL( trans );
+            CleanupStack::Pop( trans );
+        }
+        view.NextL();
     }
+
+    CleanupStack::PopAndDestroy( &view );
 }
 
 // ----------------------------------------------------------
 
-CFiruExercise* CFiruData::CreateExerciseL(
-    TInt numTotalTests,
-    TInt numNewTests,
-    TInt numVariants )
+CFiruExercise* CFiruData::CreateExerciseL( TInt numTotalTests, TInt numNewTests, TInt numVariants )
 {
-    CFiruExercise* excercise = new (ELeave) CFiruExercise;
+    CFiruExercise* excercise = new ( ELeave ) CFiruExercise;
     CleanupStack::PushL( excercise );
+
+    // T questions with T answers
+    // (T-1)*W wrong translations
+    // Add all source->target tests and then target->source tests
 
     RDbView view;
     TBuf<128> query;
 
-    RPointerArray<CFiruDataEntry> questions;
+    RPointerArray<CFiruEntry> questions, answers;
     questions.Reserve( numTotalTests );
-    CleanupStack::PushL(
-        TCleanupItem( ResetAndDestroyDataEntryArray, &questions ) );
+    answers.Reserve( numTotalTests );
+    CleanupStack::PushL( TCleanupItem( ResetAndDestroyDataEntryArray, &questions ) );
+    CleanupStack::PushL( TCleanupItem( ResetAndDestroyDataEntryArray, &answers ) );
 
     // 1. Get worst old entries
 
@@ -464,17 +401,13 @@ CFiruExercise* CFiruData::CreateExerciseL(
         "SELECT * FROM %S WHERE (%S < %d) AND (%S > 0) ORDER BY %S");
     if ( !iReversed )
     {
-        query.Format( KSqlWorstOldEntries, iTableNameTranslations,
-            &KColForward, KMinGoodRate,
-            &KColFwdCounter,
-            &KColForward );
+        query.Format( KSqlWorstOldEntries(), iTableNameTranslations, &KColForward, KMinGoodRate,
+            &KColFwdCounter, &KColForward );
     }
     else
     {
-        query.Format( KSqlWorstOldEntries, iTableTranslations,
-            &KColReverse, KMinGoodRate,
-            &KColRevCounter,
-            &KColReverse );
+        query.Format( KSqlWorstOldEntries(), iTableNameTranslations, &KColReverse, KMinGoodRate,
+            &KColRevCounter, &KColReverse );
     }
 
     CleanupClosePushL( view );
@@ -484,11 +417,11 @@ CFiruExercise* CFiruData::CreateExerciseL(
 
     // 2. Get most rare entries ( the rest )
 
-    query.Format( KSqlViewAll, iTableNameEntries );
+    query.Format( KSqlViewAll(), iTableNameTranslations );
     if ( !iReversed )
-        query.AppendFormat( KSqlOrder, &KColFwdCounter );
+        query.AppendFormat( KSqlOrder(), &KColFwdCounter );
     else
-        query.AppendFormat( KSqlOrder, &KColRevCounter );
+        query.AppendFormat( KSqlOrder(), &KColRevCounter );
 
     CleanupClosePushL( view );
     EvaluateViewL( view, query );
@@ -499,10 +432,9 @@ CFiruExercise* CFiruData::CreateExerciseL(
 
     TInt numWrongVariants = numTotalTests * ( numVariants - 1 );
 
-    RPointerArray<CFiruDataEntry> wrongTranslations;
+    RPointerArray<CFiruEntry> wrongTranslations;
     wrongTranslations.Reserve( numWrongVariants );
-    CleanupStack::PushL(
-        TCleanupItem( ResetAndDestroyDataEntryArray, &wrongTranslations ) );
+    CleanupStack::PushL( TCleanupItem( ResetAndDestroyDataEntryArray, &wrongTranslations ) );
 
     query.Format( KSqlViewAll, iTableNameTranslations );
 
@@ -515,14 +447,13 @@ CFiruExercise* CFiruData::CreateExerciseL(
 
     while ( questions.Count() )
     {
-        CFiruTest* test = CFiruTest::NewLC( questions[0], iReversed );
+        CFiruTest* test = CFiruTest::NewLC( questions[0], answers[0], iReversed );
         questions.Remove( 0 );
+        answers.Remove( 0 );
 
-        for ( int i = 0;
-            ( i < numVariants - 1 ) && wrongTranslations.Count();
-            i++ )
+        for ( int i = 0; ( i < numVariants - 1 ) && wrongTranslations.Count(); i++ )
         {
-            CFiruDataEntry* entry = wrongTranslations[0];
+            CFiruEntry* entry = wrongTranslations[0];
             test->AddWrongVariantL( entry->Text() );
             wrongTranslations.Remove( 0 );
             delete entry;
@@ -533,7 +464,8 @@ CFiruExercise* CFiruData::CreateExerciseL(
     }
 
     CleanupStack::PopAndDestroy( &wrongTranslations );
-    CleanupStack::PopAndDestroy( &questions );
+    CleanupStack::PopAndDestroy(); // answers
+    CleanupStack::PopAndDestroy(); // questions
 
     CleanupStack::Pop( excercise );
     return excercise;
@@ -543,7 +475,7 @@ CFiruExercise* CFiruData::CreateExerciseL(
 
 void CFiruData::ReadRandomEntriesL(
     RDbRowSet& aView,
-    RPointerArray<CFiruDataEntry>& entries,
+    RPointerArray<CFiruEntry>& entries,
     TInt aCount,
     TBool aReversed )
 {
@@ -556,7 +488,7 @@ void CFiruData::ReadRandomEntriesL(
 
     while ( rnds.Count() < aCount )
     {
-        TInt rnd = totalCount * Math::FRand( iRandSeed );
+        TInt rnd = totalCount * Math::FRand( gRandSeed );
         TInt err = rnds.InsertInOrder( rnd ); // no duplicates
         if ( err && err != KErrAlreadyExists )
             User::Leave( err );
@@ -570,7 +502,7 @@ void CFiruData::ReadRandomEntriesL(
         if ( rnds.FindInOrder( index++ ) >= 0 )
         {
             aView.GetL();
-            CFiruDataEntry* entry = CreateEntryLC( aView, aReversed );
+            CFiruEntry* entry = CreateEntryLC( aView );
 
             TInt pos = ( entries.Count() + 1 ) * Math::FRand( gRandSeed );
             entries.InsertL( entry, pos );
@@ -588,7 +520,7 @@ void CFiruData::ReadRandomEntriesL(
 
 void CFiruData::ReadTopEntriesL(
     RDbRowSet& aView,
-    RPointerArray<CFiruDataEntry>& entries,
+    RPointerArray<CFiruEntry>& entries,
     TInt aCount,
     TBool aReversed )
 {
@@ -598,7 +530,7 @@ void CFiruData::ReadTopEntriesL(
     {
         aView.GetL();
 
-        CFiruDataEntry* q = CreateEntryLC( aView, aReversed );
+        CFiruEntry* q = CreateEntryLC( aView );
         entries.AppendL( q );
         CleanupStack::Pop( q );
 
@@ -608,40 +540,65 @@ void CFiruData::ReadTopEntriesL(
 }
 
 // ----------------------------------------------------------
-//
+
 void CFiruData::SaveTestResultL( const CFiruTest& aTest )
 {
     if ( aTest.IsPassed() && aTest.NumMistakes() == 0 )
     {
-        AdjustMarkL( aTest.Entry().Id(), +1, aTest.IsReversed(), ETrue );
+        AdjustMarkL( aTest.Question().Id(), aTest.Answer().Id(), +1, ETrue, ETrue );
     }
     else
     {
-        AdjustMarkL( aTest.Entry().Id(), -1, aTest.IsReversed(), ETrue );
+        AdjustMarkL( aTest.Question().Id(), aTest.Answer().Id(), -1, EFalse, ETrue );
     }
 }
 
 // ----------------------------------------------------------
 
-void CFiruData::AdjustMarkL( TInt aEntryID, TInt aCorrection, TBool aReversed, TBool aUpdateCounter )
+void CFiruData::AddEntryToLearningSetL( TInt aEntryId )
+{
+    CFiruEntry* entry = CFiruEntry::NewLC( aEntryId, _L("") );
+    GetTranslationsL( *entry );
+    for ( int i = 0; i < entry->NumTranslations(); ++i )
+    {
+        CFiruTranslation* trans = entry->Translation( i );
+        AdjustMarkL( aEntryId, trans->Entry().Id(), -3, EFalse, EFalse );
+    }
+    CleanupStack::PopAndDestroy( entry );
+}
+
+// ----------------------------------------------------------
+
+void CFiruData::AdjustMarkL(
+    TInt aEntryID,
+    TInt aTargetID,
+    TInt aMark,
+    TBool aShiftMark,
+    TBool aUpdateCounter )
 {
     RDbView view;
     CleanupClosePushL( view );
 
-    FindEntryRowL( view, aEntryID );
+    if ( FindTranslationRowL( view, aEntryID, aTargetID ) )
+    {
+        view.GetL();
+        TInt mark = view.ColInt( iReversed ? KColumnReverseMark : KColumnForwardMark );
+        TInt counter = view.ColInt( iReversed ? KColumnReverseCount : KColumnForwardCount );
 
-    view.GetL();
-//    TInt16 mark = aCorrection + view.ColInt16( aReversed ? KColumnReverse : KColumnForward );
-//    TInt16 counter = 1 + view.ColInt16( aReversed ? KColumnRevCounter : KColumnFwdCounter );
-//
-//    view.UpdateL();
-//    view.SetColL( aReversed ? KColumnReverse : KColumnForward, mark );
-//    if ( aUpdateCounter )
-//    {
-//        view.SetColL( aReversed ? KColumnRevCounter : KColumnFwdCounter, counter );
-//    }
-    view.PutL();
+        view.UpdateL();
+        if ( aShiftMark )
+            mark = aMark + mark;
+        else
+            mark = aMark;
 
+        view.SetColL( iReversed ? KColumnReverseMark : KColumnForwardMark, mark );
+        if ( aUpdateCounter )
+        {
+            counter++;
+            view.SetColL( iReversed ? KColumnReverseCount : KColumnForwardCount, counter );
+        }
+        view.PutL();
+    }
     CleanupStack::PopAndDestroy( &view );
 }
 
@@ -656,10 +613,10 @@ void CFiruData::ResetStatsL()
 
 void CFiruData::ClearDictionaryL()
 {
-//    HBufC* query = HBufC::NewLC( KSqlDeleteAll().Length() + iTableName->Length() );
-//    query->Des().Format( KSqlDeleteAll, &iTableName );
-//    iDb.Execute( *query );
-//    CleanupStack::PopAndDestroy( query );
+    //    HBufC* query = HBufC::NewLC( KSqlDeleteAll().Length() + iTableName->Length() );
+    //    query->Des().Format( KSqlDeleteAll, &iTableName );
+    //    iDb.Execute( *query );
+    //    CleanupStack::PopAndDestroy( query );
 }
 
 // ----------------------------------------------------------
@@ -670,23 +627,25 @@ void CFiruData::CompactL()
 }
 
 // ----------------------------------------------------------
+
 CFiruData::Stats CFiruData::GetStats()
 {
     Stats stats;
 
     // total
-    stats.iTotalEntries = iTableEntries.CountL();
+    RDbTable* entries = iReversed ? &iTableTargets : &iTableSources;
+    stats.iTotalEntries = entries->CountL();
 
     TBuf<128> query;
     // not asked
     _LIT( KSqlNotAskedEntries, "SELECT * FROM %S WHERE %S = 0");
     if ( !iReversed )
     {
-//        query.Format( KSqlNotAskedEntries(), iTableName, &KColFwdCounter );
+        query.Format( KSqlNotAskedEntries(), iTableNameTranslations, &KColFwdCounter );
     }
     else
     {
-//        query.Format( KSqlNotAskedEntries(), iTableName, &KColRevCounter );
+        query.Format( KSqlNotAskedEntries(), iTableNameTranslations, &KColRevCounter );
     }
 
     RDbView view;
@@ -706,7 +665,7 @@ CFiruData::Stats CFiruData::GetStats()
 // ----------------------------------------------------------
 
 CFiruTest::CFiruTest() :
-    iCorrectTranslationIndex( -1 ), iRandSeed( 100 )
+    iCorrectTranslationIndex( -1 )
 {
 }
 
@@ -714,25 +673,26 @@ CFiruTest::CFiruTest() :
 
 CFiruTest::~CFiruTest()
 {
-    delete iEntry;
+    delete iQuestion;
+    delete iAnswer;
     iVariants.ResetAndDestroy();
 }
 
 // ----------------------------------------------------------
 
-CFiruTest* CFiruTest::NewLC(
-    CFiruDataEntry* aEntry,
-    TBool aReversed )
+CFiruTest* CFiruTest::NewLC( CFiruEntry* aQuestion, CFiruEntry* aAnswer, TBool aReversed )
 {
-    ASSERT( aEntry );
+    ASSERT( aQuestion );
+    ASSERT( aAnswer );
 
-    CFiruTest* self = new (ELeave) CFiruTest;
+    CFiruTest* self = new ( ELeave ) CFiruTest;
     CleanupStack::PushL( self );
 
-    self->iEntry = aEntry;
+    self->iQuestion = aQuestion;
+    self->iAnswer = aAnswer;
     self->iReversed = aReversed;
 
-    HBufC* text = aEntry->Translation( 0 ).AllocLC();
+    HBufC* text = aAnswer->Text().AllocLC();
     self->iVariants.AppendL( text );
     CleanupStack::Pop( text );
     self->iCorrectTranslationIndex = 0;
@@ -747,10 +707,10 @@ void CFiruTest::AddWrongVariantL( const TDesC& aText )
     // replace correct answer with wrong variant
     // and move correct one to new random place
 
-    HBufC* correct = iVariants[ iCorrectTranslationIndex ];
+    HBufC* correct = iVariants[iCorrectTranslationIndex];
 
     HBufC* text = aText.AllocLC();
-    iVariants[ iCorrectTranslationIndex ] = text;
+    iVariants[iCorrectTranslationIndex] = text;
     CleanupStack::Pop( text );
 
     TInt newIndex = ( iVariants.Count() + 1 ) * Math::FRand( gRandSeed );
@@ -760,16 +720,16 @@ void CFiruTest::AddWrongVariantL( const TDesC& aText )
 
 // ----------------------------------------------------------
 
-TPtrC CFiruTest::Question() const
+TPtrC CFiruTest::QuestionText() const
 {
-    return iEntry->Text();
+    return iQuestion->Text();
 }
 
 // ----------------------------------------------------------
 
-TPtrC CFiruTest::Answer() const
+TPtrC CFiruTest::AnswerText() const
 {
-    return iEntry->Translation( 0 );
+    return iAnswer->Text();
 }
 
 // ----------------------------------------------------------
@@ -793,7 +753,7 @@ TBool CFiruTest::TryVariant( TUint aIndex )
 
 TBool CFiruTest::TryAnswer( const TDesC& aText )
 {
-    if ( aText.MatchC( iEntry->Translation( 0 ) ) == 0 )
+    if ( aText.MatchC( AnswerText() ) == 0 )
     {
         iPassed = ETrue;
         return ETrue;
@@ -863,3 +823,31 @@ CFiruExercise::Stats CFiruExercise::GetStats() const
     }
     return Stats( passed, asked );
 }
+
+// ----------------------------------------------------------
+
+//void CFiruData::DebugFindTargetDuplicatesL()
+//{
+//    TInt dups = 0;
+//    HBufC* previous = NULL;
+//    iTableTranslations.FirstL();
+//    while ( !iTableTranslations.AtEnd() )
+//    {
+//        iTableTranslations.GetL();
+//        TPtrC text = iTableTranslations.ColDes( KColumnTarget );
+//        if ( previous )
+//        {
+//            if ( text.Compare( *previous ) == 0 )
+//            {
+//                RDebug::Print( _L("Dup found: %S"), &text );
+//                dups++;
+//            }
+//            CleanupStack::PopAndDestroy( previous );
+//        }
+//        previous = text.AllocLC();
+//        iTableTranslations.NextL();
+//    }
+//    iTableTranslations.FirstL();
+//    CleanupStack::PopAndDestroy( previous );
+//    RDebug::Print( _L("Found %d dups in %d records"), dups, iTableTranslations.CountL() );
+//}

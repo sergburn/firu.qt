@@ -47,7 +47,7 @@ public:
     void GetMoreL();
 
     CDesCArray* GetTextListLC( );
-    CFiruDataEntry* Entry( TInt pos );
+    CFiruEntry* Entry( TInt pos );
 
 private:
 
@@ -65,7 +65,7 @@ private:
 
     CFiruData& iData; // not owned
 
-    RPointerArray<CFiruDataEntry> iEntries;
+    RPointerArray<CFiruEntry> iEntries;
 };
 
 #endif // CFIRUDICTLISTBOXMODEL_H

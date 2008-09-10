@@ -1,19 +1,18 @@
 /*
 ========================================================================
- Name        : FiruTrainerListBoxView.h
- Author      :
- Copyright   : Your copyright notice
- Description :
+ Name        : FiruEntryViewView.h
+ Author      : ${author}
+ Copyright   : ${copyright}
+ Description : 
 ========================================================================
 */
-#ifndef FIRUTRAINERLISTBOXVIEW_H
-#define FIRUTRAINERLISTBOXVIEW_H
+#ifndef FIRUENTRYVIEWVIEW_H
+#define FIRUENTRYVIEWVIEW_H
 
 // [[[ begin generated region: do not modify [Generated Includes]
 #include <aknview.h>
 // ]]] end generated region [Generated Includes]
 
-#include "FiruData.h"
 
 // [[[ begin [Event Handler Includes]
 // ]]] end [Event Handler Includes]
@@ -22,42 +21,39 @@
 // ]]] end generated region [Generated Constants]
 
 // [[[ begin generated region: do not modify [Generated Forward Declarations]
-class CAknNavigationDecorator;
-class CFiruTrainerListBox;
+class CFiruEntryView;
 // ]]] end generated region [Generated Forward Declarations]
 
 /**
- * Avkon view class for FiruTrainerListBoxView. It is register with the view server
+ * Avkon view class for FiruEntryViewView. It is register with the view server
  * by the AppUi. It owns the container control.
- * @class	CFiruTrainerListBoxView FiruTrainerListBoxView.h
- */
-
-class CFiruTrainerListBoxView : public CAknView
+ * @class	CFiruEntryViewView FiruEntryViewView.h
+ */						
+			
+class CFiruEntryViewView : public CAknView
 	{
-
-
+	
+	
 	// [[[ begin [Public Section]
 public:
 	// constructors and destructor
-	CFiruTrainerListBoxView();
-	static CFiruTrainerListBoxView* NewL();
-	static CFiruTrainerListBoxView* NewLC();
+	CFiruEntryViewView();
+	static CFiruEntryViewView* NewL();
+	static CFiruEntryViewView* NewLC();        
 	void ConstructL();
-	virtual ~CFiruTrainerListBoxView();
-
+	virtual ~CFiruEntryViewView();
+						
 	// from base class CAknView
 	TUid Id() const;
 	void HandleCommandL( TInt aCommand );
-
+	
 	// [[[ begin generated region: do not modify [Generated Methods]
-	CFiruTrainerListBox* CreateContainerL();
-	static TInt RunQrySureL( const TDesC* aOverrideText = NULL );
+	CFiruEntryView* CreateContainerL();
 	// ]]] end generated region [Generated Methods]
-
+	
 	// ]]] end [Public Section]
-
-	CFiruData& Data();
-
+	
+	
 	// [[[ begin [Protected Section]
 protected:
 	// from base class CAknView
@@ -67,43 +63,31 @@ protected:
 		const TDesC8& aCustomMessage );
 	void DoDeactivate();
 	void HandleStatusPaneSizeChange();
-
+	
 	// [[[ begin generated region: do not modify [Overridden Methods]
 	// ]]] end generated region [Overridden Methods]
-
-
+	
+	
 	// [[[ begin [User Handlers]
-	TBool HandleReset_statsMenuItemSelectedL( TInt aCommand );
-	TBool HandleCancelMenuItemSelectedL( TInt aCommand );
-	TBool HandleControlPaneRightSoftKeyPressedL( TInt aCommand );
-	TBool HandleSelectMenuItemSelectedL( TInt aCommand );
-    TBool HandleShow_detailsMenuItemSelectedL( TInt aCommand );
-	TBool HandleShow_statsMenuItemSelectedL( TInt aCommand );
 	// ]]] end [User Handlers]
-
+	
 	// ]]] end [Protected Section]
-
-    void NextTestL();
-    void ShowExerciseStatsL( const CFiruExercise& aExercise );
-
+	
+	
 	// [[[ begin [Private Section]
 private:
 	void SetupStatusPaneL();
 	void CleanupStatusPane();
-
+	
 	// [[[ begin generated region: do not modify [Generated Instance Variables]
-	// any current navi decorator
-	CAknNavigationDecorator* iNaviDecorator_;
-	CFiruTrainerListBox* iFiruTrainerListBox;
+	CFiruEntryView* iFiruEntryView;
 	// ]]] end generated region [Generated Instance Variables]
-
+	
 	// [[[ begin generated region: do not modify [Generated Methods]
 	// ]]] end generated region [Generated Methods]
-
+	
 	// ]]] end [Private Section]
-
-	CFiruExercise* iExercise;
-	CFiruTest* iCurrentTest;
+	
 	};
 
-#endif // FIRUTRAINERLISTBOXVIEW_H
+#endif // FIRUENTRYVIEWVIEW_H

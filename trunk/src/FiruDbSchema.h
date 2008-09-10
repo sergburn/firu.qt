@@ -14,16 +14,12 @@
 _LIT( KDatabaseFile, "c:\\private\\E0EDB1C1\\dicts.db" );
 _LIT( KEntryTableNameFmt, "entries_%02d" );
 _LIT( KTranslationTableNameFmt, "trans_%02d_to_%02d" );
-_LIT( KExampleTableNameFmt, "ex_%02d_to_%02d" );
-_LIT( KDirTableIdIndexNameFmt, "ind_%S_id" );
-_LIT( KDirTableSrcIndexNameFmt, "ind_%S_src" );
-_LIT( KDirTableTrgIndexNameFmt, "ind_%S_trg" );
+//_LIT( KExampleTableNameFmt, "ex_%02d_to_%02d" );
 
 _LIT( KPrimaryKeyIndexName, "index_PK" );
-_LIT( KEntryFKIndexName, "index_EntryFK" );
-_LIT( KTranslationFKIndexName, "index_TranslationFK" );
-_LIT( KSourceTextIndexName, "index_source" );
-_LIT( KTargetTextIndexName, "index_target" );
+_LIT( KSourceFkIndexName, "index_SourceFK" );
+_LIT( KTargetFkIndexName, "index_TargetFK" );
+_LIT( KTextIndexName, "index_text" );
 
 _LIT( KSqlViewAll, "SELECT * FROM %S");
 _LIT( KSqlViewWhere, "SELECT * FROM %S WHERE ");
@@ -38,17 +34,17 @@ const TInt KColumnId = 1;
 
 // Entries table
 // id - record id, int32, autoinc, PK
-// source - source text, unicode
+// text - entry text, unicode
 
 enum {
     KColumnEntryPK = KColumnId,
-    KColumnSource,
+    KColumnText,
 };
 
 // Translations table
-// id - record id, int32, autoinc, PK
-// eid - parent entry id, FK
-// target - target text, unicode
+// id - PK
+// sid - source entry id, int32, FK
+// tid - target entry id, int32, FK
 // forward - from source to target association mark, int
 // reverse - from target to source association mark, int
 // fwd_count - amount of times source was used in tests, int
@@ -56,8 +52,8 @@ enum {
 
 enum {
     KColumnTransPK = KColumnId,
-    KColumnEntryFk,
-    KColumnTarget,
+    KColumnSourceFk,
+    KColumnTargetFk,
     KColumnForwardMark,
     KColumnReverseMark,
     KColumnForwardCount,
@@ -70,19 +66,17 @@ enum {
 // tid - parent translation record, FK
 // example - example text
 
-enum {
-    KColumnExamplePK = KColumnId,
-    KColumnExampleEntryFk,
-    KColumnExampleTranslationFk,
-    KColumnExampleText,
-};
+//enum {
+//    KColumnExamplePK = KColumnId,
+//    KColumnExampleEntryFk,
+//    KColumnExampleTranslationFk,
+//    KColumnExampleText,
+//};
 
 _LIT( KColId, "id" );
-_LIT( KColEntryFk, "eid" );
-_LIT( KColTranslationFk, "tid" );
-_LIT( KColSource, "source" );
-_LIT( KColTarget, "target" );
-_LIT( KColExample, "example" );
+_LIT( KColSourceFk, "sid" );
+_LIT( KColTargetFk, "tid" );
+_LIT( KColText, "text" );
 _LIT( KColForward, "forward" );
 _LIT( KColReverse, "reverse" );
 _LIT( KColFwdCounter, "fwd_count" );
@@ -99,22 +93,19 @@ public:
 
     static HBufC* EntriesTableNameLC( TLanguage aInputLanguage );
     static HBufC* TranslationsTableNameLC( TLanguage aInputLanguage, TLanguage aOutputLanguage );
-    static HBufC* ExamplesTableNameLC( TLanguage aInputLanguage, TLanguage aOutputLanguage );
-
-    static HBufC* ForwardIndexNameLC( const TDesC& aTableName );
-    static HBufC* ReverseIndexNameLC( const TDesC& aTableName );
+//    static HBufC* ExamplesTableNameLC( TLanguage aInputLanguage, TLanguage aOutputLanguage );
 
     static CDbColSet* CreateEntriesTableColumnsLC();
     static CDbColSet* CreateTranslationsTableColumnsLC();
-    static CDbColSet* CreateExamplesTableColumnsLC();
+//    static CDbColSet* CreateExamplesTableColumnsLC();
 
     static void CreateDictionaryL(
         RDbNamedDatabase& aDb,
         TLanguage aInputLanguage, TLanguage aOutputLanguage );
 
     static TInt AddEntryL( RDbRowSet& aTable, const TDesC& aEntry );
-    static TInt AddTranslationL( RDbRowSet& aTable, TInt aEntryId, const TDesC& aTranslation );
-    static TInt AddExampleL( RDbRowSet& aTable, TInt aEntryId, TInt aTranslationId, const TDesC& aExample );
+    static TInt AddTranslationL( RDbRowSet& aTable, TInt aSourceId, TInt aTargetId );
+//    static TInt AddExampleL( RDbRowSet& aTable, TInt aEntryId, TInt aTranslationId, const TDesC& aExample );
 
 private:
     static TBool TableExistsL( RDbNamedDatabase& aDb, const TDesC& aTable );

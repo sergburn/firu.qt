@@ -24,7 +24,7 @@ class MEikCommandObserver;
 class CAknSingleStyleListBox;
 class CEikTextListBox;
 // ]]] end generated region [Generated Forward Declarations]
-class CFiruDataEntry;
+class CFiruEntry;
 class CFiruDictListBoxModel;
 
 /**
@@ -91,7 +91,7 @@ public:
     // ]]] end generated region [Generated Methods]
 
     void RefreshListBoxL( );
-    CFiruDataEntry* CurrentItem( );
+    CFiruEntry* CurrentItem( );
     
     CFiruDictListBoxModel& Model();
 

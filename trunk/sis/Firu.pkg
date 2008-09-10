@@ -32,7 +32,5 @@
 "$(EPOCROOT)epoc32\data\z\resource\apps\Firu_aif.mif" -"!:\resource\apps\Firu_aif.mif"
 "$(EPOCROOT)epoc32\data\z\resource\apps\Firu.mbm" -"!:\resource\apps\Firu.mbm"
 
-;"..\data\suomi.txt"-"!:\private\E0EDB1C1\suomi.txt"
-;"..\data\russian.txt"-"!:\private\E0EDB1C1\russian.txt"
 "$(EPOCROOT)\Epoc32\winscw\c\private\E0EDB1C1\dicts.db"  -"!:\private\E0EDB1C1\dicts.db"
 

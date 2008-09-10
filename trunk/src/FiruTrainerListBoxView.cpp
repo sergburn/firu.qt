@@ -18,6 +18,8 @@
 #include <eikclbd.h>
 #include <akncontext.h>
 #include <akntitle.h>
+#include <aknnavide.h>
+#include <aknnavi.h>
 #include <eikbtgpc.h>
 #include <aknquerydialog.h>
 #include <firu.rsg>
@@ -51,6 +53,7 @@ const TInt KNumVariants = 6;
 CFiruTrainerListBoxView::CFiruTrainerListBoxView()
 {
     // [[[ begin generated region: do not modify [Generated Contents]
+	iNaviDecorator_ = NULL;
     iFiruTrainerListBox = NULL;
     // ]]] end generated region [Generated Contents]
 
@@ -63,6 +66,11 @@ CFiruTrainerListBoxView::CFiruTrainerListBoxView()
 CFiruTrainerListBoxView::~CFiruTrainerListBoxView()
 {
     // [[[ begin generated region: do not modify [Generated Contents]
+	if ( iNaviDecorator_ != NULL )
+		{
+		delete iNaviDecorator_;
+		iNaviDecorator_ = NULL;
+		}
     delete iFiruTrainerListBox;
     iFiruTrainerListBox = NULL;
     // ]]] end generated region [Generated Contents]
@@ -290,15 +298,54 @@ void CFiruTrainerListBoxView::SetupStatusPaneL()
         title->SetFromResourceL( reader );
         CleanupStack::PopAndDestroy(); // reader internal state
     }
-
-}
+				
+	// set the navi pane content
+	TUid naviPaneUid = TUid::Uid( EEikStatusPaneUidNavi );
+	CEikStatusPaneBase::TPaneCapabilities subPaneNavi = 
+		StatusPane()->PaneCapabilities( naviPaneUid );
+	if ( subPaneNavi.IsPresent() && subPaneNavi.IsAppOwned() )
+		{
+		CAknNavigationControlContainer* naviPane = 
+			static_cast< CAknNavigationControlContainer* >( 
+				StatusPane()->ControlL( naviPaneUid ) );
+		if ( iNaviDecorator_ != NULL )
+			{
+			delete iNaviDecorator_;
+			iNaviDecorator_ = NULL;
+			}
+				
+		HBufC* labelText = StringLoader::LoadLC( R_FIRU_TRAINER_LIST_BOX_NAVI_TEXT1 );
+		iNaviDecorator_ = naviPane->CreateNavigationLabelL( *labelText );
+		CleanupStack::PopAndDestroy( labelText );			
+				
+		naviPane->PushL( *iNaviDecorator_ );
+		}
+				
+	}
 
 // ]]] end generated function
 
 // [[[ begin generated function: do not modify
 void CFiruTrainerListBoxView::CleanupStatusPane()
-{
-}
+	{
+	// reset the navi pane 
+	TUid naviPaneUid = TUid::Uid( EEikStatusPaneUidNavi );
+	CEikStatusPaneBase::TPaneCapabilities subPaneNavi = 
+		StatusPane()->PaneCapabilities( naviPaneUid );
+	if ( subPaneNavi.IsPresent() && subPaneNavi.IsAppOwned() )
+		{
+		CAknNavigationControlContainer* naviPane = 
+			static_cast< CAknNavigationControlContainer* >( 
+				StatusPane()->ControlL( naviPaneUid ) );
+		if ( iNaviDecorator_ != NULL )
+			{
+			naviPane->Pop( iNaviDecorator_ );
+			delete iNaviDecorator_;
+			iNaviDecorator_ = NULL;
+			}
+		}
+	
+	}
 
 // ]]] end generated function
 
