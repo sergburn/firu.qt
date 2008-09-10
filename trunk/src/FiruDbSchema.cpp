@@ -227,8 +227,8 @@ TInt FiruDbSchema::AddExampleL( RDbRowSet& aTable, TInt aEntryId, TInt aTranslat
 {
     aTable.InsertL();
     aTable.SetColL( KColumnEntryFk, aEntryId );
-    aTable.SetColL( KColumnTranslationFk, aTranslationId );
-    aTable.SetColL( KColumnExample, aExample.Left( KMaxTextColumnLength ) );
+    aTable.SetColL( KColumnExampleTranslationFk, aTranslationId );
+    aTable.SetColL( KColumnExampleText, aExample.Left( KMaxTextColumnLength ) );
     aTable.PutL();
     return aTable.ColUint32( KColumnId );
 }

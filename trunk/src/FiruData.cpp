@@ -118,8 +118,12 @@ CFiruData::CFiruData( RFs& aFs ) :
 
 CFiruData::~CFiruData()
 {
-    delete iTableName;
-    iTable.Close();
+    delete iTableNameExamples;
+    delete iTableNameTranslations;
+    delete iTableNameExamples;
+    iTableExamples.Close();
+    iTableTranslations.Close();
+    iTableExamples.Close();
     iDb.Compact();
     iDb.Close();
 }
@@ -157,19 +161,24 @@ void CFiruData::SelectDictionaryL( TLanguage aInputLanguage, TLanguage aOutputLa
     iTableTranslations.Close();
     iTableExamples.Close();
 
-    iTableNameEntries = EntryTableNameLC( aInputLanguage );
-    CleanupStack::Pop( iTableNameEntries );
-
-    CreateDictionaryL( *iTableNameEntries, *iTableNameTranslations, *iTableExamples );
+    FiruDbSchema::CreateDictionaryL( iDb, aInputLanguage, aOutputLanguage );
 
     iSourceLang = aInputLanguage;
     iTargetLang = aOutputLanguage;
     iReversed = EFalse;
 
-    iTableEntries.Open( iDb, *iTableNameEntries, RDbTable::EReadOnly );
+    iTableNameEntries = FiruDbSchema::EntriesTableNameLC( aInputLanguage );
+    CleanupStack::Pop( iTableNameEntries );
+    iTableEntries.Open( iDb, *iTableNameEntries, RDbTable::EUpdatable );
+
+    iTableNameTranslations = FiruDbSchema::TranslationsTableNameLC( aInputLanguage, aOutputLanguage );
+    CleanupStack::Pop( iTableNameTranslations );
     iTableTranslations.Open( iDb, *iTableNameTranslations, RDbTable::EUpdatable );
-    iTableExamples.Open( iDb, *iTableNameExamples, RDbTable::EReadOnly );
-    SetTableIndexL();
+
+    iTableNameExamples = FiruDbSchema::ExamplesTableNameLC( aInputLanguage, aOutputLanguage );
+    CleanupStack::Pop( iTableNameExamples );
+    iTableExamples.Open( iDb, *iTableNameExamples, RDbTable::EUpdatable );
+//    SetTableIndexL();
 }
 
 // ----------------------------------------------------------
@@ -198,9 +207,9 @@ void CFiruData::SetTableIndexL()
 {
     HBufC* indexName = NULL;
     if ( iReversed )
-        indexName = ReverseIndexNameLC( *iTableNameEntries );
+        indexName = FiruDbSchema::ReverseIndexNameLC( *iTableNameEntries );
     else
-        indexName = ForwardIndexNameLC( *iTableNameEntries );
+        indexName = FiruDbSchema::ForwardIndexNameLC( *iTableNameEntries );
 
     User::LeaveIfError( iTableEntries.SetIndex( *indexName ) );
     User::LeaveIfError( iTableTranslations.SetIndex( *indexName ) );
@@ -219,54 +228,39 @@ void CFiruData::GetLanguagesL( TLanguage& aInputLanguage, TLanguage& aOutputLang
 
 // ----------------------------------------------------------
 
-void CFiruData::AddPair( const TDesC& aEntry, const TDesC& aTranslation )
-{
-    TRAPD( err, AddPairL( aEntry, aTranslation ) );
-    if ( err )
-    {
-//        iView.Cancel();
-        RDebug::Print( _L("Couldn't (%d) add pair: %S - %S"), err, &aEntry, &aTranslation );
-    }
-}
+//void CFiruData::AddPair( const TDesC& aEntry, const TDesC& aTranslation )
+//{
+//    TRAPD( err, AddPairL( aEntry, aTranslation ) );
+//    if ( err )
+//    {
+////        iView.Cancel();
+//        RDebug::Print( _L("Couldn't (%d) add pair: %S - %S"), err, &aEntry, &aTranslation );
+//    }
+//}
+//
+//// ----------------------------------------------------------
+//
+//void CFiruData::AddPairL( const TDesC& aEntry, const TDesC& aTranslation )
+//{
+//    iTable.InsertL();
+//    iTable.SetColL( KColumnSource, aEntry.Left( KMaxTextColumnLength ) );
+//    iTable.SetColL( KColumnTarget, aTranslation.Left( KMaxTextColumnLength ) );
+//    iTable.SetColL( KColumnForward, 0 );
+//    iTable.SetColL( KColumnReverse, 0 );
+//    iTable.SetColL( KColumnFwdCounter, 0 );
+//    iTable.SetColL( KColumnRevCounter, 0 );
+//    iTable.PutL();
+//
+////    iDb.UpdateStats();
+////    RDbNamedDatabase::TSize size = iDb.Size();
+////    RDebug::Print(_L("Firu: added pair; db size %d, usage %d"), size.iSize, size.iUsage );
+//}
 
 // ----------------------------------------------------------
 
-void CFiruData::AddPairL( const TDesC& aEntry, const TDesC& aTranslation )
+TInt CFiruData::AddEntryL( const TDesC& aEntry )
 {
-    iTable.InsertL();
-    iTable.SetColL( KColumnSource, aEntry.Left( KMaxTextColumnLength ) );
-    iTable.SetColL( KColumnTarget, aTranslation.Left( KMaxTextColumnLength ) );
-    iTable.SetColL( KColumnForward, 0 );
-    iTable.SetColL( KColumnReverse, 0 );
-    iTable.SetColL( KColumnFwdCounter, 0 );
-    iTable.SetColL( KColumnRevCounter, 0 );
-    iTable.PutL();
-
-//    iDb.UpdateStats();
-//    RDbNamedDatabase::TSize size = iDb.Size();
-//    RDebug::Print(_L("Firu: added pair; db size %d, usage %d"), size.iSize, size.iUsage );
-}
-
-// ----------------------------------------------------------
-
-TInt CFiruData::AddEntryL(
-    const TDesC& aEntry,
-    CDesCArray& aTranslations )
-{
-    iTableEntries.InsertL();
-    iTable.SetColL( KColumnSource, aEntry.Left( KMaxTextColumnLength ) );
-    iTableEntries.PutL();
-    return iTableEntries.ColUint32(  )
-
-    iTableTranslations.InsertL();
-    iTable.SetColL( KColumnTarget, aTranslation.Left( KMaxTextColumnLength ) );
-    iTable.SetColL( KColumnForward, 0 );
-    iTable.SetColL( KColumnReverse, 0 );
-    iTable.SetColL( KColumnFwdCounter, 0 );
-    iTable.SetColL( KColumnRevCounter, 0 );
-    iTableTranslations.PutL();
-
-
+    return FiruDbSchema::AddEntryL( iTableEntries, aEntry );
 //    iDb.UpdateStats();
 //    RDbNamedDatabase::TSize size = iDb.Size();
 //    RDebug::Print(_L("Firu: added pair; db size %d, usage %d"), size.iSize, size.iUsage );
@@ -278,23 +272,24 @@ TInt CFiruData::AddTranslationL(
     TInt aEntryId,
     const TDesC& aTranslation )
 {
-
+    return FiruDbSchema::AddTranslationL( iTableTranslations, aEntryId, aTranslation );
 }
 
 // ----------------------------------------------------------
 
 TInt CFiruData::AddExampleL(
     TInt aEntryId,
-    const TDesC& aTranslation )
+    TInt aTranslationId,
+    const TDesC& aExample )
 {
-
+    return FiruDbSchema::AddExampleL( iTableExamples, aEntryId, aTranslationId, aExample );
 }
 
 // ----------------------------------------------------------
 
 TInt CFiruData::NumEntriesL() const
 {
-    return iTable.CountL();
+    return iTableEntries.CountL();
 }
 
 // ----------------------------------------------------------
@@ -350,15 +345,15 @@ void CFiruData::GetEntriesL(
 
     TInt count = 0;
     TDbSeekKey key( aPattern );
-    iTable.SeekL( key, RDbTable::EGreaterEqual );
-    while ( iTable.AtRow() && count < aMaximum )
+    iTableEntries.SeekL( key, RDbTable::EGreaterEqual );
+    while ( iTableEntries.AtRow() && count < aMaximum )
     {
-        iTable.GetL();
-        CFiruDataEntry* entry = CreateEntryLC( iTable, iReversed );
+        iTableEntries.GetL();
+        CFiruDataEntry* entry = CreateEntryLC( iTableEntries, iReversed );
         aEntries.AppendL( entry );
         CleanupStack::Pop( entry );
         count++;
-        iTable.NextL();
+        iTableEntries.NextL();
     }
 }
 
@@ -369,14 +364,14 @@ void CFiruData::GetMoreEntriesL(
     TInt aMaximum )
 {
     TInt count = 0;
-    while ( iTable.AtRow() && count < aMaximum )
+    while ( iTableEntries.AtRow() && count < aMaximum )
     {
-        iTable.GetL();
-        CFiruDataEntry* entry = CreateEntryLC( iTable, iReversed );
+        iTableEntries.GetL();
+        CFiruDataEntry* entry = CreateEntryLC( iTableEntries, iReversed );
         aEntries.AppendL( entry );
         CleanupStack::Pop( entry );
         count++;
-        iTable.NextL();
+        iTableEntries.NextL();
     }
 }
 
@@ -396,16 +391,16 @@ CFiruDataEntry* CFiruData::CreateEntryLC(
     if ( !aReverse )
     {
         text.Set( aView.ColDes16( KColumnSource ) );
-        trans.Set( aView.ColDes16( KColumnTarget ) );
-        counter = aView.ColInt( KColumnFwdCounter );
-        rate = aView.ColInt( KColumnForward );
+//        trans.Set( aView.ColDes16( KColumnTarget ) );
+//        counter = aView.ColInt( KColumnFwdCounter );
+//        rate = aView.ColInt( KColumnForward );
     }
     else
     {
-        text.Set( aView.ColDes16( KColumnTarget ) );
+//        text.Set( aView.ColDes16( KColumnTarget ) );
         trans.Set( aView.ColDes16( KColumnSource ) );
-        counter = aView.ColInt( KColumnRevCounter );
-        rate = aView.ColInt( KColumnReverse );
+//        counter = aView.ColInt( KColumnRevCounter );
+//        rate = aView.ColInt( KColumnReverse );
     }
 
     CFiruDataEntry* entry = CFiruDataEntry::NewLC( id, text, counter, rate );
@@ -434,7 +429,7 @@ CFiruDataEntry* CFiruData::TranslationLC( TInt aEntryID )
 void CFiruData::FindEntryRowL( RDbView& aView, TInt aEntryID )
 {
     TBuf<128> query;
-    query.Format( KSqlViewWhere, iTableName );
+    query.Format( KSqlViewWhere, iTableNameEntries );
     query.AppendFormat( KSqlEqual, &KColId, aEntryID );
 
     EvaluateViewL( aView, query );
@@ -469,14 +464,14 @@ CFiruExercise* CFiruData::CreateExerciseL(
         "SELECT * FROM %S WHERE (%S < %d) AND (%S > 0) ORDER BY %S");
     if ( !iReversed )
     {
-        query.Format( KSqlWorstOldEntries, iTableName,
+        query.Format( KSqlWorstOldEntries, iTableNameTranslations,
             &KColForward, KMinGoodRate,
             &KColFwdCounter,
             &KColForward );
     }
     else
     {
-        query.Format( KSqlWorstOldEntries, iTableName,
+        query.Format( KSqlWorstOldEntries, iTableTranslations,
             &KColReverse, KMinGoodRate,
             &KColRevCounter,
             &KColReverse );
@@ -489,7 +484,7 @@ CFiruExercise* CFiruData::CreateExerciseL(
 
     // 2. Get most rare entries ( the rest )
 
-    query.Format( KSqlViewAll, iTableName );
+    query.Format( KSqlViewAll, iTableNameEntries );
     if ( !iReversed )
         query.AppendFormat( KSqlOrder, &KColFwdCounter );
     else
@@ -509,7 +504,7 @@ CFiruExercise* CFiruData::CreateExerciseL(
     CleanupStack::PushL(
         TCleanupItem( ResetAndDestroyDataEntryArray, &wrongTranslations ) );
 
-    query.Format( KSqlViewAll, iTableName );
+    query.Format( KSqlViewAll, iTableNameTranslations );
 
     CleanupClosePushL( view );
     EvaluateViewL( view, query );
@@ -636,15 +631,15 @@ void CFiruData::AdjustMarkL( TInt aEntryID, TInt aCorrection, TBool aReversed, T
     FindEntryRowL( view, aEntryID );
 
     view.GetL();
-    TInt16 mark = aCorrection + view.ColInt16( aReversed ? KColumnReverse : KColumnForward );
-    TInt16 counter = 1 + view.ColInt16( aReversed ? KColumnRevCounter : KColumnFwdCounter );
-
-    view.UpdateL();
-    view.SetColL( aReversed ? KColumnReverse : KColumnForward, mark );
-    if ( aUpdateCounter )
-    {
-        view.SetColL( aReversed ? KColumnRevCounter : KColumnFwdCounter, counter );
-    }
+//    TInt16 mark = aCorrection + view.ColInt16( aReversed ? KColumnReverse : KColumnForward );
+//    TInt16 counter = 1 + view.ColInt16( aReversed ? KColumnRevCounter : KColumnFwdCounter );
+//
+//    view.UpdateL();
+//    view.SetColL( aReversed ? KColumnReverse : KColumnForward, mark );
+//    if ( aUpdateCounter )
+//    {
+//        view.SetColL( aReversed ? KColumnRevCounter : KColumnFwdCounter, counter );
+//    }
     view.PutL();
 
     CleanupStack::PopAndDestroy( &view );
@@ -661,10 +656,10 @@ void CFiruData::ResetStatsL()
 
 void CFiruData::ClearDictionaryL()
 {
-    HBufC* query = HBufC::NewLC( KSqlDeleteAll().Length() + iTableName->Length() );
-    query->Des().Format( KSqlDeleteAll, &iTableName );
-    iDb.Execute( *query );
-    CleanupStack::PopAndDestroy( query );
+//    HBufC* query = HBufC::NewLC( KSqlDeleteAll().Length() + iTableName->Length() );
+//    query->Des().Format( KSqlDeleteAll, &iTableName );
+//    iDb.Execute( *query );
+//    CleanupStack::PopAndDestroy( query );
 }
 
 // ----------------------------------------------------------
@@ -680,18 +675,18 @@ CFiruData::Stats CFiruData::GetStats()
     Stats stats;
 
     // total
-    stats.iTotalEntries = iTable.CountL();
+    stats.iTotalEntries = iTableEntries.CountL();
 
     TBuf<128> query;
     // not asked
     _LIT( KSqlNotAskedEntries, "SELECT * FROM %S WHERE %S = 0");
     if ( !iReversed )
     {
-        query.Format( KSqlNotAskedEntries(), iTableName, &KColFwdCounter );
+//        query.Format( KSqlNotAskedEntries(), iTableName, &KColFwdCounter );
     }
     else
     {
-        query.Format( KSqlNotAskedEntries(), iTableName, &KColRevCounter );
+//        query.Format( KSqlNotAskedEntries(), iTableName, &KColRevCounter );
     }
 
     RDbView view;
