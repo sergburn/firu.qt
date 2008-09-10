@@ -14,11 +14,14 @@
 // ]]] end generated region [Generated Includes]
 
 // [[[ begin generated region: do not modify [Generated Forward Declarations]
+class CAknNavigationDecorator;
+class CAknTabGroup;
 class CFiruListBoxView;
 class CFiruDictListBoxView;
 class CFiruTrainerListBoxView;
 class CFiruContainerView;
 class CFiruTesterView;
+class CFiruEntryViewView;
 // ]]] end generated region [Generated Forward Declarations]
 
 class CFiruData;
@@ -58,17 +61,22 @@ private:
 	void InitializeContainersL();
 	// [[[ begin generated region: do not modify [Generated Methods]
 public: 
+	void SetActiveTabByViewId( TUid aViewId );
 	static void RunErrorNoteL( const TDesC* aOverrideText = NULL );
 	static void RunInfoNoteL( const TDesC* aOverrideText = NULL );
 	// ]]] end generated region [Generated Methods]
 	
 	// [[[ begin generated region: do not modify [Generated Instance Variables]
 private: 
+	// any current navi decorator
+	CAknNavigationDecorator* iNaviDecorator_;
+	CAknTabGroup* iNaviTabs1;
 	CFiruListBoxView* iFiruListBoxView;
 	CFiruDictListBoxView* iFiruDictListBoxView;
 	CFiruTrainerListBoxView* iFiruTrainerListBoxView;
 	CFiruContainerView* iFiruContainerView;
 	CFiruTesterView* iFiruTesterView;
+	CFiruEntryViewView* iFiruEntryViewView;
 	// ]]] end generated region [Generated Instance Variables]
 	
 	

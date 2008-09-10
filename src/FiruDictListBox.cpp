@@ -568,7 +568,7 @@ void CFiruDictListBox::HandleOpenItemL( CEikListBox* aListBox, TListBoxEvent anE
 // ------------------------------------------------------
 // ------------------------------------------------------
 //
-CFiruDataEntry* CFiruDictListBox::CurrentItem( )
+CFiruEntry* CFiruDictListBox::CurrentItem( )
 {
     TInt pos = iListBox->CurrentItemIndex( );
     return iModel->Entry( pos );

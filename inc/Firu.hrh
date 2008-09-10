@@ -12,5 +12,6 @@ enum TfiruViewUids
     EFiruDictListBoxViewId,
     EFiruTrainerListBoxViewId,
     EFiruContainerViewId,
-    EFiruTesterViewId
+    EFiruTesterViewId,
+    EFiruEntryViewViewId
 	};

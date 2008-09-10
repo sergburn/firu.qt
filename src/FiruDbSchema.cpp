@@ -35,7 +35,7 @@ CDbColSet* FiruDbSchema::CreateEntriesTableColumnsLC()
     TDbCol id( KColId, EDbColUint32);
     id.iAttributes = TDbCol::EAutoIncrement | TDbCol::ENotNull;
     cols->AddL( id );
-    cols->AddL( TDbCol( KColSource, EDbColText16, KMaxTextColumnLength ) );
+    cols->AddL( TDbCol( KColText, EDbColText16, KMaxTextColumnLength ) );
     return cols;
 }
 
@@ -47,8 +47,8 @@ CDbColSet* FiruDbSchema::CreateTranslationsTableColumnsLC()
     TDbCol id( KColId, EDbColUint32);
     id.iAttributes = TDbCol::EAutoIncrement | TDbCol::ENotNull;
     cols->AddL( id );
-    cols->AddL( TDbCol( KColEntryFk, EDbColUint32 ) );
-    cols->AddL( TDbCol( KColTarget, EDbColText16, KMaxTextColumnLength ) );
+    cols->AddL( TDbCol( KColSourceFk, EDbColUint32 ) );
+    cols->AddL( TDbCol( KColTargetFk, EDbColUint32 ) );
     cols->AddL( TDbCol( KColForward, EDbColInt16 ) );
     cols->AddL( TDbCol( KColReverse, EDbColInt16 ) );
     cols->AddL( TDbCol( KColFwdCounter, EDbColInt16 ) );
@@ -58,17 +58,17 @@ CDbColSet* FiruDbSchema::CreateTranslationsTableColumnsLC()
 
 // ----------------------------------------------------------
 
-CDbColSet* FiruDbSchema::CreateExamplesTableColumnsLC()
-{
-    CDbColSet* cols = CDbColSet::NewLC();
-    TDbCol id( KColId, EDbColUint32);
-    id.iAttributes = TDbCol::EAutoIncrement | TDbCol::ENotNull;
-    cols->AddL( id );
-    cols->AddL( TDbCol( KColEntryFk, EDbColUint32 ) );
-    cols->AddL( TDbCol( KColTranslationFk, EDbColUint32 ) );
-    cols->AddL( TDbCol( KColExample, EDbColText16, KMaxTextColumnLength ) );
-    return cols;
-}
+//CDbColSet* FiruDbSchema::CreateExamplesTableColumnsLC()
+//{
+//    CDbColSet* cols = CDbColSet::NewLC();
+//    TDbCol id( KColId, EDbColUint32);
+//    id.iAttributes = TDbCol::EAutoIncrement | TDbCol::ENotNull;
+//    cols->AddL( id );
+//    cols->AddL( TDbCol( KColEntryFk, EDbColUint32 ) );
+//    cols->AddL( TDbCol( KColTranslationFk, EDbColUint32 ) );
+//    cols->AddL( TDbCol( KColExample, EDbColText16, KMaxTextColumnLength ) );
+//    return cols;
+//}
 
 // ----------------------------------------------------------
 
@@ -92,33 +92,13 @@ HBufC* FiruDbSchema::TranslationsTableNameLC( TLanguage aInputLanguage, TLanguag
 
 // ----------------------------------------------------------
 
-HBufC* FiruDbSchema::ExamplesTableNameLC( TLanguage aInputLanguage, TLanguage aOutputLanguage )
-{
-    HBufC* name = HBufC::NewLC( KExampleTableNameFmt().Length() + 2 * KIntStringMaxLength );
-    TPtr buf = name->Des();
-    buf.Format( KExampleTableNameFmt(), aInputLanguage, aOutputLanguage );
-    return name;
-}
-
-// ----------------------------------------------------------
-
-HBufC* FiruDbSchema::ForwardIndexNameLC( const TDesC& aTableName )
-{
-    HBufC* name = HBufC::NewLC( KDirTableSrcIndexNameFmt().Length() + 2 * KIntStringMaxLength );
-    TPtr buf = name->Des();
-    buf.Format( KDirTableSrcIndexNameFmt, &aTableName );
-    return name;
-}
-
-// ----------------------------------------------------------
-
-HBufC* FiruDbSchema::ReverseIndexNameLC( const TDesC& aTableName )
-{
-    HBufC* name = HBufC::NewLC( KDirTableTrgIndexNameFmt().Length() + 2 * KIntStringMaxLength );
-    TPtr buf = name->Des();
-    buf.Format( KDirTableTrgIndexNameFmt, &aTableName );
-    return name;
-}
+//HBufC* FiruDbSchema::ExamplesTableNameLC( TLanguage aInputLanguage, TLanguage aOutputLanguage )
+//{
+//    HBufC* name = HBufC::NewLC( KExampleTableNameFmt().Length() + 2 * KIntStringMaxLength );
+//    TPtr buf = name->Des();
+//    buf.Format( KExampleTableNameFmt(), aInputLanguage, aOutputLanguage );
+//    return name;
+//}
 
 // ----------------------------------------------------------
 
@@ -126,27 +106,44 @@ void FiruDbSchema::CreateDictionaryL(
     RDbNamedDatabase& aDb,
     TLanguage aInputLanguage, TLanguage aOutputLanguage )
 {
-    HBufC* tableNameEntries = EntriesTableNameLC( aInputLanguage );
+    HBufC* tableNameSources = EntriesTableNameLC( aInputLanguage );
+    HBufC* tableNameTargets = EntriesTableNameLC( aOutputLanguage );
     HBufC* tableNameTranslations = TranslationsTableNameLC( aInputLanguage, aOutputLanguage );
-    HBufC* tableNameExamples = ExamplesTableNameLC( aInputLanguage, aOutputLanguage );
 
     CDbKey* key = CDbKey::NewLC();
 
-    if ( !TableExistsL( aDb, *tableNameEntries ) )
+    if ( !TableExistsL( aDb, *tableNameSources ) )
     {
         CDbColSet* cols = CreateEntriesTableColumnsLC();
-        User::LeaveIfError( aDb.CreateTable( *tableNameEntries, *cols ) );
+        User::LeaveIfError( aDb.CreateTable( *tableNameSources, *cols ) );
         CleanupStack::PopAndDestroy( cols );
 
         // ID index
         key->Clear();
         key->AddL( TDbKeyCol( KColId ) );
-        User::LeaveIfError( aDb.CreateIndex( KPrimaryKeyIndexName(), *tableNameEntries, *key ) );
+        User::LeaveIfError( aDb.CreateIndex( KPrimaryKeyIndexName(), *tableNameSources, *key ) );
 
-        // Source text index
+        // Text index
         key->Clear();
-        key->AddL( TDbKeyCol( KColSource, KMaxTextColIndexLength ) );
-        User::LeaveIfError( aDb.CreateIndex( KSourceTextIndexName(), *tableNameEntries, *key ) );
+        key->AddL( TDbKeyCol( KColText, KMaxTextColIndexLength ) );
+        User::LeaveIfError( aDb.CreateIndex( KTextIndexName(), *tableNameSources, *key ) );
+    }
+
+    if ( !TableExistsL( aDb, *tableNameTargets ) )
+    {
+        CDbColSet* cols = CreateEntriesTableColumnsLC();
+        User::LeaveIfError( aDb.CreateTable( *tableNameTargets, *cols ) );
+        CleanupStack::PopAndDestroy( cols );
+
+        // ID index
+        key->Clear();
+        key->AddL( TDbKeyCol( KColId ) );
+        User::LeaveIfError( aDb.CreateIndex( KPrimaryKeyIndexName(), *tableNameTargets, *key ) );
+
+        // Text index
+        key->Clear();
+        key->AddL( TDbKeyCol( KColText, KMaxTextColIndexLength ) );
+        User::LeaveIfError( aDb.CreateIndex( KTextIndexName(), *tableNameTargets, *key ) );
     }
 
     if ( !TableExistsL( aDb, *tableNameTranslations ) )
@@ -160,40 +157,22 @@ void FiruDbSchema::CreateDictionaryL(
         key->AddL( TDbKeyCol( KColId ) );
         User::LeaveIfError( aDb.CreateIndex( KPrimaryKeyIndexName(), *tableNameTranslations, *key ) );
 
-        // Entry FK index
+        // Source FK index
         key->Clear();
-        key->AddL( TDbKeyCol( KColEntryFk ) );
-        User::LeaveIfError( aDb.CreateIndex( KEntryFKIndexName(), *tableNameTranslations, *key ) );
+        key->AddL( TDbKeyCol( KColSourceFk ) );
+        User::LeaveIfError( aDb.CreateIndex( KSourceFkIndexName(), *tableNameTranslations, *key ) );
 
-        // Target text index
+        // Target FK index
         key->Clear();
-        key->AddL( TDbKeyCol( KColTarget, KMaxTextColIndexLength ) );
-        User::LeaveIfError( aDb.CreateIndex( KTargetTextIndexName(), *tableNameTranslations, *key ) );
-    }
-
-    if ( !TableExistsL( aDb, *tableNameExamples ) )
-    {
-        CDbColSet* cols = CreateExamplesTableColumnsLC();
-        User::LeaveIfError( aDb.CreateTable( *tableNameExamples, *cols ) );
-        CleanupStack::PopAndDestroy( cols );
-
-        // ID index
-        key->Clear();
-        key->AddL( TDbKeyCol( KColId ) );
-        User::LeaveIfError( aDb.CreateIndex( KPrimaryKeyIndexName(), *tableNameExamples, *key ) );
-
-        // Entry FK index
-        key->Clear();
-        key->AddL( TDbKeyCol( KColEntryFk ) );
-        User::LeaveIfError( aDb.CreateIndex( KEntryFKIndexName(), *tableNameExamples, *key ) );
-
-        // Translation FK index
-        key->Clear();
-        key->AddL( TDbKeyCol( KColTranslationFk ) );
-        User::LeaveIfError( aDb.CreateIndex( KTranslationFKIndexName(), *tableNameExamples, *key ) );
+        key->AddL( TDbKeyCol( KColTargetFk ) );
+        User::LeaveIfError( aDb.CreateIndex( KTargetFkIndexName(), *tableNameTranslations, *key ) );
     }
 
     CleanupStack::PopAndDestroy( key );
+
+    CleanupStack::PopAndDestroy( tableNameTranslations );
+    CleanupStack::PopAndDestroy( tableNameTargets );
+    CleanupStack::PopAndDestroy( tableNameSources );
 }
 
 // ----------------------------------------------------------
@@ -201,18 +180,21 @@ void FiruDbSchema::CreateDictionaryL(
 TInt FiruDbSchema::AddEntryL( RDbRowSet& aTable, const TDesC& aEntry )
 {
     aTable.InsertL();
-    aTable.SetColL( KColumnSource, aEntry.Left( KMaxTextColumnLength ) );
+    aTable.SetColL( KColumnText, aEntry.Left( KMaxTextColumnLength ) );
     aTable.PutL();
     return aTable.ColUint32( KColumnId );
 }
 
 // ----------------------------------------------------------
 
-TInt FiruDbSchema::AddTranslationL( RDbRowSet& aTable, TInt aEntryId, const TDesC& aTranslation )
+TInt FiruDbSchema::AddTranslationL(
+    RDbRowSet& aTable,
+    TInt aSourceEntryId,
+    TInt aTargetEntryId )
 {
     aTable.InsertL();
-    aTable.SetColL( KColumnEntryFk, aEntryId );
-    aTable.SetColL( KColumnTarget, aTranslation.Left( KMaxTextColumnLength ) );
+    aTable.SetColL( KColumnSourceFk, aSourceEntryId );
+    aTable.SetColL( KColumnTargetFk, aTargetEntryId );
     aTable.SetColL( KColumnForwardMark, 0 );
     aTable.SetColL( KColumnForwardCount, 0 );
     aTable.SetColL( KColumnReverseMark, 0 );
@@ -223,13 +205,13 @@ TInt FiruDbSchema::AddTranslationL( RDbRowSet& aTable, TInt aEntryId, const TDes
 
 // ----------------------------------------------------------
 
-TInt FiruDbSchema::AddExampleL( RDbRowSet& aTable, TInt aEntryId, TInt aTranslationId, const TDesC& aExample )
-{
-    aTable.InsertL();
-    aTable.SetColL( KColumnEntryFk, aEntryId );
-    aTable.SetColL( KColumnExampleTranslationFk, aTranslationId );
-    aTable.SetColL( KColumnExampleText, aExample.Left( KMaxTextColumnLength ) );
-    aTable.PutL();
-    return aTable.ColUint32( KColumnId );
-}
+//TInt FiruDbSchema::AddExampleL( RDbRowSet& aTable, TInt aEntryId, TInt aTranslationId, const TDesC& aExample )
+//{
+//    aTable.InsertL();
+//    aTable.SetColL( KColumnEntryFk, aEntryId );
+//    aTable.SetColL( KColumnExampleTranslationFk, aTranslationId );
+//    aTable.SetColL( KColumnExampleText, aExample.Left( KMaxTextColumnLength ) );
+//    aTable.PutL();
+//    return aTable.ColUint32( KColumnId );
+//}
 

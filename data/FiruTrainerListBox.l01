@@ -18,3 +18,4 @@
 #define STR_FiruTrainerListBoxView_8 "Show details"
 #define STR_FiruTrainerListBoxView_9 "Select"
 #define STR_FiruTrainerListBoxView_10 "Show stats"
+#define STR_FiruTrainerListBoxView_11 "text"

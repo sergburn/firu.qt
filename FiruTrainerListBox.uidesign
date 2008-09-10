@@ -8,6 +8,8 @@
     <manifestEntry id="com.nokia.sdt.series60.ControlBase" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.StatusPaneTitle" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.StatusPaneTitleBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.NaviText" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.NaviBase" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.CBA" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.CBABase" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.CCoeControl" version="1.2.0"/>
@@ -63,6 +65,18 @@
         </compoundProperty>
         <compoundProperty id="image"/>
       </component>
+      <component id="com.nokia.sdt.series60.NaviText">
+        <compoundProperty id="location">
+          <property id="x">60</property>
+          <property id="y">43</property>
+        </compoundProperty>
+        <property id="name">naviText1</property>
+        <property id="text" type="i18n">STR_FiruTrainerListBoxView_11</property>
+        <compoundProperty id="size">
+          <property id="width">144</property>
+          <property id="height">20</property>
+        </compoundProperty>
+      </component>
     </component>
     <component id="com.nokia.sdt.series60.CBA">
       <compoundProperty id="location">
@@ -114,18 +128,18 @@
     <component id="com.nokia.sdt.series60.MenuBar">
       <compoundProperty id="location">
         <property id="x">6</property>
-        <property id="y">131</property>
+        <property id="y">161</property>
       </compoundProperty>
       <property id="name">optionsMenu</property>
       <compoundProperty id="size">
-        <property id="height">157</property>
+        <property id="height">127</property>
         <property id="width">228</property>
       </compoundProperty>
       <component id="com.nokia.sdt.series60.MenuPane">
         <compoundProperty id="location"/>
         <property id="name">menuPane1</property>
         <compoundProperty id="size">
-          <property id="height">157</property>
+          <property id="height">127</property>
           <property id="width">228</property>
         </compoundProperty>
         <component id="com.nokia.sdt.series60.MenuItem">
@@ -243,29 +257,34 @@
       <string id="STR_FiruTrainerListBoxView_9">Select</string>
       <string id="STR_FiruTrainerListBoxView_16">Cancel</string>
       <string id="STR_FiruTrainerListBoxView_10">Show stats</string>
+      <string id="STR_FiruTrainerListBoxView_11">text</string>
     </stringTable>
   </stringBundle>
   <macroTable/>
   <sourceMappingState>
     <resourceMappings>
-      <resourceMapping instanceName="listBox">r_firu_trainer_list_box_list_box</resourceMapping>
-      <resourceMapping instanceName="qrySure">r_firu_trainer_list_box_qry_sure</resourceMapping>
       <resourceMapping instanceName="optionsMenu">r_firu_trainer_list_box_options_menu</resourceMapping>
+      <resourceMapping instanceName="naviText1">r_firu_trainer_list_box_navi_text1_resource</resourceMapping>
       <resourceMapping instanceName="FiruTrainerListBoxView">r_firu_trainer_list_box_firu_trainer_list_box_view</resourceMapping>
       <resourceMapping instanceName="controlPane">r_firu_trainer_list_box_control_pane</resourceMapping>
-      <resourceMapping instanceName="statusPane">r_firu_trainer_list_box_status_pane</resourceMapping>
       <resourceMapping instanceName="title">r_firu_trainer_list_box_title_resource</resourceMapping>
-      <resourceMapping instanceName="menuPane1">r_firu_trainer_list_box_menu_pane1_menu_pane</resourceMapping>
+      <resourceMapping instanceName="statusPane">r_firu_trainer_list_box_status_pane</resourceMapping>
       <resourceMapping instanceName="menuPane2">r_firu_trainer_list_box_menu_pane2</resourceMapping>
+      <resourceMapping instanceName="qrySure">r_firu_trainer_list_box_qry_sure</resourceMapping>
+      <resourceMapping instanceName="listBox">r_firu_trainer_list_box_list_box</resourceMapping>
+      <resourceMapping instanceName="naviText1" rsrcId="text">r_firu_trainer_list_box_navi_text1</resourceMapping>
+      <resourceMapping instanceName="menuPane1">r_firu_trainer_list_box_menu_pane1_menu_pane</resourceMapping>
     </resourceMappings>
     <enumMappings>
       <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_CONTROL_TYPE">EAknCtTitlePane</enumMapping>
       <enumMapping instanceName="reset_statsMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewReset_statsMenuItemCommand</enumMapping>
+      <enumMapping instanceName="naviText1" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_STATUS_PANE_ID">EEikStatusPaneUidNavi</enumMapping>
       <enumMapping instanceName="show_detailsMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewShow_detailsMenuItemCommand</enumMapping>
       <enumMapping instanceName="selectMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewSelectMenuItemCommand</enumMapping>
       <enumMapping instanceName="controlPane" propertyId="leftId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyOptions</enumMapping>
       <enumMapping instanceName="controlPane" propertyId="rightId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyNext</enumMapping>
       <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_STATUS_PANE_ID">EEikStatusPaneUidTitle</enumMapping>
+      <enumMapping instanceName="naviText1" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_CONTROL_TYPE">EAknCtNaviPane</enumMapping>
       <enumMapping instanceName="qrySure" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_DIALOG_LINE_ID">EFiruTrainerListBoxViewQrySure</enumMapping>
       <enumMapping instanceName="controlPane" propertyId="middleId" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EAknSoftkeyEmpty</enumMapping>
       <enumMapping instanceName="show_statsMenuItem" propertyId="command" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_COMMANDS">EFiruTrainerListBoxViewShow_statsMenuItemCommand</enumMapping>
@@ -277,18 +296,20 @@
   </sourceMappingState>
   <generatedFiles>
     <file>src/firutrainerlistbox.cpp</file>
+    <file>src/firutrainerlistboxview.cpp</file>
     <file>inc/firutrainerlistboxview.h</file>
     <file>inc/firutrainerlistbox.h</file>
-    <file>src/firutrainerlistboxview.cpp</file>
     <file>data/firu.rss</file>
-    <file>data/firutrainerlistbox.rssi</file>
+    <file>data/firuentryview.rssi</file>
     <file>inc/firu.hrh</file>
     <file>data/firulistbox.rssi</file>
     <file>inc/firulistbox.hrh</file>
     <file>data/firudictlistbox.rssi</file>
     <file>inc/firudictlistbox.hrh</file>
+    <file>data/firutrainerlistbox.rssi</file>
     <file>inc/firutrainerlistbox.hrh</file>
     <file>data/firucontainer.rssi</file>
+    <file>data/firutester.rssi</file>
     <file>data/firu.loc</file>
     <file>data/firu.l01</file>
     <file>data/firulistbox.loc</file>
@@ -299,5 +320,9 @@
     <file>data/firutrainerlistbox.l01</file>
     <file>data/firucontainer.loc</file>
     <file>data/firucontainer.l01</file>
+    <file>data/firutester.loc</file>
+    <file>data/firutester.l01</file>
+    <file>data/firuentryview.loc</file>
+    <file>data/firuentryview.l01</file>
   </generatedFiles>
 </designerData>

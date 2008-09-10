@@ -13,6 +13,8 @@
     <manifestEntry id="com.nokia.sdt.series60.ControlBase" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.StatusPaneCaption" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.StatusPaneTitleBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.NaviTabs" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.NaviBase" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.CBA" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.CBABase" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.AvkonViewReference" version="1.0.0"/>
@@ -38,7 +40,7 @@
       <property id="className">CFiruDocument</property>
       <property id="name">FiruDocument</property>
       <component id="com.nokia.sdt.series60.CAknViewAppUi">
-        <property id="initialDesign" type="componentRef">aknViewReference1</property>
+        <property id="initialDesign" type="componentRef">aknViewReference2</property>
         <property id="className">CFiruAppUi</property>
         <compoundProperty id="location">
           <property id="x">51</property>
@@ -70,6 +72,17 @@
               <property id="height">43</property>
             </compoundProperty>
           </component>
+          <component id="com.nokia.sdt.series60.NaviTabs">
+            <compoundProperty id="location">
+              <property id="x">60</property>
+              <property id="y">43</property>
+            </compoundProperty>
+            <property id="name">NaviTabs1</property>
+            <compoundProperty id="size">
+              <property id="width">144</property>
+              <property id="height">20</property>
+            </compoundProperty>
+          </component>
         </component>
         <component id="com.nokia.sdt.series60.CBA">
           <compoundProperty id="location">
@@ -94,15 +107,19 @@
         </component>
         <component id="com.nokia.sdt.series60.AvkonViewReference">
           <property id="filePath">FiruDictListBox.uidesign</property>
+          <property id="inTabGroup">true</property>
           <property id="baseName">FiruDictListBox</property>
           <compoundProperty id="tabImage"/>
           <property id="name">aknViewReference2</property>
+          <property id="tabText" type="i18n">STR_FiruApplication_8</property>
         </component>
         <component id="com.nokia.sdt.series60.AvkonViewReference">
           <property id="filePath">FiruTrainerListBox.uidesign</property>
+          <property id="inTabGroup">true</property>
           <property id="baseName">FiruTrainerListBox</property>
           <compoundProperty id="tabImage"/>
           <property id="name">aknViewReference3</property>
+          <property id="tabText" type="i18n">STR_FiruApplication_11</property>
         </component>
         <component id="com.nokia.sdt.series60.AvkonViewReference">
           <property id="filePath">FiruContainer.uidesign</property>
@@ -139,7 +156,13 @@
         <component id="com.nokia.sdt.series60.AvkonViewReference">
           <property id="filePath">FiruTester.uidesign</property>
           <property id="baseName">FiruTester</property>
+          <compoundProperty id="tabImage"/>
           <property id="name">aknViewReference5</property>
+        </component>
+        <component id="com.nokia.sdt.series60.AvkonViewReference">
+          <property id="filePath">FiruEntryView.uidesign</property>
+          <property id="baseName">FiruEntryView</property>
+          <property id="name">aknViewReference6</property>
         </component>
       </component>
     </component>
@@ -153,6 +176,8 @@
       <string id="STR_FiruApplication_5"/>
       <string id="STR_FiruApplication_6">Note</string>
       <string id="STR_FiruApplication_7">Note</string>
+      <string id="STR_FiruApplication_8">abc</string>
+      <string id="STR_FiruApplication_11">a??</string>
     </stringTable>
   </stringBundle>
   <macroTable/>
@@ -161,19 +186,25 @@
       <resourceMapping instanceName="statusPane">r_application_status_pane</resourceMapping>
       <resourceMapping instanceName="aknViewReference4" rsrcId="tabText">r_application_akn_view_reference4_2</resourceMapping>
       <resourceMapping instanceName="aknViewReference2" rsrcId="tabText">r_application_akn_view_reference2</resourceMapping>
-      <resourceMapping instanceName="FiruAppUi">r_application_firu_app_ui</resourceMapping>
+      <resourceMapping instanceName="aknViewReference6" rsrcId="tabText">r_application_akn_view_reference6</resourceMapping>
       <resourceMapping instanceName="FiruAppUi" rsrcId="localisable_app_info">r_localisable_app_info</resourceMapping>
+      <resourceMapping instanceName="aknViewReference3" rsrcId="tabText">r_application_akn_view_reference3</resourceMapping>
+      <resourceMapping instanceName="FiruAppUi">r_application_firu_app_ui</resourceMapping>
       <resourceMapping instanceName="infoNote">r_application_info_note</resourceMapping>
       <resourceMapping instanceName="aknViewReference5" rsrcId="tabText">r_application_akn_view_reference5</resourceMapping>
       <resourceMapping instanceName="aknViewReference1" rsrcId="tabText">r_application_akn_view_reference1</resourceMapping>
       <resourceMapping instanceName="errorNote">r_application_error_note</resourceMapping>
-      <resourceMapping instanceName="aknViewReference3" rsrcId="tabText">r_application_akn_view_reference3</resourceMapping>
+      <resourceMapping instanceName="NaviTabs1">r_application_navi_tabs1_resource</resourceMapping>
     </resourceMappings>
     <enumMappings>
+      <enumMapping instanceName="NaviTabs1" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_STATUS_PANE_ID">EEikStatusPaneUidNavi</enumMapping>
+      <enumMapping instanceName="NaviTabs1" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_CONTROL_TYPE">EAknCtNaviPane</enumMapping>
       <enumMapping instanceName="aknViewReference3" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruTrainerListBoxViewId</enumMapping>
       <enumMapping instanceName="aknViewReference4" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruContainerViewId</enumMapping>
+      <enumMapping instanceName="NaviTabs1" propertyId="tabWidth">EAknTabWidthWithTwoTabs</enumMapping>
       <enumMapping instanceName="aknViewReference5" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruTesterViewId</enumMapping>
       <enumMapping instanceName="aknViewReference2" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruDictListBoxViewId</enumMapping>
+      <enumMapping instanceName="aknViewReference6" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruEntryViewViewId</enumMapping>
       <enumMapping instanceName="aknViewReference1" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruListBoxViewId</enumMapping>
     </enumMappings>
     <arrayMappings/>
@@ -182,28 +213,31 @@
     <file>inc/firutesterview.h</file>
     <file>src/firudocument.cpp</file>
     <file>inc/firuapplication.h</file>
-    <file>inc/firudictlistboxview.h</file>
     <file>src/firudictlistboxview.cpp</file>
+    <file>inc/firudictlistboxview.h</file>
     <file>src/firutrainerlistboxview.cpp</file>
     <file>src/firucontainerview.cpp</file>
+    <file>src/firuentryviewview.cpp</file>
     <file>src/firutesterview.cpp</file>
     <file>src/firulistboxview.cpp</file>
+    <file>inc/firuentryviewview.h</file>
     <file>inc/firuappui.h</file>
-    <file>inc/firulistboxview.h</file>
     <file>inc/firutrainerlistboxview.h</file>
+    <file>inc/firulistboxview.h</file>
     <file>inc/firudocument.h</file>
     <file>src/firuappui.cpp</file>
-    <file>src/firuapplication.cpp</file>
     <file>inc/firucontainerview.h</file>
+    <file>src/firuapplication.cpp</file>
     <file>data/firu.rss</file>
-    <file>data/firutrainerlistbox.rssi</file>
     <file>inc/firu.hrh</file>
     <file>data/firulistbox.rssi</file>
     <file>inc/firulistbox.hrh</file>
     <file>data/firudictlistbox.rssi</file>
     <file>inc/firudictlistbox.hrh</file>
+    <file>data/firutrainerlistbox.rssi</file>
     <file>inc/firutrainerlistbox.hrh</file>
     <file>data/firucontainer.rssi</file>
+    <file>data/firutester.rssi</file>
     <file>data/firu.loc</file>
     <file>data/firu.l01</file>
     <file>data/firulistbox.loc</file>
@@ -214,8 +248,10 @@
     <file>data/firutrainerlistbox.l01</file>
     <file>data/firucontainer.loc</file>
     <file>data/firucontainer.l01</file>
-    <file>data/firutester.rssi</file>
-    <file>data/firutester.l01</file>
     <file>data/firutester.loc</file>
+    <file>data/firutester.l01</file>
+    <file>data/firuentryview.rssi</file>
+    <file>data/firuentryview.l01</file>
+    <file>data/firuentryview.loc</file>
   </generatedFiles>
 </designerData>

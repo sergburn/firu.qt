@@ -34,6 +34,12 @@ RESOURCE STATUS_PANE_APP_MODEL r_firu_trainer_list_box_status_pane
 			id = EEikStatusPaneUidTitle;
 			type = EAknCtTitlePane;
 			resource = r_firu_trainer_list_box_title_resource;
+			},
+		SPANE_PANE
+			{
+			id = EEikStatusPaneUidNavi;
+			type = EAknCtNaviPane;
+			resource = r_firu_trainer_list_box_navi_text1_resource;
 			}
 		};
 	}
@@ -125,4 +131,16 @@ RESOURCE CBA r_firu_trainer_list_box_control_pane
 			txt = STR_FiruTrainerListBoxView_7;
 			}
 		};
+	}
+RESOURCE NAVI_DECORATOR r_firu_trainer_list_box_navi_text1_resource
+	{
+	type = ENaviDecoratorLabel;
+	control = NAVI_LABEL
+		{
+		txt = STR_FiruTrainerListBoxView_11;
+		};
+	}
+RESOURCE TBUF r_firu_trainer_list_box_navi_text1
+	{
+	buf = STR_FiruTrainerListBoxView_11;
 	}

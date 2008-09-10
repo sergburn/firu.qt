@@ -99,7 +99,7 @@ void CFiruDictListBoxView::ConstructL( )
 {
     // [[[ begin generated region: do not modify [Generated Code]
 	BaseConstructL( R_FIRU_DICT_LIST_BOX_FIRU_DICT_LIST_BOX_VIEW );
-				
+
     // ]]] end generated region [Generated Code]
 
     // add your own initialization code here
@@ -124,7 +124,7 @@ void CFiruDictListBoxView::HandleCommandL( TInt aCommand )
 	TBool commandHandled = EFalse;
 	switch ( aCommand )
 		{	// code to dispatch to the AknView's menu and CBA commands is generated here
-	
+
 		case EAknSoftkeyBack:
 			commandHandled = HandleControlPaneRightSoftKeyPressedL( aCommand );
 			break;
@@ -137,16 +137,16 @@ void CFiruDictListBoxView::HandleCommandL( TInt aCommand )
 		default:
 			break;
 		}
-	
-		
-	if ( !commandHandled ) 
+
+
+	if ( !commandHandled )
 		{
-	
+
 		if ( aCommand == EAknSoftkeyBack )
 			{
 			AppUi()->HandleCommandL( EEikCmdExit );
 			}
-	
+
 		}
     // ]]] end generated region [Generated Code]
 
@@ -163,16 +163,16 @@ void CFiruDictListBoxView::DoActivateL(
 {
     // [[[ begin generated region: do not modify [Generated Contents]
 	SetupStatusPaneL();
-	
-				
-				
-	
+
+
+
+
 	if ( iFiruDictListBox == NULL )
 		{
 		iFiruDictListBox = CreateContainerL();
 		iFiruDictListBox->SetMopParent( this );
 		AppUi()->AddToStackL( *this, iFiruDictListBox );
-		} 
+		}
     // ]]] end generated region [Generated Contents]
 
 }
@@ -183,7 +183,7 @@ void CFiruDictListBoxView::DoDeactivate( )
 {
     // [[[ begin generated region: do not modify [Generated Contents]
 	CleanupStatusPane();
-	
+
 	if ( iFiruDictListBox != NULL )
 		{
 		AppUi()->RemoveFromViewStack( *this, iFiruDictListBox );
@@ -220,29 +220,29 @@ void CFiruDictListBoxView::SetupStatusPaneL()
 	{
 	// reset the context pane
 	TUid contextPaneUid = TUid::Uid( EEikStatusPaneUidContext );
-	CEikStatusPaneBase::TPaneCapabilities subPaneContext = 
+	CEikStatusPaneBase::TPaneCapabilities subPaneContext =
 		StatusPane()->PaneCapabilities( contextPaneUid );
 	if ( subPaneContext.IsPresent() && subPaneContext.IsAppOwned() )
 		{
-		CAknContextPane* context = static_cast< CAknContextPane* > ( 
+		CAknContextPane* context = static_cast< CAknContextPane* > (
 			StatusPane()->ControlL( contextPaneUid ) );
 		context->SetPictureToDefaultL();
 		}
-	
+
 	// setup the title pane
 	TUid titlePaneUid = TUid::Uid( EEikStatusPaneUidTitle );
-	CEikStatusPaneBase::TPaneCapabilities subPaneTitle = 
+	CEikStatusPaneBase::TPaneCapabilities subPaneTitle =
 		StatusPane()->PaneCapabilities( titlePaneUid );
 	if ( subPaneTitle.IsPresent() && subPaneTitle.IsAppOwned() )
 		{
-		CAknTitlePane* title = static_cast< CAknTitlePane* >( 
+		CAknTitlePane* title = static_cast< CAknTitlePane* >(
 			StatusPane()->ControlL( titlePaneUid ) );
 		TResourceReader reader;
 		iEikonEnv->CreateResourceReaderLC( reader, R_FIRU_DICT_LIST_BOX_TITLE_RESOURCE );
 		title->SetFromResourceL( reader );
 		CleanupStack::PopAndDestroy(); // reader internal state
 		}
-				
+
 	}
 
 // ]]] end generated function
@@ -294,17 +294,24 @@ TBool CFiruDictListBoxView::HandleReverseMenuItemSelectedL( TInt /*aCommand*/ )
  */
 TBool CFiruDictListBoxView::HandleOpenEntryL( TInt /*aCommand*/ )
 {
-    CFiruDataEntry* entry = iFiruDictListBox->CurrentItem( );
-
+    CFiruEntry* entry = iFiruDictListBox->CurrentItem( );
     TPtrC src( entry->Text( ) );
-    TPtrC trg( entry->Translation( 0 ) );
 
-    HBufC* text = HBufC::NewLC( src.Length( ) + trg.Length( ) + 1 );
-    text->Des().Format( _L("%S\n%S"), &src, &trg );
+    RBuf text;
+    text.CreateL( src.Length() );
+    CleanupClosePushL( text );
 
-    CFiruAppUi::RunInfoNoteL( text );
+    Data().GetTranslationsL( *entry );
+    for ( int i = 0; i < entry->NumTranslations(); ++i )
+    {
+        TPtrC trans = entry->TranslationText( 0 );
+        text.ReAllocL( text.MaxLength() + trans.Length() + 5 );
+        text.AppendFormat( _L("\n%S"), &trans );
+    }
 
-    CleanupStack::PopAndDestroy( text );
+    CFiruAppUi::RunInfoNoteL( &text );
+
+    CleanupStack::PopAndDestroy( &text );
     return ETrue;
 }
 

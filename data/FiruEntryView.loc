@@ -1,0 +1,11 @@
+/*
+========================================================================
+ Name        : FiruEntryView.loc
+ Author      : ${author}
+ Copyright   : ${copyright}
+ Description : 
+========================================================================
+*/
+#ifdef LANGUAGE_01
+#include "FiruEntryView.l01"
+#endif
