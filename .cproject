@@ -21,11 +21,12 @@
 </extensions>
 </storageModule>
 <storageModule moduleId="CarbideConfigurationDataProvider">
+
 <ENV_VAR_DATA_ID/>
 <ARGUMENTS_DATA_ID ABLDFREEZEARGSSTORAGE="-r"/>
 <ROM_BUILDER_DATA_ID ROMBUILDWORKINGDIRECTORYSTORAGE="C:\"/>
 </storageModule>
-<storageModule filesCache="C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\Firu.mmp;C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\bld.inf;" includesCache="C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/inc[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/data[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/variant;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/ecom;" macrosCache="__SERIES60_3x__;__SERIES60_32__;__EXE__;__WINSCW__;__SUPPORT_CPP_EXCEPTIONS__;__SYMBIAN32__;_UNICODE;_DEBUG;__WINS__;__CW32__;" moduleId="configDataCache" sourcesCache="/firu/data;/firu/inc;/firu/src;" timestampCache="1219559932109" useMmpMacrosCache="true"/>
+<storageModule filesCache="C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\Firu.mmp;C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\bld.inf;" includesCache="C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/inc[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/data[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/variant;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/ecom;" macrosCache="__SERIES60_3x__;__SERIES60_32__;__EXE__;__WINSCW__;__SUPPORT_CPP_EXCEPTIONS__;__SYMBIAN32__;_UNICODE;_DEBUG;__WINS__;__CW32__;" moduleId="configDataCache" sourcesCache="/firu/data;/firu/inc;/firu/src;" timestampCache="1221065822656" useMmpMacrosCache="true"/>
 <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 <storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
@@ -46,11 +47,12 @@
 </extensions>
 </storageModule>
 <storageModule moduleId="CarbideConfigurationDataProvider">
+
 <ENV_VAR_DATA_ID/>
 <ARGUMENTS_DATA_ID ABLDFREEZEARGSSTORAGE="-r"/>
 <ROM_BUILDER_DATA_ID ROMBUILDWORKINGDIRECTORYSTORAGE="C:\"/>
 </storageModule>
-<storageModule filesCache="C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\Firu.mmp;C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\bld.inf;" includesCache="C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/inc[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/data[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/variant;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/ecom;" macrosCache="__GENERIC_MARM__;__SERIES60_3x__;__EXE__;__SYMBIAN32__;__SUPPORT_CPP_EXCEPTIONS__;__EPOC32__;__EABI__;__GCCE__;__MARM__;__SERIES60_32__;_UNICODE;_DEBUG;__MARM_ARMV5__;" moduleId="configDataCache" sourcesCache="/firu/data;/firu/inc;/firu/src;" timestampCache="1219559932125" useMmpMacrosCache="true"/>
+<storageModule filesCache="C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\Firu.mmp;C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\bld.inf;" includesCache="C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/inc[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/data[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/variant;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/ecom;" macrosCache="__GENERIC_MARM__;__SERIES60_3x__;__EXE__;__SYMBIAN32__;__SUPPORT_CPP_EXCEPTIONS__;__EPOC32__;__EABI__;__GCCE__;__MARM__;__SERIES60_32__;_UNICODE;_DEBUG;__MARM_ARMV5__;" moduleId="configDataCache" sourcesCache="/firu/data;/firu/inc;/firu/src;" timestampCache="1221065822671" useMmpMacrosCache="true"/>
 <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 <storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
@@ -71,13 +73,15 @@
 </extensions>
 </storageModule>
 <storageModule moduleId="CarbideConfigurationDataProvider">
+
+
 <SIS_BUILDER_DATA_ID CREATESTUBSTORAGE="false" ENABLEDSTORAGE="true" PARTIALUPGRADESTORAGE="false" PKGFILESTORAGE="sis\Firu.pkg" SIGNINGTYPESTORAGE="1"/>
 <SIS_BUILDER_DATA_ID CREATESTUBSTORAGE="false" ENABLEDSTORAGE="true" PARTIALUPGRADESTORAGE="false" PKGFILESTORAGE="sis\Firu_upgrade.pkg" SIGNINGTYPESTORAGE="1"/>
 <ENV_VAR_DATA_ID/>
 <ARGUMENTS_DATA_ID ABLDFREEZEARGSSTORAGE="-r"/>
 <ROM_BUILDER_DATA_ID ROMBUILDWORKINGDIRECTORYSTORAGE="C:\"/>
 </storageModule>
-<storageModule filesCache="C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\Firu.mmp;C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\bld.inf;" includesCache="C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/inc[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/data[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/variant;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/ecom;" macrosCache="__GENERIC_MARM__;__SERIES60_3x__;__EXE__;__SYMBIAN32__;__SUPPORT_CPP_EXCEPTIONS__;__EPOC32__;__EABI__;__GCCE__;NDEBUG;__MARM__;__SERIES60_32__;_UNICODE;__MARM_ARMV5__;" moduleId="configDataCache" sourcesCache="/firu/data;/firu/inc;/firu/src;" timestampCache="1219559932140" useMmpMacrosCache="true"/>
+<storageModule filesCache="C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\Firu.mmp;C:\S60\devices\S60_3rd_FP2_SDK_v1.1\firu\group\bld.inf;" includesCache="C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/inc[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/firu/data[LOCAL];C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/variant;C:/S60/devices/S60_3rd_FP2_SDK_v1.1/epoc32/include/ecom;" macrosCache="__GENERIC_MARM__;__SERIES60_3x__;__EXE__;__SYMBIAN32__;__SUPPORT_CPP_EXCEPTIONS__;__EPOC32__;__EABI__;__GCCE__;NDEBUG;__MARM__;__SERIES60_32__;_UNICODE;__MARM_ARMV5__;" moduleId="configDataCache" sourcesCache="/firu/data;/firu/inc;/firu/src;" timestampCache="1221065822687" useMmpMacrosCache="true"/>
 <storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 <storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>

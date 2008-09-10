@@ -123,11 +123,17 @@ public:
 	static CFiruData* NewL( RFs& aFs );
 
 	void SelectDictionaryL( TLanguage aInputLanguage, TLanguage aOutputLanguage );
-    void AddPair( const TDesC& aEntry, const TDesC& aTranslation );
-    void AddPairL( const TDesC& aEntry, const TDesC& aTranslation );
     void ReverseDictionaryL();
 	void GetLanguagesL( TLanguage& aInputLanguage, TLanguage& aOutputLanguage ) const;
 	TInt NumEntriesL() const;
+
+//    void AddPair( const TDesC& aEntry, const TDesC& aTranslation );
+//    void AddPairL( const TDesC& aEntry, const TDesC& aTranslation );
+
+    TInt AddEntryL( const TDesC& aEntry );
+    TInt AddTranslationL( TInt aEntryId, const TDesC& aTranslation );
+    TInt AddExampleL( TInt aEntryId, TInt aTranslationId, const TDesC& aExample );
+
 
 //    void SetFilterL( const TDesC& aEntryPattern );
 //    void ResetFilterL();

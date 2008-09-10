@@ -9,6 +9,7 @@
 #define FIRUDBSCHEMA_H_
 
 #include <e32std.h>
+#include <d32dbms.h>
 
 _LIT( KDatabaseFile, "c:\\private\\E0EDB1C1\\dicts.db" );
 _LIT( KEntryTableNameFmt, "entries_%02d" );
@@ -33,12 +34,14 @@ _LIT( KSqlEqual, " %S = %d ");
 _LIT( KSqlOrder, " ORDER BY %S");
 _LIT( KWildCardStar, "*" );
 
+const TInt KColumnId = 1;
+
 // Entries table
 // id - record id, int32, autoinc, PK
 // source - source text, unicode
 
 enum {
-    KColumnId = 1,
+    KColumnEntryPK = KColumnId,
     KColumnSource,
 };
 
@@ -52,7 +55,7 @@ enum {
 // rev_count - amount of times target was used in tests, int
 
 enum {
-    KColumnId = 1,
+    KColumnTransPK = KColumnId,
     KColumnEntryFk,
     KColumnTarget,
     KColumnForwardMark,
@@ -68,10 +71,10 @@ enum {
 // example - example text
 
 enum {
-    KColumnId = 1,
-    KColumnEntryFk,
-    KColumnTranslationFk,
-    KColumnExample,
+    KColumnExamplePK = KColumnId,
+    KColumnExampleEntryFk,
+    KColumnExampleTranslationFk,
+    KColumnExampleText,
 };
 
 _LIT( KColId, "id" );
@@ -106,7 +109,7 @@ public:
     static CDbColSet* CreateExamplesTableColumnsLC();
 
     static void CreateDictionaryL(
-        RDbNamedDatabase aDb,
+        RDbNamedDatabase& aDb,
         TLanguage aInputLanguage, TLanguage aOutputLanguage );
 
     static TInt AddEntryL( RDbRowSet& aTable, const TDesC& aEntry );
