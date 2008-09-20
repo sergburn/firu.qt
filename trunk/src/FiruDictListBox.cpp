@@ -208,6 +208,7 @@ void CFiruDictListBox::LayoutControls2( )
  */
 TKeyResponse CFiruDictListBox::OfferKeyEventL( const TKeyEvent& aKeyEvent, TEventCode aType )
 {
+    RDebug::Print(_L("KeyEvent: %d, %d; EventCode %d"), aKeyEvent.iCode, aKeyEvent.iScanCode, aType);
     if ( aKeyEvent.iCode == EKeyUpArrow )
     {
         return iListBox->OfferKeyEventL( aKeyEvent, aType );
@@ -223,7 +224,7 @@ TKeyResponse CFiruDictListBox::OfferKeyEventL( const TKeyEvent& aKeyEvent, TEven
     }
     else
     {
-        return iSearchField->OfferKeyEventL( aKeyEvent, aType );
+        //return iSearchField->OfferKeyEventL( aKeyEvent, aType );
     }
 
     // [[[ begin generated region: do not modify [Generated Contents]
@@ -236,12 +237,12 @@ TKeyResponse CFiruDictListBox::OfferKeyEventL( const TKeyEvent& aKeyEvent, TEven
 
     // ]]] end generated region [Generated Contents]
 
-    if ( iFocusControl != NULL && iFocusControl->OfferKeyEventL( aKeyEvent, aType )
-        == EKeyWasConsumed )
-    {
-        return EKeyWasConsumed;
-    }
-    return CCoeControl::OfferKeyEventL( aKeyEvent, aType );
+//    if ( iFocusControl != NULL && iFocusControl->OfferKeyEventL( aKeyEvent, aType )
+//        == EKeyWasConsumed )
+//    {
+//        return EKeyWasConsumed;
+//    }
+    return EKeyWasConsumed; // CCoeControl::OfferKeyEventL( aKeyEvent, aType );
 }
 
 // [[[ begin generated function: do not modify

@@ -12,8 +12,7 @@
 #include <avkon.hrh>
 #include <barsread.h>
 #include <stringloader.h>
-#include <gdi.h>
-#include <eikgted.h>
+#include <eiklabel.h>
 #include <eikenv.h>
 #include <akncontext.h>
 #include <akntitle.h>

@@ -75,9 +75,9 @@ void CFiruAppUi::InitializeContainersL()
 	if ( iNaviDecorator_ != NULL )
 		{
 		iNaviTabs1 = ( CAknTabGroup* ) iNaviDecorator_->DecoratedControl();
-	
+
 		}
-				
+
 	iFiruListBoxView = CFiruListBoxView::NewL();
 	AddViewL( iFiruListBoxView );
 	iFiruDictListBoxView = CFiruDictListBoxView::NewL();
@@ -108,9 +108,9 @@ void CFiruAppUi::HandleCommandL( TInt aCommand )
 		default:
 			break;
 		}
-	
-		
-	if ( !commandHandled ) 
+
+
+	if ( !commandHandled )
 		{
 		if ( aCommand == EAknSoftkeyExit || aCommand == EEikCmdExit )
 			{
@@ -145,16 +145,16 @@ TKeyResponse CFiruAppUi::HandleKeyEventL(
     // The inherited HandleKeyEventL is private and cannot be called
     // [[[ begin generated region: do not modify [Generated Contents]
 	TVwsViewId activeViewId;
-	if ( GetActiveViewId( activeViewId ) == KErrNone 
-		&& iNaviTabs1->TabIndexFromId( activeViewId.iViewUid.iUid ) 
+	if ( GetActiveViewId( activeViewId ) == KErrNone
+		&& iNaviTabs1->TabIndexFromId( activeViewId.iViewUid.iUid )
 			== KErrNotFound )
 		{
 		return EKeyWasNotConsumed;
 		}
-	
+
 	TInt active = iNaviTabs1->ActiveTabIndex();
 	TInt count = iNaviTabs1->TabCount();
-	
+
 	switch ( aKeyEvent.iCode )
 		{
 		case EKeyLeftArrow:
@@ -176,8 +176,8 @@ TKeyResponse CFiruAppUi::HandleKeyEventL(
 		default:
 			return EKeyWasNotConsumed;
 		}
-	
-				
+
+
     // ]]] end generated region [Generated Contents]
 
     return EKeyWasNotConsumed;
@@ -211,9 +211,9 @@ void CFiruAppUi::HandleViewDeactivation(
 void CFiruAppUi::ConstructL( )
 {
     // [[[ begin generated region: do not modify [Generated Contents]
-	
-	BaseConstructL( EAknEnableSkin  | 
-					 EAknEnableMSK ); 
+
+	BaseConstructL( EAknEnableSkin  |
+					 EAknEnableMSK );
 	InitializeContainersL();
     // ]]] end generated region [Generated Contents]
 
@@ -263,7 +263,7 @@ void CFiruAppUi::RunErrorNoteL( const TDesC* aOverrideText )
  */
 void CFiruAppUi::RunInfoNoteL( const TDesC* aOverrideText )
 	{
-	CAknInformationNote* note = new ( ELeave ) CAknInformationNote();
+	CAknInformationNote* note = new ( ELeave ) CAknInformationNote( ETrue );
 	if ( aOverrideText == NULL )
 		{
 		HBufC* noteText = StringLoader::LoadLC( R_APPLICATION_INFO_NOTE );
@@ -280,7 +280,7 @@ void CFiruAppUi::RunInfoNoteL( const TDesC* aOverrideText )
 // [[[ begin generated function: do not modify
 void CFiruAppUi::SetActiveTabByViewId( TUid aViewId )
 	{
-	if ( iNaviTabs1 != NULL 
+	if ( iNaviTabs1 != NULL
 		&& iNaviTabs1->TabIndexFromId( aViewId.iUid ) != KErrNotFound )
 		{
 		iNaviTabs1->SetActiveTabById( aViewId.iUid );

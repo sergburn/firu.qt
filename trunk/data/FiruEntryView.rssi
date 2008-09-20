@@ -33,16 +33,8 @@ RESOURCE TITLE_PANE r_firu_entry_view_title_resource
 	{
 	txt = STR_FiruEntryViewView_4;
 	}
-RESOURCE RTXTED r_firu_entry_view_rich_text1
+RESOURCE LABEL r_firu_entry_view_label1
 	{
-	numlines = 0;
-	default_case = EAknEditorTextCase;
-	allowed_case_modes = EAknEditorAllCaseModes;
-	numeric_keymap = EAknEditorStandardNumberModeKeymap;
-	default_input_mode = EAknEditorTextInputMode;
-	allowed_input_modes = EAknEditorTextInputMode | EAknEditorNumericInputMode | EAknEditorSecretAlphaInputMode | EAknEditorKatakanaInputMode | EAknEditorFullWidthTextInputMode | EAknEditorFullWidthNumericInputMode | EAknEditorFullWidthKatakanaInputMode | EAknEditorHiraganaKanjiInputMode | EAknEditorHalfWidthTextInputMode;
-	}
-RESOURCE TBUF r_firu_entry_view_rich_text1_2
-	{
-	buf = STR_FiruEntryViewView_5;
+	txt = STR_FiruEntryViewView_5;
+	horiz_align = EEikLabelAlignHCenter;
 	}

@@ -19,7 +19,7 @@
 
 // [[[ begin generated region: do not modify [Generated Forward Declarations]
 class MEikCommandObserver;		
-class CEikRichTextEditor;
+class CEikLabel;
 // ]]] end generated region [Generated Forward Declarations]
 
 /**
@@ -78,7 +78,7 @@ public:
 	
 	// [[[ begin generated region: do not modify [Generated Instance Variables]
 private: 
-	CEikRichTextEditor* iRichText1;
+	CEikLabel* iLabel1;
 	// ]]] end generated region [Generated Instance Variables]
 	
 	
@@ -96,7 +96,7 @@ public:
 	enum TControls
 		{
 		// [[[ begin generated region: do not modify [Generated Contents]
-		ERichText1,
+		ELabel1,
 		
 		// ]]] end generated region [Generated Contents]
 		

@@ -12,10 +12,7 @@
     <manifestEntry id="com.nokia.sdt.series60.CBABase" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.CCoeControl" version="1.2.0"/>
     <manifestEntry id="com.nokia.sdt.series60.ContainerBase" version="1.0.0"/>
-    <manifestEntry id="com.nokia.sdt.series60.CEikRichText" version="1.0.0"/>
-    <manifestEntry id="com.nokia.sdt.series60.CEikGlobalText" version="1.0.0"/>
-    <manifestEntry id="com.nokia.sdt.series60.CEikEdwinBase" version="1.0.0"/>
-    <manifestEntry id="com.nokia.sdt.series60.EditorBase" version="1.0.0"/>
+    <manifestEntry id="com.nokia.sdt.series60.CEikLabel" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.CCoeControlBase" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.MenuBar" version="1.0.0"/>
     <manifestEntry id="com.nokia.sdt.series60.MenuBase" version="1.0.0"/>
@@ -29,6 +26,7 @@
   <property id="com.nokia.sdt.symbian.dm.SOURCEGEN_PROVIDER">com.nokia.sdt.sourcegen.Symbian-Provider</property>
   <property id="com.nokia.sdt.symbian.dm.BUILD_DIRECTORY_ID">group</property>
   <component id="com.nokia.sdt.series60.CAknView">
+    <property id="layoutConfig">variable</property>
     <property id="className">CFiruEntryViewView</property>
     <compoundProperty id="location">
       <property id="x">51</property>
@@ -78,7 +76,6 @@
       </compoundProperty>
     </component>
     <component id="com.nokia.sdt.series60.CCoeControl">
-      <property id="initialFocus" type="componentRef">richText1</property>
       <compoundProperty id="location">
         <property id="y">66</property>
       </compoundProperty>
@@ -88,28 +85,16 @@
         <property id="width">240</property>
         <property id="height">222</property>
       </compoundProperty>
-      <component id="com.nokia.sdt.series60.CEikRichText">
-        <compoundProperty id="size">
-          <property id="width">85</property>
-          <property id="height">17</property>
-        </compoundProperty>
-        <compoundProperty id="avkonFlags"/>
+      <component id="com.nokia.sdt.series60.CEikLabel">
         <compoundProperty id="location">
-          <property id="x">22</property>
-          <property id="y">16</property>
+          <property id="x">2</property>
+          <property id="y">1</property>
         </compoundProperty>
-        <compoundProperty id="flags"/>
-        <compoundProperty id="allowedCaseModes"/>
-        <property id="name">richText1</property>
+        <property id="name">label1</property>
         <property id="text" type="i18n">STR_FiruEntryViewView_5</property>
-        <compoundProperty id="charFormat"/>
-        <compoundProperty id="allowedInputModes">
-          <property id="EAknEditorKatakanaInputMode">true</property>
-          <property id="EAknEditorFullWidthTextInputMode">true</property>
-          <property id="EAknEditorFullWidthNumericInputMode">true</property>
-          <property id="EAknEditorFullWidthKatakanaInputMode">true</property>
-          <property id="EAknEditorHiraganaKanjiInputMode">true</property>
-          <property id="EAknEditorHalfWidthTextInputMode">true</property>
+        <compoundProperty id="size">
+          <property id="width">235</property>
+          <property id="height">221</property>
         </compoundProperty>
       </component>
     </component>
@@ -128,25 +113,23 @@
       <string id="STR_FiruEntryViewView_2"/>
       <string id="STR_FiruEntryViewView_3"/>
       <string id="STR_FiruEntryViewView_4">FiruEntryView</string>
-      <string id="STR_FiruEntryViewView_5">Formatted text</string>
+      <string id="STR_FiruEntryViewView_5">222</string>
     </stringTable>
   </stringBundle>
   <macroTable/>
   <sourceMappingState>
     <resourceMappings>
+      <resourceMapping instanceName="label1">r_firu_entry_view_label1</resourceMapping>
       <resourceMapping instanceName="title">r_firu_entry_view_title_resource</resourceMapping>
-      <resourceMapping instanceName="FiruEntryViewView">r_firu_entry_view_firu_entry_view_view</resourceMapping>
       <resourceMapping instanceName="statusPane">r_firu_entry_view_status_pane</resourceMapping>
-      <resourceMapping instanceName="richText1">r_firu_entry_view_rich_text1</resourceMapping>
-      <resourceMapping instanceName="richText1" rsrcId="text">r_firu_entry_view_rich_text1_2</resourceMapping>
+      <resourceMapping instanceName="FiruEntryViewView">r_firu_entry_view_firu_entry_view_view</resourceMapping>
       <resourceMapping instanceName="optionsMenu">r_firu_entry_view_options_menu</resourceMapping>
     </resourceMappings>
     <enumMappings>
       <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_CONTROL_TYPE">EAknCtTitlePane</enumMapping>
-      <enumMapping instanceName="richText1" propertyId="defaultCase">EAknEditorTextCase</enumMapping>
+      <enumMapping instanceName="label1" propertyId="font">EEikLabelFontNormal</enumMapping>
       <enumMapping instanceName="FiruEntryViewView" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_VIEW_UID">EFiruEntryViewViewId</enumMapping>
-      <enumMapping instanceName="richText1" propertyId="numericKeymap">EAknEditorStandardNumberModeKeymap</enumMapping>
-      <enumMapping instanceName="richText1" propertyId="defaultInputMode">EAknEditorTextInputMode</enumMapping>
+      <enumMapping instanceName="label1" propertyId="alignment">EEikLabelAlignHCenter</enumMapping>
       <enumMapping instanceName="title" propertyId="" nameAlgorithm="com.nokia.sdt.component.symbian.NAME_ALG_STATUS_PANE_ID">EEikStatusPaneUidTitle</enumMapping>
     </enumMappings>
     <arrayMappings/>

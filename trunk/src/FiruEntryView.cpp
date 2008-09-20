@@ -9,15 +9,10 @@
 // [[[ begin generated region: do not modify [Generated System Includes]
 #include <barsread.h>
 #include <stringloader.h>
-#include <gdi.h>
-#include <eikgted.h>
+#include <eiklabel.h>
 #include <eikenv.h>
 #include <aknviewappui.h>
 #include <eikappui.h>
-#include <txtfrmat.h>
-#include <eikrted.h>
-#include <txtrich.h>
-#include <gulcolor.h>
 #include <firu.rsg>
 // ]]] end generated region [Generated System Includes]
 
@@ -40,7 +35,7 @@
 CFiruEntryView::CFiruEntryView()
 	{
 	// [[[ begin generated region: do not modify [Generated Contents]
-	iRichText1 = NULL;
+	iLabel1 = NULL;
 	// ]]] end generated region [Generated Contents]
 	
 	}
@@ -50,8 +45,8 @@ CFiruEntryView::CFiruEntryView()
 CFiruEntryView::~CFiruEntryView()
 	{
 	// [[[ begin generated region: do not modify [Generated Contents]
-	delete iRichText1;
-	iRichText1 = NULL;
+	delete iLabel1;
+	iLabel1 = NULL;
 	// ]]] end generated region [Generated Contents]
 	
 	}
@@ -124,7 +119,6 @@ void CFiruEntryView::ConstructL(
 	SetRect( aRect );
 	ActivateL();
 	// [[[ begin generated region: do not modify [Post-ActivateL initializations]
-	SetRichText1FormattingL();	
 	// ]]] end generated region [Post-ActivateL initializations]
 	
 	}
@@ -148,8 +142,8 @@ CCoeControl* CFiruEntryView::ComponentControl( TInt aIndex ) const
 	// [[[ begin generated region: do not modify [Generated Contents]
 	switch ( aIndex )
 		{
-		case ERichText1:
-			return iRichText1;
+		case ELabel1:
+			return iLabel1;
 		}
 	// ]]] end generated region [Generated Contents]
 	
@@ -181,7 +175,7 @@ void CFiruEntryView::SizeChanged()
  */
 void CFiruEntryView::LayoutControls()
 	{
-	iRichText1->SetExtent( TPoint( 22, 16 ), TSize( 85, 17 ) );
+	iLabel1->SetExtent( TPoint( 2, 1 ), TSize( 235, 221 ) );
 	}
 // ]]] end generated function
 
@@ -210,22 +204,14 @@ TKeyResponse CFiruEntryView::OfferKeyEventL(
  */				
 void CFiruEntryView::InitializeControlsL()
 	{
-	iRichText1 = new ( ELeave ) CEikRichTextEditor;
-	iRichText1->SetContainerWindowL( *this );
+	iLabel1 = new ( ELeave ) CEikLabel;
+	iLabel1->SetContainerWindowL( *this );
 		{
 		TResourceReader reader;
-		iEikonEnv->CreateResourceReaderLC( reader, R_FIRU_ENTRY_VIEW_RICH_TEXT1 );
-		iRichText1->ConstructFromResourceL( reader );
+		iEikonEnv->CreateResourceReaderLC( reader, R_FIRU_ENTRY_VIEW_LABEL1 );
+		iLabel1->ConstructFromResourceL( reader );
 		CleanupStack::PopAndDestroy(); // reader internal state
 		}
-		{
-		HBufC* text = StringLoader::LoadLC( R_FIRU_ENTRY_VIEW_RICH_TEXT1_2 );
-		iRichText1->SetTextL( text );
-		CleanupStack::PopAndDestroy( text );
-		}
-	
-	iRichText1->SetFocus( ETrue );
-	iFocusControl = iRichText1;
 	
 	}
 // ]]] end generated function
@@ -258,7 +244,6 @@ void CFiruEntryView::Draw( const TRect& aRect ) const
 void CFiruEntryView::SetRichText1FormattingL()
 	{
 	// [[[ begin generated region: do not modify [Generated GlobalText formatting]
-	
 	// ]]] end generated region [Generated GlobalText formatting]
 	
 	}
