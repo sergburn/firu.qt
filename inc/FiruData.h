@@ -205,6 +205,7 @@ protected:
 private:
 
     void SetTableIndexL();
+    void DumpL();
 
 private:
     TLanguage iSourceLang;
@@ -221,6 +222,8 @@ private:
     RDbTable iTableSources;
     RDbTable iTableTargets;
     RDbTable iTableTranslations;
+    RDbTable iTableSourcesById;
+    RDbTable iTableTargetsById;
 };
 
 #endif /*CFIRUDATA_H_*/

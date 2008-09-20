@@ -94,9 +94,11 @@ CFiruData::~CFiruData()
     delete iTableNameSources;
     delete iTableNameTranslations;
     delete iTableNameTargets;
-    iTableSources.Close();
     iTableTranslations.Close();
+    iTableSources.Close();
     iTableTargets.Close();
+    iTableSourcesById.Close();
+    iTableTargetsById.Close();
     iDb.Compact();
     iDb.Close();
 }
@@ -143,15 +145,19 @@ void CFiruData::SelectDictionaryL( TLanguage aInputLanguage, TLanguage aOutputLa
     iTableNameSources = FiruDbSchema::EntriesTableNameLC( aInputLanguage );
     CleanupStack::Pop( iTableNameSources );
     iTableSources.Open( iDb, *iTableNameSources, RDbTable::EUpdatable );
+    iTableSourcesById.Open( iDb, *iTableNameSources, RDbTable::EUpdatable );
 
-    iTableNameTargets = FiruDbSchema::EntriesTableNameLC( aInputLanguage );
+    iTableNameTargets = FiruDbSchema::EntriesTableNameLC( aOutputLanguage );
     CleanupStack::Pop( iTableNameTargets );
     iTableTargets.Open( iDb, *iTableNameTargets, RDbTable::EUpdatable );
+    iTableTargetsById.Open( iDb, *iTableNameTargets, RDbTable::EUpdatable );
 
     iTableNameTranslations
         = FiruDbSchema::TranslationsTableNameLC( aInputLanguage, aOutputLanguage );
     CleanupStack::Pop( iTableNameTranslations );
     iTableTranslations.Open( iDb, *iTableNameTranslations, RDbTable::EUpdatable );
+
+    DumpL();
 
     SetTableIndexL();
 }
@@ -182,6 +188,8 @@ void CFiruData::SetTableIndexL()
 {
     User::LeaveIfError( iTableSources.SetIndex( KTextIndexName ) );
     User::LeaveIfError( iTableTargets.SetIndex( KTextIndexName ) );
+    User::LeaveIfError( iTableSourcesById.SetIndex( KPrimaryKeyIndexName ) );
+    User::LeaveIfError( iTableTargetsById.SetIndex( KPrimaryKeyIndexName ) );
     if ( !iReversed )
         User::LeaveIfError( iTableTranslations.SetIndex( KSourceFkIndexName ) );
     else
@@ -337,7 +345,7 @@ CFiruEntry* CFiruData::CreateEntryLC( RDbRowSet& aView )
 
 void CFiruData::GetTranslationsL( CFiruEntry& aEntry )
 {
-    RDbTable* targets = iReversed ? &iTableSources : &iTableTargets;
+    RDbTable* targets = iReversed ? &iTableSourcesById : &iTableTargetsById;
 
     RDbView view;
     CleanupClosePushL( view );
@@ -345,9 +353,9 @@ void CFiruData::GetTranslationsL( CFiruEntry& aEntry )
     TBuf<128> query;
     query.Format( KSqlViewWhere(), iTableNameTranslations );
     if ( !iReversed )
-        query.AppendFormat( KSqlEqual(), &KColTargetFk, aEntry.Id() );
-    else
         query.AppendFormat( KSqlEqual(), &KColSourceFk, aEntry.Id() );
+    else
+        query.AppendFormat( KSqlEqual(), &KColTargetFk, aEntry.Id() );
 
     EvaluateViewL( view, query );
 
@@ -362,6 +370,7 @@ void CFiruData::GetTranslationsL( CFiruEntry& aEntry )
         TDbSeekKey key( view.ColUint( iReversed ? KColumnSourceFk : KColumnTargetFk ) );
         if ( targets->SeekL( key ) )
         {
+            targets->GetL();
             CFiruEntry* entry = CreateEntryLC( *targets );
             CFiruTranslation* trans = new ( ELeave ) CFiruTranslation( entry, counter, rate );
             CleanupStack::Pop( entry );
@@ -851,3 +860,43 @@ CFiruExercise::Stats CFiruExercise::GetStats() const
 //    CleanupStack::PopAndDestroy( previous );
 //    RDebug::Print( _L("Found %d dups in %d records"), dups, iTableTranslations.CountL() );
 //}
+
+void CFiruData::DumpL()
+{
+    const TInt KMaxRecords = 10;
+    TInt i = KMaxRecords;
+    RDebug::Print(_L("-= Sources =-"));
+    iTableSources.FirstL();
+    while ( iTableSources.AtRow() && i-- > 0 )
+    {
+        iTableSources.GetL();
+        CFiruEntry* entry = CreateEntryLC( iTableSources );
+        RDebug::Print(_L("%2d %S"), entry->Id(), &(entry->Text()));
+        CleanupStack::PopAndDestroy( entry );
+        iTableSources.NextL();
+    }
+
+    i = KMaxRecords;
+    RDebug::Print(_L("-= Targets =-"));
+    iTableTargets.FirstL();
+    while ( iTableTargets.AtRow() && i-- > 0 )
+    {
+        iTableTargets.GetL();
+        CFiruEntry* entry = CreateEntryLC( iTableTargets );
+        RDebug::Print(_L("%2d %S"), entry->Id(), &(entry->Text()));
+        CleanupStack::PopAndDestroy( entry );
+        iTableTargets.NextL();
+    }
+
+    i = KMaxRecords;
+    RDebug::Print(_L("-= Traslations =-"));
+    iTableTranslations.FirstL();
+    while ( iTableSources.AtRow() && i-- > 0 )
+    {
+        iTableTranslations.GetL();
+        TInt sid = iTableTranslations.ColUint32( KColumnSourceFk );
+        TInt tid = iTableTranslations.ColUint32( KColumnTargetFk );
+        RDebug::Print(_L("%2d %2d"), sid, tid );
+        iTableTranslations.NextL();
+    }
+}

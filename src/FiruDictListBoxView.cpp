@@ -299,14 +299,15 @@ TBool CFiruDictListBoxView::HandleOpenEntryL( TInt /*aCommand*/ )
 
     RBuf text;
     text.CreateL( src.Length() );
+    text.Copy( src );
     CleanupClosePushL( text );
 
     Data().GetTranslationsL( *entry );
     for ( int i = 0; i < entry->NumTranslations(); ++i )
     {
-        TPtrC trans = entry->TranslationText( 0 );
+        TPtrC trans = entry->TranslationText( i );
         text.ReAllocL( text.MaxLength() + trans.Length() + 5 );
-        text.AppendFormat( _L("\n%S"), &trans );
+        text.AppendFormat( _L("\n%d) %S"), i+1, &trans );
     }
 
     CFiruAppUi::RunInfoNoteL( &text );
