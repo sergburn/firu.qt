@@ -91,6 +91,7 @@ public:
     // ]]] end generated region [Generated Methods]
 
     void RefreshListBoxL( );
+    void ResetFilterL();
     CFiruEntry* CurrentItem( );
     
     CFiruDictListBoxModel& Model();

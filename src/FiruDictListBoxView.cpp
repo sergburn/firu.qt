@@ -283,7 +283,8 @@ TBool CFiruDictListBoxView::HandleControlPaneRightSoftKeyPressedL( TInt /*aComma
 TBool CFiruDictListBoxView::HandleReverseMenuItemSelectedL( TInt /*aCommand*/ )
 {
     Data().ReverseDictionaryL( );
-    iFiruDictListBox->RefreshListBoxL( );
+    iFiruDictListBox->ResetFilterL();
+//    iFiruDictListBox->RefreshListBoxL( );
     return ETrue;
 }
 

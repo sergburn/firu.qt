@@ -221,22 +221,13 @@ TKeyResponse CFiruTrainerListBox::OfferKeyEventL( const TKeyEvent& aKeyEvent, TE
         return iListBox->OfferKeyEventL( aKeyEvent, aType );
         }
 
-    if ( aKeyEvent.iCode == EKeyEnter )
+    if ( aKeyEvent.iCode == EKeyEnter || aKeyEvent.iCode == EKeyOK )
     {
         iCommandObserver->ProcessCommandL( EFiruTrainerListBoxViewSelectMenuItemCommand );
         return EKeyWasConsumed;
     }
 
-    if ( aKeyEvent.iScanCode == EStdKeyDevice3 )
-    {
-        if ( aType == EEventKeyUp )
-        {
-            iCommandObserver->ProcessCommandL( EFiruTrainerListBoxViewSelectMenuItemCommand );
-        }
-        return EKeyWasConsumed;
-    }
-
-    return EKeyWasNotConsumed; // CCoeControl::OfferKeyEventL( aKeyEvent, aType );
+    return CCoeControl::OfferKeyEventL( aKeyEvent, aType );
 }
 
 // [[[ begin generated function: do not modify
