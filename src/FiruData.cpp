@@ -426,16 +426,16 @@ CFiruExercise* CFiruData::CreateExerciseL( TInt numTotalTests, TInt numNewTests,
 
     // 2. Get most rare entries ( the rest )
 
-    query.Format( KSqlViewAll(), iTableNameTranslations );
-    if ( !iReversed )
-        query.AppendFormat( KSqlOrder(), &KColFwdCounter );
-    else
-        query.AppendFormat( KSqlOrder(), &KColRevCounter );
-
-    CleanupClosePushL( view );
-    EvaluateViewL( view, query );
-    ReadRandomEntriesL( view, questions, numTotalTests - questions.Count(), iReversed );
-    CleanupStack::PopAndDestroy( &view );
+//    query.Format( KSqlViewAll(), iTableNameTranslations );
+//    if ( !iReversed )
+//        query.AppendFormat( KSqlOrder(), &KColFwdCounter );
+//    else
+//        query.AppendFormat( KSqlOrder(), &KColRevCounter );
+//
+//    CleanupClosePushL( view );
+//    EvaluateViewL( view, query );
+//    ReadRandomEntriesL( view, questions, numTotalTests - questions.Count(), iReversed );
+//    CleanupStack::PopAndDestroy( &view );
 
     // 3. Get wrong results
 
