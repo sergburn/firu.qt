@@ -40,12 +40,13 @@
       <property id="className">CFiruDocument</property>
       <property id="name">FiruDocument</property>
       <component id="com.nokia.sdt.series60.CAknViewAppUi">
-        <property id="initialDesign" type="componentRef">aknViewReference2</property>
+        <property id="initialDesign" type="componentRef">aknViewReference1</property>
         <property id="className">CFiruAppUi</property>
         <compoundProperty id="location">
           <property id="x">51</property>
           <property id="y">44</property>
         </compoundProperty>
+        <property id="enableMSK">false</property>
         <property id="name">FiruAppUi</property>
         <compoundProperty id="size">
           <property id="width">240</property>
@@ -162,6 +163,7 @@
         <component id="com.nokia.sdt.series60.AvkonViewReference">
           <property id="filePath">FiruEntryView.uidesign</property>
           <property id="baseName">FiruEntryView</property>
+          <compoundProperty id="tabImage"/>
           <property id="name">aknViewReference6</property>
         </component>
       </component>
@@ -238,6 +240,7 @@
     <file>inc/firutrainerlistbox.hrh</file>
     <file>data/firucontainer.rssi</file>
     <file>data/firutester.rssi</file>
+    <file>data/firuentryview.rssi</file>
     <file>data/firu.loc</file>
     <file>data/firu.l01</file>
     <file>data/firulistbox.loc</file>
@@ -250,8 +253,7 @@
     <file>data/firucontainer.l01</file>
     <file>data/firutester.loc</file>
     <file>data/firutester.l01</file>
-    <file>data/firuentryview.rssi</file>
-    <file>data/firuentryview.l01</file>
     <file>data/firuentryview.loc</file>
+    <file>data/firuentryview.l01</file>
   </generatedFiles>
 </designerData>

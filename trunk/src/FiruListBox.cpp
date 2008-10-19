@@ -190,8 +190,8 @@ TKeyResponse CFiruListBox::OfferKeyEventL(
 		const TKeyEvent& aKeyEvent,
 		TEventCode aType )
 	{
-    if ( aKeyEvent.iCode == EKeyEnter ||
-         aKeyEvent.iScanCode == EStdKeyDevice3 && aType == EEventKeyDown )
+    if ( ( aKeyEvent.iCode == EKeyOK || aKeyEvent.iCode == EKeyEnter )
+    		&& aType == EEventKey )
     {
         iCommandObserver->ProcessCommandL( EFiruListBoxViewOpenMenuItemCommand );
         return EKeyWasConsumed;
@@ -207,11 +207,17 @@ TKeyResponse CFiruListBox::OfferKeyEventL(
 
 	// ]]] end generated region [Generated Contents]
 
-	if ( iFocusControl != NULL
-		&& iFocusControl->OfferKeyEventL( aKeyEvent, aType ) == EKeyWasConsumed )
-		{
-		return EKeyWasConsumed;
-		}
+    if ( aKeyEvent.iCode == EKeyUpArrow
+        || aKeyEvent.iCode == EKeyDownArrow )
+    {
+        return iListBox->OfferKeyEventL( aKeyEvent, aType );
+    }
+
+    //	if ( iFocusControl != NULL
+//		&& iFocusControl->OfferKeyEventL( aKeyEvent, aType ) == EKeyWasConsumed )
+//		{
+//		return EKeyWasConsumed;
+//		}
 	return CCoeControl::OfferKeyEventL( aKeyEvent, aType );
 	}
 
