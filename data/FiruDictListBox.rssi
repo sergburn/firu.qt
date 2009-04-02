@@ -61,8 +61,24 @@ RESOURCE MENU_PANE r_firu_dict_list_box_menu_pane1_menu_pane
 			},
 		MENU_ITEM
 			{
+			cascade = r_firu_dict_list_box_menu_pane2;
+			txt = STR_FiruDictListBoxView_7;
+			},
+		MENU_ITEM
+			{
 			command = EAknCmdExit;
 			txt = STR_FiruDictListBoxView_3;
+			}
+		};
+	}
+RESOURCE MENU_PANE r_firu_dict_list_box_menu_pane2
+	{
+	items =
+		{
+		MENU_ITEM
+			{
+			command = EFiruDictListBoxViewCompactMenuItemCommand;
+			txt = STR_FiruDictListBoxView_8;
 			}
 		};
 	}

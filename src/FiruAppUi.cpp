@@ -241,7 +241,8 @@ CFiruData& CFiruAppUi::Data( )
  */
 void CFiruAppUi::RunErrorNoteL( const TDesC* aOverrideText )
 	{
-	CAknErrorNote* note = new ( ELeave ) CAknErrorNote();
+	CAknErrorNote* note = new ( ELeave ) CAknErrorNote( ETrue );
+    note->SetTimeout( CAknNoteDialog::ENoTimeout );
 	if ( aOverrideText == NULL )
 		{
 		HBufC* noteText = StringLoader::LoadLC( R_APPLICATION_ERROR_NOTE );
@@ -262,7 +263,8 @@ void CFiruAppUi::RunErrorNoteL( const TDesC* aOverrideText )
  */
 void CFiruAppUi::RunInfoNoteL( const TDesC* aOverrideText )
 	{
-	CAknInformationNote* note = new ( ELeave ) CAknInformationNote();
+	CAknInformationNote* note = new ( ELeave ) CAknInformationNote( ETrue );
+	note->SetTimeout( CAknNoteDialog::ENoTimeout );
 	if ( aOverrideText == NULL )
 		{
 		HBufC* noteText = StringLoader::LoadLC( R_APPLICATION_INFO_NOTE );

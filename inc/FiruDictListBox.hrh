@@ -10,5 +10,6 @@ enum TFiruDictListBoxViewCommands
 	{
 	EFiruDictListBoxViewOpenMenuItemCommand = 0x6000,
 	EFiruDictListBoxViewExitMenuItemCommand,
-	EFiruDictListBoxViewReverseMenuItemCommand
+	EFiruDictListBoxViewReverseMenuItemCommand,
+	EFiruDictListBoxViewCompactMenuItemCommand
 	};

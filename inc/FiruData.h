@@ -41,6 +41,8 @@ class CFiruTranslation : public CBase
 public:
     CFiruTranslation( CFiruEntry* aEntry, TInt aCounter, TInt aRate )
     : iEntry( aEntry ), iCounter( aCounter ), iRate( aRate ) {};
+    
+    ~CFiruTranslation();
 
     TInt Counter() const { return iCounter; };
     TInt Rate() const { return iRate; };
