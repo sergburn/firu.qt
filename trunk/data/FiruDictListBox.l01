@@ -14,3 +14,5 @@
 #define STR_FiruDictListBoxView_5 ""
 #define STR_FiruDictListBoxView_6 ""
 #define STR_FiruDictListBoxView_9 "Reverse"
+#define STR_FiruDictListBoxView_7 "Tools"
+#define STR_FiruDictListBoxView_8 "Compact"

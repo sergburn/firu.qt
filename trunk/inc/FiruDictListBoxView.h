@@ -73,6 +73,7 @@ protected:
 	TBool HandleControlPaneRightSoftKeyPressedL( TInt aCommand );
 	TBool HandleReverseMenuItemSelectedL( TInt aCommand );
 	TBool HandleOpenEntryL( TInt aCommand );
+	TBool HandleCompactMenuItemSelectedL( TInt aCommand );
 	// ]]] end [User Handlers]
 	
 	// ]]] end [Protected Section]

@@ -67,6 +67,24 @@ void CFiruEntry::AddTranslationL( CFiruTranslation* aTranslation )
 }
 
 // ----------------------------------------------------------
+
+CFiruTranslation* CFiruEntry::Translation( TUint aIndex )
+{
+    if ( aIndex < iTranslations.Count() )
+        return iTranslations[aIndex];
+    else
+        return NULL;
+}
+
+// ----------------------------------------------------------
+// ----------------------------------------------------------
+
+CFiruTranslation::~CFiruTranslation()
+{
+    delete iEntry;
+}
+
+// ----------------------------------------------------------
 // ----------------------------------------------------------
 
 CFiruData* CFiruData::NewL( RFs& aFs )
@@ -534,7 +552,6 @@ void CFiruData::ReadTopEntriesL(
     TBool aReversed )
 {
     aView.FirstL();
-    TInt index = 0;
     while ( !aView.AtEnd() && aCount > 0 )
     {
         aView.GetL();
@@ -566,14 +583,39 @@ void CFiruData::SaveTestResultL( const CFiruTest& aTest )
 
 void CFiruData::AddEntryToLearningSetL( TInt aEntryId )
 {
-    CFiruEntry* entry = CFiruEntry::NewLC( aEntryId, _L("") );
-    GetTranslationsL( *entry );
-    for ( int i = 0; i < entry->NumTranslations(); ++i )
+//    CFiruEntry* entry = CFiruEntry::NewLC( aEntryId, _L("") );
+//    GetTranslationsL( *entry );
+//    for ( int i = 0; i < entry->NumTranslations(); ++i )
+//    {
+//        CFiruTranslation* trans = entry->Translation( i );
+//        AdjustMarkL( aEntryId, trans->Entry().Id(), -3, EFalse, EFalse );
+//    }
+//    CleanupStack::PopAndDestroy( entry );
+
+    _LIT( KMarkForLearning, "UPDATE %S SET %S = %d WHERE %S = %d AND %S > %d" );
+    HBufC* buf = HBufC::NewLC( 
+        KMarkForLearning().Length() + 
+        2 * KColForward().Length() +
+        KIntStringMaxLength );
+    TPtr sql = buf->Des();
+    
+    TPtrC idCol( KColSourceFk );
+    if ( iReversed )
     {
-        CFiruTranslation* trans = entry->Translation( i );
-        AdjustMarkL( aEntryId, trans->Entry().Id(), -3, EFalse, EFalse );
+        idCol.Set( KColTargetFk );
     }
-    CleanupStack::PopAndDestroy( entry );
+    
+    sql.Format( KMarkForLearning, iTableNameTranslations, 
+        &KColForward, -3, &KColForward, -3,
+        &idCol, aEntryId );
+    iDb.Execute( sql );
+    
+    sql.Format( KMarkForLearning, iTableNameTranslations, 
+        &KColReverse, -3, &KColReverse, -3,
+        &idCol, aEntryId );
+    iDb.Execute( sql );
+
+    CleanupStack::PopAndDestroy( buf );
 }
 
 // ----------------------------------------------------------
