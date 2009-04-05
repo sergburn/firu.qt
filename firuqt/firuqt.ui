@@ -1,0 +1,37 @@
+<ui version="4.0" >
+ <class>firuqtClass</class>
+ <widget class="QWidget" name="firuqtClass" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>274</width>
+    <height>265</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>firuqt</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" >
+   <item row="0" column="0" >
+    <widget class="QListView" name="listView" />
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLineEdit" name="lineEdit" />
+   </item>
+  </layout>
+  <action name="actionGoNext" >
+   <property name="text" >
+    <string>goNext</string>
+   </property>
+  </action>
+  <action name="actionGoBack" >
+   <property name="text" >
+    <string>goBack</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources/>
+ <connections/>
+</ui>
