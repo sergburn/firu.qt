@@ -6,6 +6,8 @@
  */
 
 #include "AppUi.h"
+#include <QApplication>
+#include <QDesktopWidget>
 
 #ifdef __SYMBIAN32__
 #include "AppUi_S60.h"
@@ -15,8 +17,10 @@
 
 AppUi::AppUi()
 {
-#ifdef __SYMBIAN32__
+#if 0 //def __SYMBIAN32__
     m_impl = new AppUiS60();
+#else
+    m_impl = NULL;
 #endif
 }
 
@@ -29,10 +33,23 @@ void AppUi::SetAppTitle( QString title )
 
 QRect AppUi::GetClientRect() const
 {
-    if ( m_impl )
-        return m_impl->GetClientRect();
-    else
-        return QRect();
+//    if ( m_impl )
+//        return m_impl->GetClientRect();
+//    else
+//    {
+        QDesktopWidget* desk = QApplication::desktop();
+        QRect client = desk->availableGeometry();
+        QRect qvga( 0, 0, 240, 320 );
+        if ( client.width() >= qvga.width() && client.height() >= qvga.height() )
+        {
+            qvga.moveCenter( client.center() );
+            return qvga;
+        }
+        else
+        {
+            return client;
+        }
+//    }
 }
 
 // --------------------------------------------------------

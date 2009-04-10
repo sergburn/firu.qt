@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading ui file 'firuqt.ui'
 **
-** Created: Sun Apr 5 21:06:05 2009
-**      by: Qt User Interface Compiler version 4.5.0
+** Created: Fri 10. Apr 21:55:34 2009
+**      by: Qt User Interface Compiler version 4.5.0-garden
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/

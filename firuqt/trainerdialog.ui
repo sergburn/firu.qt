@@ -37,6 +37,12 @@
       </property>
       <item>
        <widget class="QLabel" name="laQuestion">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>

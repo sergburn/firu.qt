@@ -39,14 +39,11 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-//    FiruMainWindow w;
-//    w.show();
+    FiruMainWindow w;
+    w.show();
     
 //    firuqt f;
 //    f.show();
     
-    TrainerDialog t;
-    t.show();
-
     return a.exec();
 }
