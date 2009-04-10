@@ -5,8 +5,6 @@ QT += core \
 HEADERS += AppUi.h \
     firumainwindow.h \
     firuqt.h \
-    ../epoc32/include \
-    ../epoc32/include/stdapis \
     trainerdialog.h
 SOURCES += AppUi.cpp \
     firumainwindow.cpp \

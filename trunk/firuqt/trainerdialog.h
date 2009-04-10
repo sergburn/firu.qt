@@ -2,6 +2,7 @@
 #define TRAINERDIALOG_H
 
 #include <QtGui/QDialog>
+#include "AppUi.h"
 
 namespace Ui {
     class TrainerDialog;
@@ -20,9 +21,11 @@ protected:
 
 private:
     void showAnswersList();
+    void showKeypad();
 
 private:
     Ui::TrainerDialog *m_ui;
+    AppUi m_appUi;
 };
 
 #endif // TRAINERDIALOG_H

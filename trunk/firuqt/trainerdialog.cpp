@@ -8,7 +8,14 @@ TrainerDialog::TrainerDialog(QWidget *parent) :
     m_ui(new Ui::TrainerDialog)
 {
     m_ui->setupUi(this);
-    m_ui->listAnswers->setVisible( false );
+    showKeypad();
+    
+#ifdef __SYMBIAN32__
+    showMaximized();
+#else
+    QRect rect = m_appUi.GetClientRect();
+    setGeometry( rect );
+#endif
 }
 
 TrainerDialog::~TrainerDialog()
@@ -35,6 +42,9 @@ void TrainerDialog::keyPressEvent(QKeyEvent *keyEvent)
         case '0':
             showAnswersList();
             break;
+        case '#':
+            showKeypad();
+            break;
     }
 }
 
@@ -42,4 +52,10 @@ void TrainerDialog::showAnswersList()
 {
     m_ui->frmKeypad->setVisible( false );
     m_ui->listAnswers->setVisible( true );
+}
+
+void TrainerDialog::showKeypad()
+{
+    m_ui->frmKeypad->setVisible( true );
+    m_ui->listAnswers->setVisible( false );
 }

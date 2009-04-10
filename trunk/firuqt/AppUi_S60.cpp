@@ -5,25 +5,11 @@
  *      Author: sergey
  */
 
-#include "AppUi.h"
+#include "AppUi_S60.h"
 
 #include <eikenv.h>
 #include <aknappui.h>
 #include <akntitle.h>
-
-class AppUiS60 : public AppUi
-{
-    AppUiS60();
-    virtual ~AppUiS60();
-
-    virtual void SetAppTitle( QString title );
-    virtual QRect GetClientRect() const;
-
-private:
-    CEikonEnv* m_eikon;
-    CAknAppUi* m_appui;
-    CEikStatusPane* m_statusPane;
-};
 
 // --------------------------------------------------------
 
@@ -74,7 +60,7 @@ QRect AppUiS60::GetClientRect() const
 
 // --------------------------------------------------------
 
-AppUi::~AppUi()
+AppUiS60::~AppUiS60()
 {
     // TODO Auto-generated destructor stub
 }

@@ -1,8 +1,8 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'firumainwindow.h'
 **
-** Created: Sun Apr 5 21:06:11 2009
-**      by: The Qt Meta Object Compiler version 61 (Qt 4.5.0)
+** Created: Fri 10. Apr 22:23:57 2009
+**      by: The Qt Meta Object Compiler version 61 (Qt 4.5.0-garden)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
@@ -11,7 +11,7 @@
 #if !defined(Q_MOC_OUTPUT_REVISION)
 #error "The header file 'firumainwindow.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 61
-#error "This file was generated using the moc from 4.5.0. It"
+#error "This file was generated using the moc from 4.5.0-garden. It"
 #error "cannot be used with the include files from this version of Qt."
 #error "(The moc has changed too much.)"
 #endif
@@ -23,7 +23,7 @@ static const uint qt_meta_data_FiruMainWindow[] = {
        2,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   12, // methods
+       4,   12, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -33,6 +33,8 @@ static const uint qt_meta_data_FiruMainWindow[] = {
 
  // slots: signature, parameters, type, tag, flags
       42,   15,   15,   15, 0x0a,
+      64,   15,   15,   15, 0x08,
+      94,   15,   15,   15, 0x08,
 
        0        // eod
 };
@@ -40,6 +42,8 @@ static const uint qt_meta_data_FiruMainWindow[] = {
 static const char qt_meta_stringdata_FiruMainWindow[] = {
     "FiruMainWindow\0\0inputWordChanged(QString)\0"
     "setInputWord(QString)\0"
+    "on_actionOpenDict_triggered()\0"
+    "on_actionOpenTrainer_triggered()\0"
 };
 
 const QMetaObject FiruMainWindow::staticMetaObject = {
@@ -69,9 +73,11 @@ int FiruMainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: inputWordChanged((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 1: setInputWord((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 2: on_actionOpenDict_triggered(); break;
+        case 3: on_actionOpenTrainer_triggered(); break;
         default: ;
         }
-        _id -= 2;
+        _id -= 4;
     }
     return _id;
 }

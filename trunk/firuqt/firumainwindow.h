@@ -23,6 +23,10 @@ private:
     Ui::FiruMainWindowClass m_ui;
     AppUi m_appUi;
     QString m_word;
+
+private slots:
+    void on_actionOpenDict_triggered();
+    void on_actionOpenTrainer_triggered();
 };
 
 #endif // FIRUMAINWINDOW_H

@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="4.0" >
  <class>FiruMainWindowClass</class>
- <widget class="QMainWindow" name="FiruMainWindowClass">
-  <property name="geometry">
+ <widget class="QMainWindow" name="FiruMainWindowClass" >
+  <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
@@ -10,153 +9,153 @@
     <height>341</height>
    </rect>
   </property>
-  <property name="windowTitle">
+  <property name="windowTitle" >
    <string>Firu</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+  <property name="styleSheet" >
+   <string notr="true" >background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 127);
+color: rgb(0, 0, 0);</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" name="verticalLayout" >
     <item>
-     <widget class="QLineEdit" name="lineEdit">
-      <property name="font">
+     <widget class="QLineEdit" name="editInput" >
+      <property name="font" >
        <font>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
-      <property name="styleSheet">
-       <string notr="true">color: rgb(0, 0, 0);
+      <property name="styleSheet" >
+       <string notr="true" >color: rgb(0, 0, 0);
 background-color: rgb(255, 255, 127);</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QTextEdit" name="textEdit">
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(85, 255, 127);</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPlainTextEdit" name="plainTextEdit">
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(170, 255, 255);</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QListWidget" name="listWidget">
+     <widget class="QListWidget" name="listSources" >
       <item>
-       <property name="text">
-        <string>Dictionary</string>
+       <property name="text" >
+        <string>aamu</string>
        </property>
       </item>
       <item>
-       <property name="text">
-        <string>Trainer</string>
+       <property name="text" >
+        <string>kana</string>
        </property>
       </item>
       <item>
-       <property name="text">
-        <string>Advanced Trainer</string>
+       <property name="text" >
+        <string>liha</string>
+       </property>
+      </item>
+      <item>
+       <property name="text" >
+        <string>uimahalli</string>
        </property>
       </item>
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label">
-      <property name="font">
+     <widget class="QLabel" name="laTranslation" >
+      <property name="font" >
        <font>
         <pointsize>10</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
       </property>
-      <property name="frameShape">
+      <property name="frameShape" >
        <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="text">
+      <property name="text" >
        <string>TextLabel</string>
       </property>
-      <property name="wordWrap">
+      <property name="wordWrap" >
        <bool>true</bool>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
     <rect>
      <x>0</x>
      <y>0</y>
      <width>274</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
+   <property name="styleSheet" >
+    <string notr="true" >
+border-color: rgb(0, 0, 0);color: rgb(0, 0, 0);
+background-color: rgb(255, 255, 255);
+selection-background-color: rgb(170, 255, 255);
+selection-color: rgb(0, 0, 127);</string>
+   </property>
   </widget>
-  <action name="actionOpenDict">
-   <property name="text">
+  <action name="actionOpenDict" >
+   <property name="text" >
     <string>OpenDict</string>
    </property>
   </action>
-  <action name="actionOpenTrainer">
-   <property name="text">
+  <action name="actionOpenTrainer" >
+   <property name="text" >
     <string>OpenTrainer</string>
    </property>
   </action>
  </widget>
  <tabstops>
-  <tabstop>lineEdit</tabstop>
-  <tabstop>listWidget</tabstop>
+  <tabstop>editInput</tabstop>
+  <tabstop>listSources</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
    <sender>FiruMainWindowClass</sender>
    <signal>inputWordChanged(QString)</signal>
-   <receiver>label</receiver>
+   <receiver>laTranslation</receiver>
    <slot>setText(QString)</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>136</x>
      <y>139</y>
     </hint>
-    <hint type="destinationlabel">
-     <x>136</x>
-     <y>262</y>
+    <hint type="destinationlabel" >
+     <x>145</x>
+     <y>331</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>lineEdit</sender>
+   <sender>editInput</sender>
    <signal>textChanged(QString)</signal>
    <receiver>FiruMainWindowClass</receiver>
    <slot>setInputWord(QString)</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>136</x>
      <y>42</y>
     </hint>
-    <hint type="destinationlabel">
+    <hint type="destinationlabel" >
      <x>136</x>
      <y>139</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>listWidget</sender>
+   <sender>listSources</sender>
    <signal>currentTextChanged(QString)</signal>
    <receiver>FiruMainWindowClass</receiver>
    <slot>setInputWord(QString)</slot>
    <hints>
-    <hint type="sourcelabel">
+    <hint type="sourcelabel" >
      <x>136</x>
      <y>153</y>
     </hint>
-    <hint type="destinationlabel">
+    <hint type="destinationlabel" >
      <x>136</x>
      <y>139</y>
     </hint>
@@ -164,7 +163,7 @@ background-color: rgb(255, 255, 127);</string>
   </connection>
  </connections>
  <slots>
-  <signal>inputWordChanged(QString)</signal>
   <slot>setInputWord(QString)</slot>
+  <signal>inputWordChanged(QString)</signal>
  </slots>
 </ui>

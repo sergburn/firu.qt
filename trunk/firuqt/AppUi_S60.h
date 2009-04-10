@@ -5,19 +5,20 @@
  *      Author: sergey
  */
 
-#ifndef APPUI_H_
-#define APPUI_H_
+#ifndef APPUIS60_H_
+#define APPUIS60_H_
 
 #include <eikenv.h>
 #include <aknappui.h>
 #include <QtCore/QString>
 #include <QtCore/QRect>
+#include "AppUI.h"
 
-class AppUi
+class AppUiS60 : public AppUi
 {
 public:
-    AppUi();
-    virtual ~AppUi();
+    AppUiS60();
+    virtual ~AppUiS60();
     
     void SetAppTitle( QString title );
     QRect GetClientRect() const;
@@ -28,4 +29,4 @@ private:
     CEikStatusPane* m_statusPane;
 };
 
-#endif /* APPUI_H_ */
+#endif /* APPUIS60_H_ */

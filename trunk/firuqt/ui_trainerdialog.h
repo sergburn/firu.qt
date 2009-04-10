@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading ui file 'trainerdialog.ui'
 **
-** Created: Sun Apr 5 21:22:05 2009
-**      by: Qt User Interface Compiler version 4.5.0
+** Created: Fri 10. Apr 21:55:35 2009
+**      by: Qt User Interface Compiler version 4.5.0-garden
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
@@ -68,6 +68,11 @@ public:
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         laQuestion = new QLabel(frame);
         laQuestion->setObjectName(QString::fromUtf8("laQuestion"));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(laQuestion->sizePolicy().hasHeightForWidth());
+        laQuestion->setSizePolicy(sizePolicy);
         laQuestion->setFrameShape(QFrame::Box);
         laQuestion->setAlignment(Qt::AlignCenter);
         laQuestion->setWordWrap(true);
@@ -187,7 +192,7 @@ public:
     void retranslateUi(QDialog *TrainerDialog)
     {
         TrainerDialog->setWindowTitle(QApplication::translate("TrainerDialog", "Dialog", 0, QApplication::UnicodeUTF8));
-        laQuestion->setText(QApplication::translate("TrainerDialog", "question", 0, QApplication::UnicodeUTF8));
+        laQuestion->setText(QApplication::translate("TrainerDialog", "question word in source language to be translated to target lang", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("TrainerDialog", "TextLabel", 0, QApplication::UnicodeUTF8));
         la4->setText(QApplication::translate("TrainerDialog", "\320\272\320\273\320\274", 0, QApplication::UnicodeUTF8));
         la7->setText(QApplication::translate("TrainerDialog", "\321\203\321\204\321\205", 0, QApplication::UnicodeUTF8));
