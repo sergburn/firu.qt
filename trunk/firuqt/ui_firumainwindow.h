@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'firumainwindow.ui'
 **
-** Created: Fri 10. Apr 22:23:56 2009
+** Created: Fri 10. Apr 22:29:26 2009
 **      by: Qt User Interface Compiler version 4.5.0-garden
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -42,7 +42,8 @@ public:
         if (FiruMainWindowClass->objectName().isEmpty())
             FiruMainWindowClass->setObjectName(QString::fromUtf8("FiruMainWindowClass"));
         FiruMainWindowClass->resize(274, 341);
-        FiruMainWindowClass->setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);\n"
+        FiruMainWindowClass->setStyleSheet(QString::fromUtf8("\n"
+"font: 75 10pt \"MS Shell Dlg 2\";background-color: rgb(255, 255, 255);\n"
 "border-color: rgb(0, 0, 127);\n"
 "color: rgb(0, 0, 0);"));
         actionOpenDict = new QAction(FiruMainWindowClass);
@@ -56,8 +57,11 @@ public:
         editInput = new QLineEdit(centralwidget);
         editInput->setObjectName(QString::fromUtf8("editInput"));
         QFont font;
-        font.setBold(true);
-        font.setWeight(75);
+        font.setFamily(QString::fromUtf8("MS Shell Dlg 2"));
+        font.setPointSize(10);
+        font.setBold(false);
+        font.setItalic(false);
+        font.setWeight(9);
         editInput->setFont(font);
         editInput->setStyleSheet(QString::fromUtf8("color: rgb(0, 0, 0);\n"
 "background-color: rgb(255, 255, 127);"));
@@ -75,11 +79,7 @@ public:
 
         laTranslation = new QLabel(centralwidget);
         laTranslation->setObjectName(QString::fromUtf8("laTranslation"));
-        QFont font1;
-        font1.setPointSize(10);
-        font1.setBold(true);
-        font1.setWeight(75);
-        laTranslation->setFont(font1);
+        laTranslation->setFont(font);
         laTranslation->setFrameShape(QFrame::StyledPanel);
         laTranslation->setWordWrap(true);
 
