@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'firumainwindow.h'
 **
-** Created: Fri 10. Apr 22:23:57 2009
+** Created: Fri 10. Apr 22:29:26 2009
 **      by: The Qt Meta Object Compiler version 61 (Qt 4.5.0-garden)
 **
 ** WARNING! All changes made in this file will be lost!
