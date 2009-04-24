@@ -12,12 +12,6 @@
   <property name="windowTitle" >
    <string>Firu</string>
   </property>
-  <property name="styleSheet" >
-   <string notr="true" >
-font: 75 10pt "MS Shell Dlg 2";background-color: rgb(255, 255, 255);
-border-color: rgb(0, 0, 127);
-color: rgb(0, 0, 0);</string>
-  </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QVBoxLayout" name="verticalLayout" >
     <item>
@@ -26,7 +20,7 @@ color: rgb(0, 0, 0);</string>
        <font>
         <family>MS Shell Dlg 2</family>
         <pointsize>10</pointsize>
-        <weight>9</weight>
+        <weight>50</weight>
         <italic>false</italic>
         <bold>false</bold>
        </font>
@@ -39,6 +33,11 @@ background-color: rgb(255, 255, 127);</string>
     </item>
     <item>
      <widget class="QListWidget" name="listSources" >
+      <property name="font" >
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <item>
        <property name="text" >
         <string>aamu</string>
@@ -67,7 +66,7 @@ background-color: rgb(255, 255, 127);</string>
        <font>
         <family>MS Shell Dlg 2</family>
         <pointsize>10</pointsize>
-        <weight>9</weight>
+        <weight>50</weight>
         <italic>false</italic>
         <bold>false</bold>
        </font>
@@ -95,11 +94,9 @@ background-color: rgb(255, 255, 127);</string>
     </rect>
    </property>
    <property name="styleSheet" >
-    <string notr="true" >
-border-color: rgb(0, 0, 0);color: rgb(0, 0, 0);
-background-color: rgb(255, 255, 255);
-selection-background-color: rgb(170, 255, 255);
-selection-color: rgb(0, 0, 127);</string>
+    <string notr="true" >background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);
+selection-background-color: rgb(170, 255, 255);</string>
    </property>
   </widget>
   <action name="actionOpenDict" >
