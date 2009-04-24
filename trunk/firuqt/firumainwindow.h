@@ -19,6 +19,11 @@ public Q_SLOTS:
 Q_SIGNALS:
     void inputWordChanged( QString );
     
+protected:
+//    virtual void changeEvent(QEvent *e);
+//    virtual void keyPressEvent(QKeyEvent *keyEvent);
+    virtual bool eventFilter(QObject *obj, QEvent *ev);
+    
 private:
     Ui::FiruMainWindowClass m_ui;
     AppUi m_appUi;
