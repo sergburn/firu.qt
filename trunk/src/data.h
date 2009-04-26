@@ -90,6 +90,7 @@ public:
     QList<Word> searchWords( const QString& pattern );
     QList<Translation> getTranslations( const Word& word );
 
+    Exercise createExercise();
 };
 
 #endif // DATA_H
