@@ -2,22 +2,24 @@ TEMPLATE = app
 TARGET = firuqt
 QT += core \
     gui
-HEADERS += AppUi.h \
-    firumainwindow.h \
-    firuqt.h \
-    trainerdialog.h
-SOURCES += AppUi.cpp \
-    firumainwindow.cpp \
-    main.cpp \
-    firuqt.cpp \
-    trainerdialog.cpp
-FORMS += firumainwindow.ui \
-    firuqt.ui \
-    trainerdialog.ui
+HEADERS += src/AppUi.h \
+    src/firumainwindow.h \
+    src/firuqt.h \
+    src/trainerdialog.h \
+    src/data.h
+SOURCES += src/AppUi.cpp \
+    src/firumainwindow.cpp \
+    src/main.cpp \
+    src/firuqt.cpp \
+    src/trainerdialog.cpp \
+    src/data.cpp
+FORMS += src/firumainwindow.ui \
+    src/firuqt.ui \
+    src/trainerdialog.ui
 RESOURCES += 
 symbian: { 
     TARGET.UID3 = 0xE92D4440
-    HEADERS += AppUi_S60.h
-    SOURCES += firuqt_reg.rss \
-        AppUi_S60.cpp
+    HEADERS += src/AppUi_S60.h
+    SOURCES += src/firuqt_reg.rss \
+        src/AppUi_S60.cpp
 }
