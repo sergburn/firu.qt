@@ -31,20 +31,28 @@
 #include "firumainwindow.h"
 #include "firuqt.h"
 #include "trainerdialog.h"
+#include "data.h"
 
 #include <QtGui>
 #include <QApplication>
 
+#include "sqlite3.h"
+
 int main(int argc, char *argv[])
 {
+    sqlite3_initialize();
+
     QApplication a(argc, argv);
     a.setKeypadNavigationEnabled( false );
 
+    Data dat;
+    bool isOpen = dat.open();
+    qDebug() << "db open? " << isOpen; 
+    
     FiruMainWindow w;
     w.show();
     
-//    firuqt f;
-//    f.show();
-    
-    return a.exec();
+    int res = a.exec();
+    sqlite3_shutdown();
+    return res;
 }
