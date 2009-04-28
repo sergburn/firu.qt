@@ -43,13 +43,15 @@ int main(int argc, char *argv[])
     sqlite3_initialize();
 
     QApplication a(argc, argv);
+#ifdef QT_KEYPAD_NAVIGATION
     a.setKeypadNavigationEnabled( false );
+#endif
 
     Data dat;
     bool isOpen = dat.open();
     qDebug() << "db open? " << isOpen; 
     
-    FiruMainWindow w;
+    FiruMainWindow w( dat );
     w.show();
     
     int res = a.exec();

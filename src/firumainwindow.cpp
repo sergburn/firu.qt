@@ -4,8 +4,8 @@
 #include <QAction>
 #include <QKeyEvent>
 
-FiruMainWindow::FiruMainWindow(QWidget *parent)
-    : QMainWindow(parent)
+FiruMainWindow::FiruMainWindow( Data& data, QWidget *parent)
+    : QMainWindow( parent ), m_data( data )
 {
 	m_ui.setupUi(this);
 
@@ -18,10 +18,10 @@ FiruMainWindow::FiruMainWindow(QWidget *parent)
     QRect rect = m_appUi.GetClientRect();
     setGeometry( rect );
 #endif
-//    m_ui.listSources->setTabKeyNavigation( true );
-//    m_ui.listSources->setFocus();
     m_ui.listSources->installEventFilter( this );
     m_ui.editInput->installEventFilter( this );
+    
+//    connect( m_data, SIGNAL( searchComplete ), this, SLOT( onSearchComplete ) );
 }
 
 FiruMainWindow::~FiruMainWindow()
@@ -35,6 +35,23 @@ void FiruMainWindow::setInputWord( QString word )
     {
         m_word = word;
         emit inputWordChanged( m_word );
+        
+        updateList();
+    }
+}
+
+void FiruMainWindow::updateList()
+{
+    QList<Word> words = m_data.searchWords( m_word );
+    m_ui.listSources->clear();
+    m_listItems.clear();
+    foreach( Word w, words )
+    {
+//        QListWidgetItem item( w.getText() );
+//        item.setData( Qt::UserRole, w.getId() );
+//        m_listItems.append( item );
+//        m_ui.listSources->addItem( m_listItems.back() );
+        m_ui.listSources->addItem( w.getText() );
     }
 }
 
