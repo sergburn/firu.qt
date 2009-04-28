@@ -6,8 +6,6 @@
 #include <QStringList>
 #include <QLocale>
 
-#include "sqlite3.h"
-
 typedef QLocale::Language Lang;
 
 class Word
@@ -100,6 +98,8 @@ private:
     QList<Exercise> m_tasks;
 };
 
+class DbSchema;
+
 class Data : public QObject
 {
     Q_OBJECT
@@ -135,16 +135,12 @@ private:
     bool isLangExists( Lang lang );
     bool isTransExists( Lang source, Lang target );
     
-    bool isTableExists( const QString& table );
-    int createTransTable( const QString& src, const QString& trg );
-    int createLangTable( const QString& lang );
-    
 private:
     
     Lang m_source_lang;
     Lang m_target_lang;
     
-    sqlite3* m_db;
+    DbSchema* m_schema;
 };
 
 #endif // DATA_H
