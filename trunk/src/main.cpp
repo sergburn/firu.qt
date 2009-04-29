@@ -36,7 +36,7 @@
 #include <QtGui>
 #include <QApplication>
 
-#include "sqlite3.h"
+#include <sqlite3.h>
 
 int main(int argc, char *argv[])
 {
@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
     Data dat;
     bool isOpen = dat.open();
     qDebug() << "db open? " << isOpen; 
+    qDebug() << "I'm at " << QDir::currentPath();
     
     FiruMainWindow w( dat );
     w.show();

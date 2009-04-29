@@ -4,7 +4,7 @@
 #include <QtGui/QMainWindow>
 #include "ui_firumainwindow.h"
 #include "AppUi.h"
-#include "Data.h"
+#include "data.h"
 
 class FiruMainWindow : public QMainWindow
 {

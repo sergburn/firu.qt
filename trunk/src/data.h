@@ -8,6 +8,8 @@
 
 typedef QLocale::Language Lang;
 
+class Data;
+
 class Word
 {
 public:
@@ -135,9 +137,9 @@ signals:
     void targetLangChanged( Lang );
     
 private:
-    bool addTranslation( Lang source, Lang target );
     bool addLanguage( Lang lang );
-    
+    bool addTranslation( Lang src, Lang trg, const QString& source, const QString& target );
+
     bool isLangExists( Lang lang );
     bool isTransExists( Lang source, Lang target );
     
