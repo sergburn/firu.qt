@@ -9,12 +9,23 @@
 #include <QDebug>
 
 DbSchema::DbSchema( QObject* parent )
-   : QObject( parent )
+   : QObject( parent ), 
+   m_db( NULL ),
+   m_insertToSource( NULL ),
+   m_insertToTarget( NULL ),
+   m_insertToTrans( NULL ),
+   m_updateTrans( NULL ),
+   m_selectTransBySid( NULL ),
+   m_selectTransByTid( NULL ),
+   m_selectTransByFmark( NULL ),
+   m_selectTransByRmark( NULL ),
+   m_lastSrc( QLocale::C ), m_lastTrg ( QLocale::C )
 {
 }
 
 DbSchema::~DbSchema()
 {
+    freeStatments();
     if ( m_db )
     {
         sqlite3_close( m_db );
@@ -25,7 +36,7 @@ bool DbSchema::open( const QString& dbPath )
 {
     qDebug() << "Fi: " << QLocale::languageToString( QLocale::Finnish );
     qDebug() << "Ru: " << QLocale::languageToString( QLocale::Russian );
-    qDebug() << "En: " << QLocale::languageToString( QLocale::English );
+    qDebug() << "Db: " << dbPath;
 
     int err = sqlite3_open( dbPath.toUtf8().constData(), &m_db );
     if ( err == SQLITE_OK )
@@ -65,7 +76,7 @@ int DbSchema::sqlCallback( void* pSelf, int nCol, char** argv, char** colv )
 
 int DbSchema::onSqlCallback( int, char**, char** )
 {
-    
+    return 0;
 }
 
 bool DbSchema::langTableExists( Lang lang )
@@ -81,10 +92,9 @@ bool DbSchema::transTableExists( Lang src, Lang trg )
 bool DbSchema::tableExists( const QString& table )
 {
     const char* KSqlFindTable = 
-        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='%s'";
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='%1'";
     
-    QString sql;
-    sql.sprintf( KSqlFindTable, table );
+    QString sql = QString( KSqlFindTable ).arg( table );
 
     char** azResult = NULL;
     int nRow = 0;
@@ -117,21 +127,15 @@ int DbSchema::sqlExecute( QString sql )
 int DbSchema::createLangTable( Lang lang )
 {
     const char* KSqlCreateEntriesTable = 
-        "CREATE TABLE IF NOT EXISTS %s ( id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT );";
-    
-    QString sql;
-    sql.sprintf( KSqlCreateEntriesTable, getLangTableName( lang ) );
-    
+        "CREATE TABLE IF NOT EXISTS %1 ( id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT );";
+    QString sql = QString( KSqlCreateEntriesTable ).arg ( getLangTableName( lang ) );
     int result = sqlExecute( sql );
     if ( result == SQLITE_OK )
     {
         const char* KSqlCreateEntriesIndex = 
-            "CREATE INDEX IF NOT EXISTS index_text_%S ON %S ( text ASC );";
-        
-        sql.sprintf( KSqlCreateEntriesTable, 
-            QLocale::languageToString( lang ), 
-            getLangTableName( lang ) );
-        
+            "CREATE INDEX IF NOT EXISTS index_%S_text ON %S ( text ASC );";
+        QString sql = QString( KSqlCreateEntriesIndex ).arg (
+                QLocale::languageToString( lang ), getLangTableName( lang ) );
         result = sqlExecute( sql );
     }
     
@@ -142,15 +146,15 @@ int DbSchema::createTransTable( Lang src, Lang trg )
 {
     const char* KSqlCreateTransTable = 
         "CREATE TABLE IF NOT EXISTS %1 ( "
-            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
             "sid INTEGER NOT NULL REFERENCES %2 (id) ON DELETE CASCADE, "
             "tid INTEGER NOT NULL REFERENCES %3 (id) ON DELETE CASCADE, "
             "fmark INTEGER DEFAULT 0, "
-            "rmark INTEGER DEFAULT 0 );"; 
+            "rmark INTEGER DEFAULT 0, "
+            "PRIMARY KEY ( sid, tid ) );"; 
     
     // Create the table
-    QString sql( KSqlCreateTransTable );
-    sql = sql.arg( getTransTableName( src, trg ), getLangTableName( src ), getLangTableName( trg ) );
+    QString sql = QString( KSqlCreateTransTable ).arg(
+            getTransTableName( src, trg ), getLangTableName( src ), getLangTableName( trg ) );
     
     int result = sqlExecute( sql );
     if ( result != SQLITE_OK ) return result;
@@ -164,14 +168,10 @@ int DbSchema::createTransTable( Lang src, Lang trg )
         "CREATE INDEX IF NOT EXISTS index_%1_%2 ON %1 (%2);";
     
     // CREATE INDEX IF NOT EXISTS index_trans_fi_ru_sid ON trans_fi_ru (sid);
-    sql = KSqlCreateTransIndex;
-    sql = sql.arg( getTransTableName( src, trg ), "sid" );
-    result = sqlExecute( sql );
-    if ( result != SQLITE_OK ) return result;
+    // not needed, primary key can be used
 
     // CREATE INDEX IF NOT EXISTS index_trans_fi_ru_tid ON trans_fi_ru (tid);
-    sql = KSqlCreateTransIndex;
-    sql = sql.arg( getTransTableName( src, trg ), "tid" );
+    sql = QString( KSqlCreateTransIndex ).arg( getTransTableName( src, trg ), "tid" );
     result = sqlExecute( sql );
     if ( result != SQLITE_OK ) return result;
     
@@ -190,4 +190,39 @@ int DbSchema::createTransTable( Lang src, Lang trg )
     if ( result != SQLITE_OK ) return result;
     
     return SQLITE_OK;
+}
+
+int DbSchema::genStatements( Lang src, Lang trg )
+{
+    if ( m_lastSrc != src || m_lastTrg != trg )
+    {
+        freeStatments();
+        QString sql;
+        QByteArray sql8;
+
+        const char* InsertToLang = "INSERT INTO %1 VALUES ( text = ?text );";
+        sql = QString( InsertToLang ).arg( getLangTableName( src ) );
+        int err = sqlite3_prepare_v2( m_db, sql.toUtf8().constData(), -1, &m_insertToSource, NULL );
+        if ( err ) return err;
+        
+        sql = QString( InsertToLang ).arg( getLangTableName( trg ) );
+        err = sqlite3_prepare_v2( m_db, sql.toUtf8().constData(), -1, &m_insertToTarget, NULL );
+        if ( err ) return err;
+
+        m_lastSrc = src;
+        m_lastTrg = trg;
+    }
+
+    return 0;
+}
+
+void DbSchema::freeStatments()
+{
+    sqlite3_free( m_insertToSource );
+    sqlite3_free( m_insertToTarget );
+    sqlite3_free( m_insertToTrans );
+    sqlite3_free( m_selectTransBySid );
+    sqlite3_free( m_selectTransByTid );
+    sqlite3_free( m_selectTransByFmark );
+    sqlite3_free( m_selectTransByRmark );
 }

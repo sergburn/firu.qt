@@ -54,6 +54,22 @@ int main(int argc, char *argv[])
     FiruMainWindow w( dat );
     w.show();
     
+    QString importDict;
+    QStringList args = a.arguments();
+    for ( int i = 1; i < args.count(); i++ )
+    {
+        if ( args[i] == "-import" && args.count() > i + 1 )
+        {
+            importDict = args[i+1];
+            i++;
+        }
+    }
+    
+    if ( importDict.length() )
+    {
+        w.importDict( importDict );
+    }
+    
     int res = a.exec();
     sqlite3_shutdown();
     return res;

@@ -16,6 +16,7 @@ public:
 
 public slots:
     void setInputWord( QString );
+    void importDict( const QString& file );
     
 signals:
     void inputWordChanged( QString );
