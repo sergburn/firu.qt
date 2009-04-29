@@ -12,10 +12,14 @@ class Word
 {
 public:
     Word();
-    Word( int id, const QString& text );
+    Word( int id, const QString& text )
+    {
+        m_id = id;
+        m_text = text;
+    };
 
-    const QString& getText() const;
-    int getId() const;
+    const QString& getText() const { return m_text; };
+    int getId() const { return m_id; };
 
 private:
     int m_id;
@@ -112,6 +116,8 @@ public:
 
     QList<Lang> getLanguages() const;
     int getNumEntries( Lang lang );
+    
+    bool importDictionary( const QString& file );
 
 public slots:
     void setSourceLanguage( Lang lang );

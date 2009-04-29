@@ -74,8 +74,21 @@ private:
     int sqlExecute( QString sql );
     bool tableExists( const QString& table );
     
+    int genStatements( Lang src, Lang trg );
+    void freeStatments();
+    
 private:
     sqlite3* m_db;
+    
+    sqlite3_stmt* m_insertToSource;
+    sqlite3_stmt* m_insertToTarget;
+    sqlite3_stmt* m_insertToTrans;
+    sqlite3_stmt* m_updateTrans;
+    sqlite3_stmt* m_selectTransBySid;
+    sqlite3_stmt* m_selectTransByTid;
+    sqlite3_stmt* m_selectTransByFmark;
+    sqlite3_stmt* m_selectTransByRmark;
+    Lang m_lastSrc, m_lastTrg;
 };
 
 #endif /* DBSCHEMA_H_ */

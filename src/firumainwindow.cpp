@@ -40,6 +40,11 @@ void FiruMainWindow::setInputWord( QString word )
     }
 }
 
+void FiruMainWindow::importDict( const QString& file )
+{
+    m_data.importDictionary( file );
+}
+
 void FiruMainWindow::updateList()
 {
     QList<Word> words = m_data.searchWords( m_word );
