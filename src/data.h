@@ -14,17 +14,17 @@ class Word
 {
 public:
     Word();
-    Word( int id, const QString& text )
+    Word( qint64 id, const QString& text )
     {
         m_id = id;
         m_text = text;
     };
 
     const QString& getText() const { return m_text; };
-    int getId() const { return m_id; };
+    qint64 getId() const { return m_id; };
 
 private:
-    int m_id;
+    qint64 m_id;
     QString m_text;
 };
 
@@ -45,11 +45,11 @@ public:
     const Word& getSource() const;
     const Word& getTarget() const;
 
-    int getId();
+    qint64 getId();
     Rate getRate() const;
     
 private:
-    int m_id;
+    qint64 m_id;
     Word m_source;
     Word m_target;
     int m_rate;
@@ -114,10 +114,11 @@ public:
     Data();
     ~Data();
     bool open();
-    static Data& instance();
+    bool select( Lang src, Lang trg );
 
     QList<Lang> getLanguages() const;
     int getNumEntries( Lang lang );
+    int getNumTranslations( Lang src, Lang trg );
     
     bool importDictionary( const QString& file );
 

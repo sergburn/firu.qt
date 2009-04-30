@@ -2,7 +2,6 @@ TEMPLATE = app
 TARGET = firuqt
 QT += core \
     gui
-CONFIG += qt debug
 HEADERS += src/AppUi.h \
     src/firumainwindow.h \
     src/firuqt.h \
@@ -32,16 +31,19 @@ symbian: {
         src/firuqt_reg.rss \
         src/AppUi_S60.cpp \
         external/sqlite/sqlite3.c
-    DEFINES += SQLITE_OS_UNIX=1 \
-        SQLITE_THREADSAFE=0 \
-        SQLITE_OMIT_LOAD_EXTENSION
+    DEFINES += SQLITE_OS_UNIX=1
     DEPENDPATH += external/sqlite
 }
 unix: {
+    CONFIG += qt debug
     LIBS += -lsqlite3
+    debug: {
+        SOURCES += /usr/share/qtcreator/gdbmacros/gdbmacros.cpp
+    }
 }
-win32: {
-}
-debug: {
-    SOURCES += /usr/share/qtcreator/gdbmacros/gdbmacros.cpp
+windows: {
+    CONFIG += qt debug
+    DEPENDPATH += external/sqlite
+    INCLUDEPATH += external/sqlite
+    SOURCES += external/sqlite/sqlite3.c
 }
