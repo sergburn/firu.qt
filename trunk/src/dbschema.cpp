@@ -8,6 +8,8 @@
 #include "dbschema.h"
 #include <QDebug>
 
+#define SQLOK( _e ) ( ((_e) == SQLITE_OK || (_e) == SQLITE_DONE || (_e) == SQLITE_ROW ) ? SQLITE_OK : (_e) )
+
 // ----------------------------------------------------------------------------
 
 QString getEntryTableName( Lang lang )
@@ -88,9 +90,11 @@ int DbSchema::addEntry( Lang lang, const QString& text, qint64& id )
     int err = SQLITE_OK;
     prepareStatements( lang, m_lastTrg );
     
-    int pos = sqlite3_bind_parameter_index( m_insertEntry, "text" );
-
+    // bind
+    int pos = sqlite3_bind_parameter_index( m_insertEntry, ":text" );
     err = sqlite3_bind_text16( m_insertEntry, pos, text.utf16(), (text.size() + 1) * 2, SQLITE_STATIC );
+
+    // execute
     if ( !err ) 
     {
         err = sqlite3_step( m_insertEntry );
@@ -99,14 +103,15 @@ int DbSchema::addEntry( Lang lang, const QString& text, qint64& id )
     sqlite3_clear_bindings( m_insertEntry );
     sqlite3_reset( m_insertEntry );
 
-    if ( err )
+    if ( err == SQLITE_DONE )
+    {
+        id = sqlite3_last_insert_rowid( m_db );
+        err = SQLITE_OK;
+    }
+    else if ( err != SQLITE_OK )
     {
         LogSqliteError( "addEntry" );
         id = 0;
-    }
-    else
-    {
-        id = sqlite3_last_insert_rowid( m_db );    
     }
     return err;
 }
@@ -119,16 +124,17 @@ int DbSchema::addTranslation( Lang src, Lang trg, qint64 sid, const QString& tex
     prepareStatements( src, trg );
     
     // Sid param
-    int pos = sqlite3_bind_parameter_index( m_insertTrans, "sid" );
-    err = sqlite3_bind_int64( m_insertTrans, pos, id );
-    if ( !err ) 
-    {
-        err = sqlite3_step( m_insertTrans );
-    }
+    int pos = sqlite3_bind_parameter_index( m_insertTrans, ":sid" );
+    err = sqlite3_bind_int64( m_insertTrans, pos, sid );
 
     // Text param
-    pos = sqlite3_bind_parameter_index( m_insertTrans, "text" );
-    err = sqlite3_bind_text16( m_insertTrans, pos, text.utf16(), (text.size() + 1) * 2, SQLITE_STATIC );
+    if ( !err )
+    {
+        pos = sqlite3_bind_parameter_index( m_insertTrans, ":text" );
+        err = sqlite3_bind_text16( m_insertTrans, pos, text.utf16(), (text.size() + 1) * 2, SQLITE_STATIC );
+    }
+
+    // execute
     if ( !err ) 
     {
         err = sqlite3_step( m_insertTrans );
@@ -137,14 +143,15 @@ int DbSchema::addTranslation( Lang src, Lang trg, qint64 sid, const QString& tex
     sqlite3_clear_bindings( m_insertTrans );
     sqlite3_reset( m_insertTrans );
 
-    if ( err )
+    if ( err == SQLITE_DONE )
+    {
+        id = sqlite3_last_insert_rowid( m_db );
+        err = SQLITE_OK;
+    }
+    else if ( err != SQLITE_OK )
     {
         LogSqliteError( "addTranslation" );
         id = 0;
-    }
-    else
-    {
-        id = sqlite3_last_insert_rowid( m_db );    
     }
     return err;
 }
@@ -159,7 +166,7 @@ int DbSchema::getEntry( Lang lang, const QString& text, EntryRecord& record )
     if ( !err ) err = nextEntryRecord( m_selectEntryByText, record );
     sqlite3_clear_bindings( m_selectEntryByText );
     sqlite3_reset( m_selectEntryByText );
-    return err;
+    return SQLOK( err );
 }
     
 // ----------------------------------------------------------------------------
@@ -172,7 +179,7 @@ int DbSchema::getEntry( Lang lang, qint64 id, EntryRecord& record )
     if ( !err ) err = nextEntryRecord( m_selectEntryById, record );
     sqlite3_clear_bindings( m_selectEntryById );
     sqlite3_reset( m_selectEntryById );
-    return err;
+    return SQLOK( err );
 }
 
 // ----------------------------------------------------------------------------
@@ -211,7 +218,7 @@ int DbSchema::nextEntryRecord( sqlite3_stmt* stmt, EntryRecord& record )
             err = SQLITE_OK;
             break;
         default: // error
-            LogSqliteError( "getEntryRecord" );
+            LogSqliteError( "nextEntryRecord" );
             break;
     }
     return err;
@@ -261,7 +268,7 @@ int DbSchema::nextTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record )
             err = SQLITE_OK;
             break;
         default: // error
-            LogSqliteError( "getEntryRecord" );
+            LogSqliteError( "nextTransViewRecord" );
             break;
     }
     return err;
