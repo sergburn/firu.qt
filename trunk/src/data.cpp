@@ -6,10 +6,6 @@
 
 // ----------------------------------------------------------------------------
 
-
-
-// ----------------------------------------------------------------------------
-
 Data::Data() 
 : m_schema( NULL )
 {
@@ -30,6 +26,13 @@ bool Data::open()
     QDir path;
     path.mkpath( dbPath );
     return m_schema->open( dbPath + "firu.db" );
+}
+
+// ----------------------------------------------------------------------------
+
+bool Data::select( Lang src, Lang trg )
+{
+    return ( 0 == m_schema->prepareStatements( src, trg ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -158,12 +161,35 @@ bool Data::addLanguage( Lang lang )
 bool Data::addTranslation( Lang src, Lang trg, const QString& source, const QString& target )
 {
     qDebug() << "addTranslation: " << source << "<->" << target;
-//    if ( !isTransExists( source, target ) )
-//    {
-//        addLanguage( source );
-//        addLanguage( target );
-//
-//        m_schema->createTransTable( source, target );
-//    }
-    return true;
+    int err = SQLITE_OK;
+
+    // Create needed tables
+    if ( !m_schema->langTableExists( src ) )
+    {
+        err = m_schema->createLangTable( src );
+        if ( err ) return false;
+    }
+    if ( !m_schema->transTableExists( src, trg ) )
+    {
+        err = m_schema->createTransTable( src, trg );
+        if ( err ) return false;
+    }
+    
+    // Prepare statements
+    err = m_schema->prepareStatements( src, trg );
+    if ( err ) return false;
+
+    // Add source
+    DbSchema::EntryRecord entry;
+    err = m_schema->getEntry( src, source, entry );
+    if ( !entry.id )
+    {
+        err = m_schema->addEntry( src, source, entry.id );
+        if ( err ) return false;
+    }
+    
+    // Add translation
+    qint64 tid = 0;
+    err = m_schema->addTranslation( src, trg, entry.id, target, tid );
+    return err;
 }

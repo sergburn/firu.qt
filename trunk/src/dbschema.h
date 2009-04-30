@@ -27,16 +27,17 @@ public:
     class EntryRecord
     {
     public:
-        int id;
+        EntryRecord() : id( 0 ) {};
+        qint64 id;
         QString text;
     };
     
     class TransRecord
     {
     public:
-        int id;
-        int sid;
-        int tid;
+        TransRecord() : id( 0 ), sid( 0 ), fmark( 0 ), rmark( 0 ) {};
+        qint64 id;
+        qint64 sid;
         int fmark;
         int rmark;
     };
@@ -50,8 +51,11 @@ public:
     
     bool open( const QString& dbPath );
     
+    int getEntry( Lang lang, qint64 id, EntryRecord& record );
+    int getEntry( Lang lang, const QString& text, EntryRecord& record );
     QList<EntryRecord> getEntries( Lang lang, const QString& pattern );
-    QList<TransViewRecord> getTranslationsByEntry( Lang src, Lang trg, int entry );
+    
+    QList<TransViewRecord> getTranslationsByEntry( Lang src, Lang trg, qint64 sid );
     QList<TransViewRecord> getTranslationsByFmark( Lang src, Lang trg, int fmark );
     QList<TransViewRecord> getTranslationsByRmark( Lang src, Lang trg, int rmark );
     
@@ -61,9 +65,11 @@ public:
     int createLangTable( Lang lang );
     int createTransTable( Lang src, Lang trg );
 
-    int addEntry( Lang lang, const QString& text );
-    int addTranslation( Lang src, Lang trg, const QString& source, const QString& target );
-    
+    int addEntry( Lang lang, const QString& text, qint64& id );
+    int addTranslation( Lang src, Lang trg, qint64 sid, const QString& text, qint64& id );
+
+    int prepareStatements( Lang src, Lang trg );
+
 private:
     DbSchema();
     DbSchema( const DbSchema& );
@@ -72,20 +78,30 @@ private:
     int onSqlCallback( int, char**, char** );
     
     int sqlExecute( QString sql );
+    int sqlGetTable( const QString& sql );
+
     bool tableExists( const QString& table );
+    int nextEntryRecord( sqlite3_stmt* stmt, EntryRecord& record );
+    void readEntryRecord( sqlite3_stmt* stmt, EntryRecord& record );
+    int nextTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record );
+    void readTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record );
     
-    int genStatements( Lang src, Lang trg );
-    void freeStatments();
+    void freeStatements();
+    
+    void LogSqliteError( const char * );
     
 private:
     sqlite3* m_db;
     
-    sqlite3_stmt* m_insertToSource;
-    sqlite3_stmt* m_insertToTarget;
-    sqlite3_stmt* m_insertToTrans;
+    sqlite3_stmt* m_insertEntry;
+    sqlite3_stmt* m_insertTrans;
     sqlite3_stmt* m_updateTrans;
+    sqlite3_stmt* m_selectEntryById;
+    sqlite3_stmt* m_selectEntryByText;
+    sqlite3_stmt* m_selectEntriesByPattern;
+    sqlite3_stmt* m_selectTransById;
     sqlite3_stmt* m_selectTransBySid;
-    sqlite3_stmt* m_selectTransByTid;
+    sqlite3_stmt* m_selectTransByText;
     sqlite3_stmt* m_selectTransByFmark;
     sqlite3_stmt* m_selectTransByRmark;
     Lang m_lastSrc, m_lastTrg;
