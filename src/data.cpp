@@ -63,13 +63,20 @@ bool Data::importDictionary( const QString& fileName )
     {
         QString line = in.readLine();
 
-        if ( line.startsWith( "#INDEX_LANGUAGE" ) )
+        if ( line.startsWith('#') )
         {
-            src = QLocale::Finnish; // getLang( line );
+            if ( line.startsWith( "#INDEX_LANGUAGE" ) )
+            {
+                src = QLocale::Finnish; // getLang( line );
+            }
+            else if ( line.startsWith( "#CONTENTS_LANGUAGE" ) )
+            {
+                trg = QLocale::Russian; // getLang( line );
+            }
         }
-        else if ( line.startsWith( "#CONTENTS_LANGUAGE" ) )
+        else if ( !line.isEmpty() && !line[0].isSpace() )
         {
-            trg = QLocale::Russian; // getLang( line );
+            source = line;
         }
         else if ( line.contains("[trn]") )
         {
@@ -103,10 +110,6 @@ bool Data::importDictionary( const QString& fileName )
 
             source.clear();
             targets.clear();
-        }
-        else if ( !line.startsWith('#') )
-        {
-            source = line;
         }
     }
     m_schema->commit();
