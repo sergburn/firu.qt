@@ -192,13 +192,13 @@ QList<DbSchema::EntryRecord> DbSchema::getEntries( Lang lang, const QString& pat
         pattern.utf16(), (pattern.size() + 1) * 2, SQLITE_STATIC );
 
     QList<DbSchema::EntryRecord> list;
-    while ( !err || err == SQLITE_ROW ) 
+    if ( !err ) do
     {
         EntryRecord record;
         err = nextEntryRecord( m_selectEntryById, record );
         list.append( record );
-    }
-    
+    } while ( err == SQLITE_ROW );
+
     sqlite3_clear_bindings( m_selectEntriesByPattern );
     sqlite3_reset( m_selectEntriesByPattern );
     return list;
@@ -242,12 +242,12 @@ QList<DbSchema::TransViewRecord> DbSchema::getTranslationsByEntry( Lang src, Lan
     int err = sqlite3_bind_int64( stmt, pos, sid );
 
     QList<DbSchema::TransViewRecord> list;
-    while ( !err || err == SQLITE_ROW ) 
+    if ( !err ) do
     {
         TransViewRecord record;
         err = nextTransViewRecord( stmt, record );
         list.append( record );
-    }
+    } while ( err == SQLITE_ROW );
     
     sqlite3_clear_bindings( stmt );
     sqlite3_reset( stmt );
@@ -278,10 +278,10 @@ int DbSchema::nextTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record )
 
 void DbSchema::readTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record )
 {
-    // SELECT t.id, t.sid, e.text, t.text, t.fmark, t.fmark
+    // SELECT t.id, t.sid, /*e.text,*/ t.text, t.fmark, t.rmark
     record.id = sqlite3_column_int64( stmt, 0 );
     record.sid = sqlite3_column_int64( stmt, 1 );
-    record.source = QString::fromUtf8( (const char*) sqlite3_column_text( stmt, 2 ) );
+    //record.source = QString::fromUtf8( (const char*) sqlite3_column_text( stmt, 2 ) );
     record.target = QString::fromUtf8( (const char*) sqlite3_column_text( stmt, 3 ) );
     record.fmark = sqlite3_column_int( stmt, 4 );
     record.rmark = sqlite3_column_int( stmt, 5 );
@@ -428,11 +428,11 @@ int DbSchema::createTransTable( Lang src, Lang trg )
         
         // 2. Index on text
         // CREATE INDEX index_trans_fi_ru_text ON trans_fi_ru ( text ASC );
-        if ( !err )
-        {
-            sql = QString( KSqlCreateTransIndex ).arg ( transTableName, "text" );
-            err = sqlExecute( sql );
-        }
+//        if ( !err )
+//        {
+//            sql = QString( KSqlCreateTransIndex ).arg ( transTableName, "text" );
+//            err = sqlExecute( sql );
+//        }
 
         // 3. Index on mark
         // CREATE INDEX IF NOT EXISTS index_trans_fi_ru_fmark ON trans_fi_ru (fmark ASC);
@@ -456,6 +456,42 @@ int DbSchema::createTransTable( Lang src, Lang trg )
     }
     
     return err;
+}
+
+// ----------------------------------------------------------------------------
+
+bool DbSchema::begin()
+{
+    int err = sqlExecute( QString("BEGIN TRANSACTION;") );
+    if ( err )
+    {
+        LogSqliteError( "begin" );
+    }
+    return !err;
+}
+
+// ----------------------------------------------------------------------------
+
+bool DbSchema::commit()
+{
+    int err = sqlExecute( QString("COMMIT TRANSACTION;") );
+    if ( err )
+    {
+        LogSqliteError( "begin" );
+        rollback();
+    }
+    return !err;
+}
+
+// ----------------------------------------------------------------------------
+
+void DbSchema::rollback()
+{
+    int err = sqlExecute( QString("ROLLBACK TRANSACTION;") );
+    if ( err )
+    {
+        LogSqliteError( "begin" );
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -511,12 +547,12 @@ int DbSchema::prepareStatements( Lang src, Lang trg )
         
         // TransView
         const char* SelectTransView =
-            "SELECT t.id, t.sid, e.text, t.text, t.fmark, t.fmark "
-            "FROM %1 as e, %2 as t "
-            "WHERE e.id = :sid AND e.id = t.sid;";
+            "SELECT t.id, t.sid, t.text, t.fmark, t.rmark "
+            "FROM %1 as t "
+            "WHERE t.sid = :sid;";
         if ( !err )
         {
-            sql = QString( SelectTransView ).arg( entryTableName, transTableName );
+            sql = QString( SelectTransView ).arg( transTableName );
             err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_selectTransBySid, NULL );
         }
 

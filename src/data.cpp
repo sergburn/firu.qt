@@ -1,5 +1,6 @@
 #include <QDir>
 #include <QDebug>
+#include <QTime>
 #include <QApplication>
 
 #include "dbschema.h"
@@ -52,12 +53,15 @@ bool Data::importDictionary( const QString& fileName )
     Lang src = QLocale::C;
     Lang trg = QLocale::C;
     QString source;
+    QStringList targets;
+
+    int ops = 0;
+    m_schema->begin();
 
     QTextStream in( &file );
     while ( !in.atEnd() )
     {
         QString line = in.readLine();
-        qDebug() << line;
 
         if ( line.startsWith( "#INDEX_LANGUAGE" ) )
         {
@@ -73,21 +77,39 @@ bool Data::importDictionary( const QString& fileName )
             int end = line.indexOf("[/trn]");
             if ( end > start )
             {
-                QString target = line.mid( start, end - start );
-                addTranslation( src, trg, source, target );
+                targets.append( line.mid( start, end - start ) );
             }
         }
-        else if ( !line[0].isSpace() && line[0] != '#' )
+        else if ( line.trimmed().isEmpty() )
+        {
+            bool ok = addTranslations( src, trg, source, targets );
+            if ( !ok )
+            {
+                m_schema->rollback();
+                return false;
+            }
+            ops++;
+            if ( ops % 10 == 0 )
+            {
+                if ( m_schema->commit() )
+                   m_schema->begin();
+                else
+                    return false;
+
+                double prog = in.pos() * 100.0 / total;
+                emit progress( prog );
+                QCoreApplication::processEvents();
+            }
+
+            source.clear();
+            targets.clear();
+        }
+        else if ( !line.startsWith('#') )
         {
             source = line;
         }
-
-        double prog = in.pos() * 100.0 / total;
-        qDebug() << "Stream pos " << in.pos() << ", progress " << prog;
-        emit progress( prog );
-        QCoreApplication::processEvents();
     }
-
+    m_schema->commit();
     return true;
 }
 
@@ -166,10 +188,13 @@ bool Data::addLanguage( Lang lang )
 
 // ----------------------------------------------------------------------------
 
-bool Data::addTranslation( Lang src, Lang trg, const QString& source, const QString& target )
+bool Data::addTranslations( Lang src, Lang trg, const QString& source, const QStringList& targets )
 {
-    qDebug() << "addTranslation: " << source << "<->" << target;
-    int err = SQLITE_OK;
+    if ( source.length() == 0 || targets.count() == 0 )
+    {
+        return true;
+    }
+    int err = 0;
 
     // Create needed tables
     if ( !m_schema->langTableExists( src ) )
@@ -183,21 +208,59 @@ bool Data::addTranslation( Lang src, Lang trg, const QString& source, const QStr
         if ( err ) return false;
     }
     
+//    static int ops = 0;
+//    static int getEntryTime = 0;
+//    static int addEntryTime = 0;
+//    static int getTransTime = 0;
+//    static int addTransTime = 0;
+
     // Prepare statements
     err = m_schema->prepareStatements( src, trg );
     if ( err ) return false;
 
+//    QTime bench;
+//    bench.start();
+//    ops++;
+
     // Add source
     DbSchema::EntryRecord entry;
     err = m_schema->getEntry( src, source, entry );
+//    getEntryTime = (getEntryTime * ( ops-1 ) + bench.restart() ) / ops;
     if ( !entry.id )
     {
         err = m_schema->addEntry( src, source, entry.id );
         if ( err ) return false;
+//        addEntryTime = (addEntryTime * ( ops-1 ) + bench.restart() ) / ops;
     }
     
     // Add translation
-    qint64 tid = 0;
-    err = m_schema->addTranslation( src, trg, entry.id, target, tid );
-    return err;
+    bool exists = false;
+    QList<DbSchema::TransViewRecord> translations = m_schema->getTranslationsByEntry( src, trg, entry.id );
+//    getTransTime = (getTransTime * ( ops-1 ) + bench.restart() ) / ops;
+    foreach ( const QString& target, targets )
+    {
+        qDebug() << "addTranslation: " << source << "<->" << target;
+        foreach ( DbSchema::TransViewRecord trans, translations )
+        {
+            if ( trans.target == target )
+            {
+                exists = true;
+                break;
+            }
+        }
+        if ( !exists )
+        {
+            qint64 tid = 0;
+            err = m_schema->addTranslation( src, trg, entry.id, target, tid );
+            if ( err ) return false;
+    //        addTransTime = (addTransTime * ( ops-1 ) + bench.restart() ) / ops;
+        }
+    }
+
+//    qDebug() << "Times:" <<
+//            "getEntry" << getEntryTime <<
+//            "addEntry" << addEntryTime <<
+//            "getTrans" << getTransTime <<
+//            "addTrans" << addTransTime;
+    return true;
 }

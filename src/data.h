@@ -119,6 +119,9 @@ public:
     QList<Lang> getLanguages() const;
     int getNumEntries( Lang lang );
     int getNumTranslations( Lang src, Lang trg );
+
+    // getStatistics();
+    // clearResults();
     
     bool importDictionary( const QString& file );
 
@@ -140,7 +143,7 @@ signals:
     
 private:
     bool addLanguage( Lang lang );
-    bool addTranslation( Lang src, Lang trg, const QString& source, const QString& target );
+    bool addTranslations( Lang src, Lang trg, const QString& source, const QStringList& targets );
 
     bool isLangExists( Lang lang );
     bool isTransExists( Lang source, Lang target );
