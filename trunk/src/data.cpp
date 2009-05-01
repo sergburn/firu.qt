@@ -1,5 +1,6 @@
 #include <QDir>
 #include <QDebug>
+#include <QApplication>
 
 #include "dbschema.h"
 #include "data.h"
@@ -46,6 +47,8 @@ bool Data::importDictionary( const QString& fileName )
         return false;
     }
 
+    qint64 total = file.size();
+
     Lang src = QLocale::C;
     Lang trg = QLocale::C;
     QString source;
@@ -78,6 +81,11 @@ bool Data::importDictionary( const QString& fileName )
         {
             source = line;
         }
+
+        double prog = in.pos() * 100.0 / total;
+        qDebug() << "Stream pos " << in.pos() << ", progress " << prog;
+        emit progress( prog );
+        QCoreApplication::processEvents();
     }
 
     return true;

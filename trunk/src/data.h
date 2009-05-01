@@ -136,6 +136,7 @@ public:
 signals:
     void sourceLangChanged( Lang );
     void targetLangChanged( Lang );
+    void progress( int value );
     
 private:
     bool addLanguage( Lang lang );
