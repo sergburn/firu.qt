@@ -42,7 +42,11 @@ void FiruMainWindow::setInputWord( QString word )
 
 void FiruMainWindow::importDict( const QString& file )
 {
+    m_ui.prgTask->show();
+    m_ui.prgTask->setValue( 0 );
+    connect( &m_data, SIGNAL( progress( int ) ), m_ui.prgTask, SLOT( setValue( int ) ) );
     m_data.importDictionary( file );
+    m_ui.prgTask->hide();
 }
 
 void FiruMainWindow::updateList()
