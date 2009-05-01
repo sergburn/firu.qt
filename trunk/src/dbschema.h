@@ -38,6 +38,7 @@ public:
         TransRecord() : id( 0 ), sid( 0 ), fmark( 0 ), rmark( 0 ) {};
         qint64 id;
         qint64 sid;
+        QString target;
         int fmark;
         int rmark;
     };
@@ -46,7 +47,6 @@ public:
     {
     public:
         QString source;
-        QString target;
     };
     
     bool open( const QString& dbPath );
@@ -67,6 +67,10 @@ public:
 
     int addEntry( Lang lang, const QString& text, qint64& id );
     int addTranslation( Lang src, Lang trg, qint64 sid, const QString& text, qint64& id );
+
+    bool begin();
+    bool commit();
+    void rollback();
 
     int prepareStatements( Lang src, Lang trg );
 
