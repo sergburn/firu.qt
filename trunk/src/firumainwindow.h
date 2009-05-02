@@ -32,6 +32,7 @@ private:
 private slots:
     void on_actionOpenDict_triggered();
     void on_actionOpenTrainer_triggered();
+    void showTranslation( QListWidgetItem* );
 
 private:
     Ui::FiruMainWindowClass m_ui;
