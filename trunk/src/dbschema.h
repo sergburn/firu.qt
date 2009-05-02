@@ -74,6 +74,9 @@ public:
 
     int prepareStatements( Lang src, Lang trg );
 
+signals:
+    void onLongOpProgress();
+
 private:
     DbSchema();
     DbSchema( const DbSchema& );
@@ -81,6 +84,9 @@ private:
     static int sqlCallback( void*, int, char**, char** );
     int onSqlCallback( int, char**, char** );
     
+    static int sqlProgress( void* );
+    int onSqlProgress();
+
     int sqlExecute( QString sql );
     int sqlGetTable( const QString& sql );
 

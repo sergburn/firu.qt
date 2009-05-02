@@ -96,7 +96,7 @@ bool Data::importDictionary( const QString& fileName )
                 return false;
             }
             ops++;
-            if ( ops % 10 == 0 )
+            if ( ops % 100 == 0 )
             {
                 if ( m_schema->commit() )
                    m_schema->begin();
