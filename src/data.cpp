@@ -168,9 +168,16 @@ QList<Word> Data::searchWords( const QString& pattern )
 
 // ----------------------------------------------------------------------------
 
-QList<Translation> Data::getTranslations( const Word& /*word*/ )
+QList<Translation> Data::getTranslations( const Word& word )
 {
     QList<Translation> translations;
+    QList<DbSchema::TransViewRecord> trans =
+            m_schema->getTranslationsByEntry( m_source_lang, m_target_lang, word.getId() );
+    foreach ( DbSchema::TransViewRecord r, trans )
+    {
+        Translation t( r.id, r.target, r.fmark, r.rmark );
+        translations.append( t );
+    }
     return translations;
 }
 

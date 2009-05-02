@@ -124,9 +124,27 @@ selection-background-color: rgb(170, 255, 255);</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>listSources</sender>
+   <signal>itemActivated(QListWidgetItem*)</signal>
+   <receiver>FiruMainWindowClass</receiver>
+   <slot>showTranslation(QListWidgetItem*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>209</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>231</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <signal>inputWordChanged(QString)</signal>
   <slot>setInputWord(QString)</slot>
+  <slot>showTranslation(QString)</slot>
+  <slot>showTranslation(QListWidgetItem*)</slot>
  </slots>
 </ui>

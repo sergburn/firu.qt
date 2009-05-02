@@ -14,11 +14,7 @@ class Word
 {
 public:
     Word();
-    Word( qint64 id, const QString& text )
-    {
-        m_id = id;
-        m_text = text;
-    };
+    Word( qint64 id, const QString& text ) : m_id( id ), m_text( text ) {};
 
     const QString& getText() const { return m_text; };
     qint64 getId() const { return m_id; };
@@ -28,10 +24,10 @@ private:
     QString m_text;
 };
 
-class Translation
+class Translation : public Word
 {
 public:
-    enum Rate {
+    enum Mark {
         Unknown = 0,
         ToLearn = 1,
         Good    = 2,
@@ -40,19 +36,15 @@ public:
     };
 
     Translation();
-    Translation( int id, const QString& text, const Word& source, const Word& target );
+    Translation( int id, const QString& text, int fmark, int rmark )
+            : Word( id, text ), m_fmark( fmark ), m_rmark( rmark )  {};
 
-    const Word& getSource() const;
-    const Word& getTarget() const;
+    Mark getFmark() const;
+    Mark getRmark() const;
 
-    qint64 getId();
-    Rate getRate() const;
-    
 private:
-    qint64 m_id;
-    Word m_source;
-    Word m_target;
-    int m_rate;
+    int m_fmark;
+    int m_rmark;
 };
 
 class TranslationTest

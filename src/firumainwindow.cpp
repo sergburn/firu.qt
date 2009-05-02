@@ -1,5 +1,6 @@
 #include "firumainwindow.h"
 #include "trainerdialog.h"
+#include "entryviewdialog.h"
 #include <QMenu>
 #include <QAction>
 #include <QKeyEvent>
@@ -18,6 +19,7 @@ FiruMainWindow::FiruMainWindow( Data& data, QWidget *parent)
     QRect rect = m_appUi.GetClientRect();
     setGeometry( rect );
 #endif
+
     m_ui.listSources->installEventFilter( this );
     m_ui.editInput->installEventFilter( this );
     m_ui.prgTask->hide();
@@ -92,6 +94,15 @@ void FiruMainWindow::on_actionOpenDict_triggered()
 //
 //    QMenuBar* bar = new QMenuBar();
 //    bar->addMenu( menu );
+}
+
+void FiruMainWindow::showTranslation( QListWidgetItem* item )
+{
+    Word word( item->data( Qt::UserRole ).toLongLong(), item->text() );
+    QList<Translation> trans = m_data.getTranslations( word );
+
+    EntryViewDialog view;
+    view.exec( word, trans );
 }
 
 //void FiruMainWindow::keyPressEvent(QKeyEvent *keyEvent)

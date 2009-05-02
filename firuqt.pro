@@ -7,21 +7,24 @@ HEADERS += src/AppUi.h \
     src/firuqt.h \
     src/trainerdialog.h \
     src/data.h \
-    src/dbschema.h
+    src/dbschema.h \
+    src/entryviewdialog.h
 SOURCES += src/AppUi.cpp \
     src/firumainwindow.cpp \
     src/main.cpp \
     src/firuqt.cpp \
     src/trainerdialog.cpp \
     src/data.cpp \
-    src/dbschema.cpp
+    src/dbschema.cpp \
+    src/entryviewdialog.cpp
 FORMS += src/firumainwindow.ui \
     src/firuqt.ui \
-    src/trainerdialog.ui
+    src/trainerdialog.ui \
+    src/entryviewdialog.ui
 RESOURCES += 
 DEFINES += SQLITE_THREADSAFE=0 \
     SQLITE_OMIT_LOAD_EXTENSION
-symbian: {
+symbian: { 
     TARGET.UID3 = 0xE92D4440
     HEADERS += firuqt.loc \
         src/AppUi_S60.h \
@@ -34,15 +37,15 @@ symbian: {
     DEFINES += SQLITE_OS_UNIX=1
     DEPENDPATH += external/sqlite
 }
-unix: {
-    CONFIG += qt debug
+unix: { 
+    CONFIG += qt \
+        debug
     LIBS += -lsqlite3
-    debug: {
-        SOURCES += /usr/share/qtcreator/gdbmacros/gdbmacros.cpp
-    }
+    debug::SOURCES += /usr/share/qtcreator/gdbmacros/gdbmacros.cpp
 }
-windows: {
-    CONFIG += qt debug
+windows: { 
+    CONFIG += qt \
+        debug
     DEPENDPATH += external/sqlite
     INCLUDEPATH += external/sqlite
     SOURCES += external/sqlite/sqlite3.c
