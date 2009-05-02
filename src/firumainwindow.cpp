@@ -20,7 +20,10 @@ FiruMainWindow::FiruMainWindow( Data& data, QWidget *parent)
 #endif
     m_ui.listSources->installEventFilter( this );
     m_ui.editInput->installEventFilter( this );
+    m_ui.prgTask->hide();
     
+    m_data.select( QLocale::Finnish, QLocale::Russian );
+    connect( &m_data, SIGNAL( progress( int ) ), m_ui.prgTask, SLOT( setValue( int ) ) );
 //    connect( m_data, SIGNAL( searchComplete ), this, SLOT( onSearchComplete ) );
 }
 
@@ -44,23 +47,25 @@ void FiruMainWindow::importDict( const QString& file )
 {
     m_ui.prgTask->show();
     m_ui.prgTask->setValue( 0 );
-    connect( &m_data, SIGNAL( progress( int ) ), m_ui.prgTask, SLOT( setValue( int ) ) );
     m_data.importDictionary( file );
     m_ui.prgTask->hide();
 }
 
 void FiruMainWindow::updateList()
 {
-    QList<Word> words = m_data.searchWords( m_word );
     m_ui.listSources->clear();
     m_listItems.clear();
-    foreach( Word w, words )
+    if ( m_word.length() > 2 )
     {
-//        QListWidgetItem item( w.getText() );
-//        item.setData( Qt::UserRole, w.getId() );
-//        m_listItems.append( item );
-//        m_ui.listSources->addItem( m_listItems.back() );
-        m_ui.listSources->addItem( w.getText() );
+        QList<Word> words = m_data.searchWords( m_word );
+        foreach( Word w, words )
+        {
+//            QListWidgetItem item( w.getText() );
+//            item.setData( Qt::UserRole, w.getId() );
+//            m_listItems.append( item );
+//            m_ui.listSources->addItem( m_listItems.back() );
+            m_ui.listSources->addItem( w.getText() );
+        }
     }
 }
 

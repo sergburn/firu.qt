@@ -34,7 +34,14 @@ bool Data::open()
 
 bool Data::select( Lang src, Lang trg )
 {
-    return ( 0 == m_schema->prepareStatements( src, trg ) );
+    int err = m_schema->prepareStatements( src, trg );
+    if ( !err )
+    {
+        m_source_lang = src;
+        m_target_lang = trg;
+        return true;
+    }
+    return false;
 }
 
 // ----------------------------------------------------------------------------
@@ -147,9 +154,15 @@ void Data::reverseLanguages()
 
 // ----------------------------------------------------------------------------
 
-QList<Word> Data::searchWords( const QString& /*pattern*/ )
+QList<Word> Data::searchWords( const QString& pattern )
 {
     QList<Word> words;
+    QList<DbSchema::EntryRecord> entries = m_schema->getEntries( m_source_lang, pattern );
+    foreach ( DbSchema::EntryRecord e, entries )
+    {
+        Word w( e.id, e.text );
+        words.append( w );
+    }
     return words;
 }
 

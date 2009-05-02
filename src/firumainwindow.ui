@@ -62,28 +62,6 @@ background-color: rgb(255, 255, 127);</string>
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="laTranslation">
-      <property name="font">
-       <font>
-        <family>MS Shell Dlg 2</family>
-        <pointsize>10</pointsize>
-        <weight>50</weight>
-        <italic>false</italic>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QProgressBar" name="prgTask">
       <property name="value">
        <number>24</number>
@@ -104,7 +82,7 @@ background-color: rgb(255, 255, 127);</string>
      <x>0</x>
      <y>0</y>
      <width>274</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -131,22 +109,6 @@ selection-background-color: rgb(170, 255, 255);</string>
  <resources/>
  <connections>
   <connection>
-   <sender>FiruMainWindowClass</sender>
-   <signal>inputWordChanged(QString)</signal>
-   <receiver>laTranslation</receiver>
-   <slot>setText(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>136</x>
-     <y>139</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>145</x>
-     <y>331</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>editInput</sender>
    <signal>textChanged(QString)</signal>
    <receiver>FiruMainWindowClass</receiver>
@@ -155,22 +117,6 @@ selection-background-color: rgb(170, 255, 255);</string>
     <hint type="sourcelabel">
      <x>136</x>
      <y>42</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>136</x>
-     <y>139</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>listSources</sender>
-   <signal>currentTextChanged(QString)</signal>
-   <receiver>FiruMainWindowClass</receiver>
-   <slot>setInputWord(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>136</x>
-     <y>153</y>
     </hint>
     <hint type="destinationlabel">
      <x>136</x>
