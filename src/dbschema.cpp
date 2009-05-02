@@ -304,6 +304,22 @@ int DbSchema::onSqlCallback( int, char**, char** )
 
 // ----------------------------------------------------------------------------
 
+int DbSchema::sqlProgress( void* pSelf )
+{
+    DbSchema* self = reinterpret_cast<DbSchema*>( pSelf );
+    return self->onSqlProgress();
+}
+
+// ----------------------------------------------------------------------------
+
+int DbSchema::onSqlProgress()
+{
+    emit onLongOpProgress();
+    return 0;
+}
+
+// ----------------------------------------------------------------------------
+
 bool DbSchema::langTableExists( Lang lang )
 {
     return tableExists( getEntryTableName( lang ) );
@@ -344,7 +360,7 @@ bool DbSchema::tableExists( const QString& table )
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::sqlGetTable( const QString& sql )
+int DbSchema::sqlGetTable( const QString& /*sql*/ )
 {
     return -1;
 }
@@ -353,6 +369,7 @@ int DbSchema::sqlGetTable( const QString& sql )
 
 int DbSchema::sqlExecute( QString sql )
 {
+//    sqlite3_progress_handler( m_db, 10, sqlCallback, this );
     int err = sqlite3_exec( m_db, sql.toUtf8().constData(), NULL, NULL, NULL );
     if ( err )
     {
