@@ -186,21 +186,26 @@ int DbSchema::getEntry( Lang lang, qint64 id, EntryRecord& record )
 
 QList<DbSchema::EntryRecord> DbSchema::getEntries( Lang lang, const QString& pattern )
 {
-    prepareStatements( lang, m_lastTrg );
-    int pos = sqlite3_bind_parameter_index( m_selectEntriesByPattern, ":pattern" );
-    int err = sqlite3_bind_text16( m_selectEntriesByPattern, pos, 
-        pattern.utf16(), (pattern.size() + 1) * 2, SQLITE_STATIC );
-
     QList<DbSchema::EntryRecord> list;
-    if ( !err ) do
-    {
-        EntryRecord record;
-        err = nextEntryRecord( m_selectEntryById, record );
-        list.append( record );
-    } while ( err == SQLITE_ROW );
+    QString pat = pattern + "%";
 
-    sqlite3_clear_bindings( m_selectEntriesByPattern );
-    sqlite3_reset( m_selectEntriesByPattern );
+    int err = prepareStatements( lang, m_lastTrg );
+    if ( !err )
+    {
+        sqlite3_stmt* stmt = m_selectEntriesByPattern;
+        sqlite3_clear_bindings( stmt );
+        int pos = sqlite3_bind_parameter_index( stmt, ":pattern" );
+        err = sqlite3_bind_text16( stmt, pos, pat.utf16(), (pat.size() + 1) * 2, SQLITE_STATIC );
+        if ( !err ) do
+        {
+            EntryRecord record;
+            err = nextEntryRecord( stmt, record );
+            list.append( record );
+        } while ( err == SQLITE_ROW );
+        else LogSqliteError( "getEntries" );
+
+        sqlite3_reset( stmt );
+    }
     return list;
 }
 
@@ -588,8 +593,8 @@ int DbSchema::prepareStatements( Lang src, Lang trg )
         }
         else
         {
-            freeStatements();
             LogSqliteError( "genStatements" );
+            freeStatements();
             return err;
         }
     }
