@@ -16,7 +16,7 @@ public:
     virtual ~EntryViewDialog();
 
 public slots:
-    int exec( const Word& word, const QList<Translation>& translations );
+    int exec( const QString& entry, const QStringList& translations );
 
 protected:
     virtual void changeEvent(QEvent *e);

@@ -13,7 +13,7 @@ class Data;
 class Word
 {
 public:
-    Word();
+    Word() : m_id( 0 ) {};
     Word( qint64 id, const QString& text ) : m_id( id ), m_text( text ) {};
 
     const QString& getText() const { return m_text; };
@@ -35,7 +35,7 @@ public:
         Learned = 4
     };
 
-    Translation();
+    Translation() : m_fmark( Unknown ), m_rmark( Unknown )  {};
     Translation( int id, const QString& text, int fmark, int rmark )
             : Word( id, text ), m_fmark( fmark ), m_rmark( rmark )  {};
 
@@ -107,8 +107,8 @@ public:
     ~Data();
     bool open();
     bool select( Lang src, Lang trg );
+    void getLanguages( Lang& src, Lang& trg ) const;
 
-    QList<Lang> getLanguages() const;
     int getNumEntries( Lang lang );
     int getNumTranslations( Lang src, Lang trg );
 
@@ -120,10 +120,11 @@ public:
 public slots:
     void setSourceLanguage( Lang lang );
     void setTargetLanguage( Lang lang );
-    void reverseLanguages();
 
 public:
+    Word getWord( qint64 id );
     QList<Word> searchWords( const QString& pattern );
+    QList<Word> searchTranslations( const QString& pattern );
     QList<Translation> getTranslations( const Word& word );
 
     Exercise createExercise();
@@ -135,7 +136,7 @@ signals:
     
 private:
     bool addLanguage( Lang lang );
-    bool addTranslations( Lang src, Lang trg, const QString& source, const QStringList& targets );
+    int addTranslations( Lang src, Lang trg, const QString& source, const QStringList& targets );
 
     bool isLangExists( Lang lang );
     bool isTransExists( Lang source, Lang target );

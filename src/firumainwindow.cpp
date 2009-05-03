@@ -6,12 +6,13 @@
 #include <QKeyEvent>
 
 FiruMainWindow::FiruMainWindow( Data& data, QWidget *parent)
-    : QMainWindow( parent ), m_data( data )
+    : QMainWindow( parent ), m_data( data ), m_reverse( false )
 {
 	m_ui.setupUi(this);
 
     menuBar()->addAction( m_ui.actionOpenDict );
     menuBar()->addAction( m_ui.actionOpenTrainer );
+    menuBar()->addAction( m_ui.actionSearch_reverse );
 
 #ifdef __SYMBIAN32__
     showMaximized();
@@ -24,7 +25,7 @@ FiruMainWindow::FiruMainWindow( Data& data, QWidget *parent)
     m_ui.editInput->installEventFilter( this );
     m_ui.prgTask->hide();
     
-    m_data.select( QLocale::Finnish, QLocale::Russian );
+    setDirection( QLocale::Finnish, QLocale::Russian );
     connect( &m_data, SIGNAL( progress( int ) ), m_ui.prgTask, SLOT( setValue( int ) ) );
 //    connect( m_data, SIGNAL( searchComplete ), this, SLOT( onSearchComplete ) );
 }
@@ -34,12 +35,24 @@ FiruMainWindow::~FiruMainWindow()
 
 }
 
+bool FiruMainWindow::setDirection( Lang src, Lang trg, bool reverse )
+{
+    if ( m_data.select( src, trg ) )
+    {
+        m_reverse = reverse;
+        updateDirectionLabels();
+        updateList();
+        return true;
+    }
+    return false;
+}
+
 void FiruMainWindow::setInputWord( QString word )
 {
-    if ( word != m_word )
+    if ( word != m_pattern )
     {
-        m_word = word;
-        emit inputWordChanged( m_word );
+        m_pattern = word;
+        emit inputWordChanged( m_pattern );
         
         updateList();
     }
@@ -56,17 +69,22 @@ void FiruMainWindow::importDict( const QString& file )
 void FiruMainWindow::updateList()
 {
     m_ui.listSources->clear();
-    m_listItems.clear();
-    if ( m_word.length() > 2 )
+    if ( m_pattern.length() > 2 )
     {
-        QList<Word> words = m_data.searchWords( m_word );
+        QList<Word> words;
+        if ( !m_reverse )
+        {
+            words = m_data.searchWords( m_pattern );
+        }
+        else
+        {
+            words = m_data.searchTranslations( m_pattern );
+        }
         foreach( Word w, words )
         {
-//            QListWidgetItem item( w.getText() );
-//            item.setData( Qt::UserRole, w.getId() );
-//            m_listItems.append( item );
-//            m_ui.listSources->addItem( m_listItems.back() );
-            m_ui.listSources->addItem( w.getText() );
+            QListWidgetItem* item = new QListWidgetItem( w.getText() );
+            item->setData( Qt::UserRole, w.getId() );
+            m_ui.listSources->addItem( item );
         }
     }
 }
@@ -98,11 +116,26 @@ void FiruMainWindow::on_actionOpenDict_triggered()
 
 void FiruMainWindow::showTranslation( QListWidgetItem* item )
 {
-    Word word( item->data( Qt::UserRole ).toLongLong(), item->text() );
-    QList<Translation> trans = m_data.getTranslations( word );
+    QString entry = item->text();
+    QStringList translations;
+
+    if ( !m_reverse )
+    {
+        Word word( item->data( Qt::UserRole ).toLongLong(), item->text() );
+        QList<Translation> trans = m_data.getTranslations( word );
+        foreach ( Translation t, trans )
+        {
+            translations.append( t.getText() );
+        }
+    }
+    else
+    {
+        Word word = m_data.getWord( item->data( Qt::UserRole ).toLongLong() );
+        translations.append( word.getText() );
+    }
 
     EntryViewDialog view;
-    view.exec( word, trans );
+    view.exec( entry, translations );
 }
 
 //void FiruMainWindow::keyPressEvent(QKeyEvent *keyEvent)
@@ -125,6 +158,32 @@ bool FiruMainWindow::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress) 
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+//        switch ( keyEvent->key() )
+//        {
+//            case Qt::Key_Enter:
+//                m_ui.listSources->setFocus();
+//                QApplication::sendEvent( m_ui.listSources, event );
+//                return true;
+//            case Qt::Key_Up:
+//                if ( m_ui.listSources->currentRow() == 0 )
+//                {
+//                    m_ui.editInput->setFocus();
+//                    return true;
+//                }
+//                break;
+//            case Qt::Key_Down:
+//                if ( obj == m_ui.editInput )
+//                {
+//                    m_ui.listSources->setFocus();
+//                    return true;
+//                }
+//                break;
+//            default:
+//                break;
+//        }
+//        m_ui.editInput->setFocus();
+//        QApplication::sendEvent( m_ui.editInput, event );
+//        return true;
         if ( obj == m_ui.editInput )
         {
             if ( keyEvent->key() == Qt::Key_Down )
@@ -154,4 +213,21 @@ bool FiruMainWindow::eventFilter(QObject *obj, QEvent *event)
 
     // pass the event on to the parent class
     return QMainWindow::eventFilter(obj, event);
+}
+
+void FiruMainWindow::on_actionSearch_reverse_toggled( bool reverse )
+{
+    m_reverse = reverse;
+    m_ui.editInput->clear();
+    updateDirectionLabels();
+    updateList();
+}
+
+void FiruMainWindow::updateDirectionLabels()
+{
+    Lang src, trg;
+    m_data.getLanguages( src, trg );
+    m_ui.laSource->setText( QLocale::languageToString( src ) );
+    m_ui.laTarget->setText( QLocale::languageToString( trg ) );
+    m_ui.laDir->setText( m_reverse ? "<-" : "->" );
 }

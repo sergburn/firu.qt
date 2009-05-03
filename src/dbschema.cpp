@@ -35,8 +35,8 @@ DbSchema::DbSchema( QObject* parent )
    m_insertTrans( NULL ),
    m_updateTrans( NULL ),
    m_selectEntryById( NULL ),
-   m_selectEntryByText( NULL ),
    m_selectEntriesByPattern( NULL ),
+   m_selectTransByPattern( NULL ),
    m_selectTransById( NULL ),
    m_selectTransBySid( NULL ),
    m_selectTransByText( NULL ),
@@ -161,11 +161,11 @@ int DbSchema::addTranslation( Lang src, Lang trg, qint64 sid, const QString& tex
 int DbSchema::getEntry( Lang lang, const QString& text, EntryRecord& record )
 {
     prepareStatements( lang, m_lastTrg );
-    int pos = sqlite3_bind_parameter_index( m_selectEntryByText, ":text" );
-    int err = sqlite3_bind_text16( m_selectEntryByText, pos, text.utf16(), (text.size() + 1) * 2, SQLITE_STATIC );
-    if ( !err ) err = nextEntryRecord( m_selectEntryByText, record );
-    sqlite3_clear_bindings( m_selectEntryByText );
-    sqlite3_reset( m_selectEntryByText );
+    int pos = sqlite3_bind_parameter_index( m_selectEntriesByPattern, ":text" );
+    int err = sqlite3_bind_text16( m_selectEntriesByPattern, pos, text.utf16(), (text.size() + 1) * 2, SQLITE_STATIC );
+    if ( !err ) err = nextEntryRecord( m_selectEntriesByPattern, record );
+    sqlite3_clear_bindings( m_selectEntriesByPattern );
+    sqlite3_reset( m_selectEntriesByPattern );
     return SQLOK( err );
 }
     
@@ -196,16 +196,27 @@ QList<DbSchema::EntryRecord> DbSchema::getEntries( Lang lang, const QString& pat
         sqlite3_clear_bindings( stmt );
         int pos = sqlite3_bind_parameter_index( stmt, ":pattern" );
         err = sqlite3_bind_text16( stmt, pos, pat.utf16(), (pat.size() + 1) * 2, SQLITE_STATIC );
-        if ( !err ) do
-        {
-            EntryRecord record;
-            err = nextEntryRecord( stmt, record );
-            list.append( record );
-        } while ( err == SQLITE_ROW );
-        else LogSqliteError( "getEntries" );
-
-        sqlite3_reset( stmt );
+        if ( !err ) list = getAllEntryRecords( stmt );
     }
+    return list;
+}
+
+// ----------------------------------------------------------------------------
+
+QList<DbSchema::EntryRecord> DbSchema::getAllEntryRecords( sqlite3_stmt* stmt )
+{
+    QList<DbSchema::EntryRecord> list;
+    forever
+    {
+        EntryRecord record;
+        if ( nextEntryRecord( stmt, record ) == SQLITE_ROW )
+            list.append( record );
+        else
+            break;
+    }
+
+    sqlite3_clear_bindings( stmt );
+    sqlite3_reset( stmt );
     return list;
 }
 
@@ -245,15 +256,41 @@ QList<DbSchema::TransViewRecord> DbSchema::getTranslationsByEntry( Lang src, Lan
     sqlite3_stmt* stmt = m_selectTransBySid;
     int pos = sqlite3_bind_parameter_index( stmt, ":sid" );
     int err = sqlite3_bind_int64( stmt, pos, sid );
+    if ( !err )
+        return getAllTransViewRecords( stmt );
+    else
+        return QList<DbSchema::TransViewRecord>();
+}
 
+// ----------------------------------------------------------------------------
+
+QList<DbSchema::TransViewRecord> DbSchema::getTranslationsByPattern( Lang src, Lang trg, const QString& pattern )
+{
+    QString pat = pattern + "%";
+    prepareStatements( src, trg );
+    sqlite3_stmt* stmt = m_selectTransByPattern;
+    int pos = sqlite3_bind_parameter_index( stmt, ":pattern" );
+    int err = sqlite3_bind_text16( stmt, pos, pat.utf16(), (pat.size() + 1) * 2, SQLITE_STATIC );
+    if ( !err )
+        return getAllTransViewRecords( stmt );
+    else
+        return QList<TransViewRecord>();
+}
+
+// ----------------------------------------------------------------------------
+
+QList<DbSchema::TransViewRecord> DbSchema::getAllTransViewRecords( sqlite3_stmt* stmt )
+{
     QList<DbSchema::TransViewRecord> list;
-    if ( !err ) do
+    forever
     {
         TransViewRecord record;
-        err = nextTransViewRecord( stmt, record );
-        list.append( record );
-    } while ( err == SQLITE_ROW );
-    
+        if ( nextTransViewRecord( stmt, record ) == SQLITE_ROW )
+            list.append( record );
+        else
+            break;
+    }
+
     sqlite3_clear_bindings( stmt );
     sqlite3_reset( stmt );
     return list;
@@ -286,10 +323,10 @@ void DbSchema::readTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record 
     // SELECT t.id, t.sid, /*e.text,*/ t.text, t.fmark, t.rmark
     record.id = sqlite3_column_int64( stmt, 0 );
     record.sid = sqlite3_column_int64( stmt, 1 );
-    //record.source = QString::fromUtf8( (const char*) sqlite3_column_text( stmt, 2 ) );
-    record.target = QString::fromUtf8( (const char*) sqlite3_column_text( stmt, 3 ) );
-    record.fmark = sqlite3_column_int( stmt, 4 );
-    record.rmark = sqlite3_column_int( stmt, 5 );
+    record.target = QString::fromUtf8( (const char*) sqlite3_column_text( stmt, 2 ) );
+    record.fmark = sqlite3_column_int( stmt, 3 );
+    record.rmark = sqlite3_column_int( stmt, 4 );
+    //record.source = QString::fromUtf8( (const char*) sqlite3_column_text( stmt, 5 ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -450,11 +487,11 @@ int DbSchema::createTransTable( Lang src, Lang trg )
         
         // 2. Index on text
         // CREATE INDEX index_trans_fi_ru_text ON trans_fi_ru ( text ASC );
-//        if ( !err )
-//        {
-//            sql = QString( KSqlCreateTransIndex ).arg ( transTableName, "text" );
-//            err = sqlExecute( sql );
-//        }
+        if ( !err )
+        {
+            sql = QString( KSqlCreateTransIndex ).arg ( transTableName, "text" );
+            err = sqlExecute( sql );
+        }
 
         // 3. Index on mark
         // CREATE INDEX IF NOT EXISTS index_trans_fi_ru_fmark ON trans_fi_ru (fmark ASC);
@@ -554,19 +591,6 @@ int DbSchema::prepareStatements( Lang src, Lang trg )
             err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_selectTransById, NULL );
         }
 
-        // Selects by Text
-        const char* SelectByText = "SELECT * FROM %1 WHERE text = :text;";
-        if ( !err )
-        {
-            sql = QString( SelectByText ).arg( entryTableName );
-            err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_selectEntryByText, NULL );
-        }
-        if ( !err )
-        {
-            sql = QString( SelectByText ).arg( transTableName );
-            err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_selectTransByText, NULL );
-        }
-        
         // TransView
         const char* SelectTransView =
             "SELECT t.id, t.sid, t.text, t.fmark, t.rmark "
@@ -585,7 +609,12 @@ int DbSchema::prepareStatements( Lang src, Lang trg )
             sql = QString( SelectByPattern ).arg( entryTableName );
             err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_selectEntriesByPattern, NULL );
         }
-        
+        if ( !err )
+        {
+            sql = QString( SelectByPattern ).arg( transTableName );
+            err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_selectTransByPattern, NULL );
+        }
+
         if ( !err )
         {
             m_lastSrc = src;
@@ -609,8 +638,8 @@ void DbSchema::freeStatements()
     m_lastSrc = m_lastTrg = QLocale::C;
     sqlite3_finalize( m_insertEntry );              m_insertEntry = NULL;
     sqlite3_finalize( m_insertTrans );              m_insertTrans  = NULL;
-    sqlite3_finalize( m_selectEntryByText );        m_selectEntryByText = NULL;
     sqlite3_finalize( m_selectEntriesByPattern );   m_selectEntriesByPattern = NULL;
+    sqlite3_finalize( m_selectTransByPattern );     m_selectTransByPattern = NULL;
     sqlite3_finalize( m_selectTransById );          m_selectTransById = NULL;
     sqlite3_finalize( m_selectTransBySid );         m_selectTransBySid = NULL;
     sqlite3_finalize( m_selectTransByText );        m_selectTransByText = NULL;

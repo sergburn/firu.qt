@@ -17,6 +17,7 @@ public:
 public slots:
     void setInputWord( QString );
     void importDict( const QString& file );
+    bool setDirection( Lang src, Lang trg, bool reverse = false );
     
 signals:
     void inputWordChanged( QString );
@@ -28,8 +29,10 @@ protected:
     
 private:
     void updateList();
+    void updateDirectionLabels();
     
 private slots:
+    void on_actionSearch_reverse_toggled(bool );
     void on_actionOpenDict_triggered();
     void on_actionOpenTrainer_triggered();
     void showTranslation( QListWidgetItem* );
@@ -37,8 +40,9 @@ private slots:
 private:
     Ui::FiruMainWindowClass m_ui;
     AppUi m_appUi;
-    QString m_word;
+    QString m_pattern;
     Data& m_data;
+    bool m_reverse;
     QList<QListWidgetItem> m_listItems;
 };
 
