@@ -44,6 +44,12 @@ bool Data::select( Lang src, Lang trg )
     return false;
 }
 
+void Data::getLanguages( Lang& src, Lang& trg ) const
+{
+    src = m_source_lang;
+    trg = m_target_lang;
+}
+
 // ----------------------------------------------------------------------------
 
 bool Data::importDictionary( const QString& fileName )
@@ -56,6 +62,7 @@ bool Data::importDictionary( const QString& fileName )
     }
 
     qint64 total = file.size();
+    int numAdded = 0;
 
     Lang src = QLocale::C;
     Lang trg = QLocale::C;
@@ -96,12 +103,13 @@ bool Data::importDictionary( const QString& fileName )
         }
         else if ( line.trimmed().isEmpty() )
         {
-            bool ok = addTranslations( src, trg, source, targets );
-            if ( !ok )
+            int res = addTranslations( src, trg, source, targets );
+            if ( res < 0 )
             {
                 m_schema->rollback();
                 return false;
             }
+            numAdded += res;
             ops++;
             if ( ops % 100 == 0 )
             {
@@ -120,6 +128,7 @@ bool Data::importDictionary( const QString& fileName )
         }
     }
     m_schema->commit();
+    qDebug() << "Added" << numAdded << "new translations";
     return true;
 }
 
@@ -147,9 +156,16 @@ void Data::setTargetLanguage( Lang lang )
 
 // ----------------------------------------------------------------------------
 
-void Data::reverseLanguages()
+Word Data::getWord( qint64 id )
 {
-    
+    Word word;
+    DbSchema::EntryRecord entry;
+    int err = m_schema->getEntry( m_source_lang, id, entry );
+    if ( !err )
+    {
+        word = Word( entry.id, entry.text );
+    }
+    return word;
 }
 
 // ----------------------------------------------------------------------------
@@ -161,6 +177,21 @@ QList<Word> Data::searchWords( const QString& pattern )
     foreach ( DbSchema::EntryRecord e, entries )
     {
         Word w( e.id, e.text );
+        words.append( w );
+    }
+    return words;
+}
+
+// ----------------------------------------------------------------------------
+
+QList<Word> Data::searchTranslations( const QString& pattern )
+{
+    QList<Word> words;
+    QList<DbSchema::TransViewRecord> trans =
+            m_schema->getTranslationsByPattern( m_source_lang, m_target_lang, pattern );
+    foreach ( DbSchema::TransViewRecord r, trans )
+    {
+        Word w( r.sid, r.target );
         words.append( w );
     }
     return words;
@@ -211,11 +242,11 @@ bool Data::addLanguage( Lang lang )
 
 // ----------------------------------------------------------------------------
 
-bool Data::addTranslations( Lang src, Lang trg, const QString& source, const QStringList& targets )
+int Data::addTranslations( Lang src, Lang trg, const QString& source, const QStringList& targets )
 {
     if ( source.length() == 0 || targets.count() == 0 )
     {
-        return true;
+        return 0;
     }
     int err = 0;
 
@@ -223,12 +254,12 @@ bool Data::addTranslations( Lang src, Lang trg, const QString& source, const QSt
     if ( !m_schema->langTableExists( src ) )
     {
         err = m_schema->createLangTable( src );
-        if ( err ) return false;
+        if ( err ) return -1;
     }
     if ( !m_schema->transTableExists( src, trg ) )
     {
         err = m_schema->createTransTable( src, trg );
-        if ( err ) return false;
+        if ( err ) return -1;
     }
     
 //    static int ops = 0;
@@ -239,7 +270,7 @@ bool Data::addTranslations( Lang src, Lang trg, const QString& source, const QSt
 
     // Prepare statements
     err = m_schema->prepareStatements( src, trg );
-    if ( err ) return false;
+    if ( err ) return -1;
 
 //    QTime bench;
 //    bench.start();
@@ -252,7 +283,7 @@ bool Data::addTranslations( Lang src, Lang trg, const QString& source, const QSt
     if ( !entry.id )
     {
         err = m_schema->addEntry( src, source, entry.id );
-        if ( err ) return false;
+        if ( err ) return -1;
 //        addEntryTime = (addEntryTime * ( ops-1 ) + bench.restart() ) / ops;
     }
     
@@ -260,6 +291,7 @@ bool Data::addTranslations( Lang src, Lang trg, const QString& source, const QSt
     bool exists = false;
     QList<DbSchema::TransViewRecord> translations = m_schema->getTranslationsByEntry( src, trg, entry.id );
 //    getTransTime = (getTransTime * ( ops-1 ) + bench.restart() ) / ops;
+    int numAdded = 0;
     foreach ( const QString& target, targets )
     {
         qDebug() << "addTranslation: " << source << "<->" << target;
@@ -275,7 +307,8 @@ bool Data::addTranslations( Lang src, Lang trg, const QString& source, const QSt
         {
             qint64 tid = 0;
             err = m_schema->addTranslation( src, trg, entry.id, target, tid );
-            if ( err ) return false;
+            if ( err ) return -1;
+            numAdded++;
     //        addTransTime = (addTransTime * ( ops-1 ) + bench.restart() ) / ops;
         }
     }
@@ -285,5 +318,5 @@ bool Data::addTranslations( Lang src, Lang trg, const QString& source, const QSt
 //            "addEntry" << addEntryTime <<
 //            "getTrans" << getTransTime <<
 //            "addTrans" << addTransTime;
-    return true;
+    return numAdded;
 }

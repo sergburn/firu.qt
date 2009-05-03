@@ -16,6 +16,37 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="laSource">
+        <property name="text">
+         <string>From</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="laDir">
+        <property name="text">
+         <string>&lt;-&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="laTarget">
+        <property name="text">
+         <string>To</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QLineEdit" name="editInput">
       <property name="font">
        <font>
@@ -34,6 +65,12 @@ background-color: rgb(255, 255, 127);</string>
     </item>
     <item>
      <widget class="QListWidget" name="listSources">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="font">
        <font>
         <pointsize>12</pointsize>
@@ -101,6 +138,14 @@ selection-background-color: rgb(170, 255, 255);</string>
     <string>OpenTrainer</string>
    </property>
   </action>
+  <action name="actionSearch_reverse">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Search reverse</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>editInput</tabstop>
@@ -115,8 +160,8 @@ selection-background-color: rgb(170, 255, 255);</string>
    <slot>setInputWord(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>136</x>
-     <y>42</y>
+     <x>145</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>136</x>

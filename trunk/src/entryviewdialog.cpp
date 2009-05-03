@@ -2,6 +2,7 @@
 #include "ui_entryviewdialog.h"
 #include <QLabel>
 #include <QFrame>
+#include <QSpacerItem>
 
 EntryViewDialog::EntryViewDialog(QWidget *parent) :
     QDialog(parent),
@@ -26,24 +27,29 @@ void EntryViewDialog::changeEvent(QEvent *e)
     }
 }
 
-int EntryViewDialog::exec( const Word& word, const QList<Translation>& translations )
+int EntryViewDialog::exec( const QString& entry, const QStringList& translations )
 {
-    m_ui->laEntry->setText( word.getText() );
-    if ( translations.count() > 0 )
+    m_ui->laEntry->setText( entry );
+    for ( int i = 0; i < translations.count(); i++ )
     {
-        m_ui->label->setText( translations[0].getText() );
-        for ( int i = 1; i < translations.count(); i++ )
+        if ( i > 0 )
         {
-            QLabel* label = new QLabel(m_ui->scrollAreaWidgetContents);
-            label->setObjectName(QString::fromUtf8("label%1").arg(i));
-            m_ui->verticalLayout_2->addWidget(label);
-
-            QFrame* line = new QFrame(m_ui->scrollAreaWidgetContents);
+            QFrame* line = new QFrame(m_ui->frame);
             line->setObjectName(QString::fromUtf8("line%1").arg(i));
             line->setFrameShape(QFrame::HLine);
             line->setFrameShadow(QFrame::Sunken);
-            m_ui->verticalLayout_2->addWidget(line);
+            m_ui->verticalLayout_3->addWidget(line);
         }
+
+        QLabel* label = new QLabel(m_ui->frame);
+        label->setObjectName(QString::fromUtf8("label%1").arg(i));
+        label->setWordWrap( true );
+        label->setText( translations[i] );
+        m_ui->verticalLayout_3->addWidget(label);
     }
+
+    QSpacerItem* verticalSpacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    m_ui->verticalLayout_3->addItem(verticalSpacer);
+
     return QDialog::exec();
 }

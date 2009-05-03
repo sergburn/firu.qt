@@ -55,6 +55,7 @@ public:
     int getEntry( Lang lang, const QString& text, EntryRecord& record );
     QList<EntryRecord> getEntries( Lang lang, const QString& pattern );
     
+    QList<TransViewRecord> getTranslationsByPattern( Lang src, Lang trg, const QString& pattern );
     QList<TransViewRecord> getTranslationsByEntry( Lang src, Lang trg, qint64 sid );
     QList<TransViewRecord> getTranslationsByFmark( Lang src, Lang trg, int fmark );
     QList<TransViewRecord> getTranslationsByRmark( Lang src, Lang trg, int rmark );
@@ -91,8 +92,12 @@ private:
     int sqlGetTable( const QString& sql );
 
     bool tableExists( const QString& table );
+
+    QList<EntryRecord> getAllEntryRecords( sqlite3_stmt* stmt );
     int nextEntryRecord( sqlite3_stmt* stmt, EntryRecord& record );
     void readEntryRecord( sqlite3_stmt* stmt, EntryRecord& record );
+
+    QList<TransViewRecord> getAllTransViewRecords( sqlite3_stmt* stmt );
     int nextTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record );
     void readTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record );
     
@@ -107,8 +112,8 @@ private:
     sqlite3_stmt* m_insertTrans;
     sqlite3_stmt* m_updateTrans;
     sqlite3_stmt* m_selectEntryById;
-    sqlite3_stmt* m_selectEntryByText;
     sqlite3_stmt* m_selectEntriesByPattern;
+    sqlite3_stmt* m_selectTransByPattern;
     sqlite3_stmt* m_selectTransById;
     sqlite3_stmt* m_selectTransBySid;
     sqlite3_stmt* m_selectTransByText;
