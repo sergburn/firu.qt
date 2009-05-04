@@ -24,9 +24,13 @@ Data::~Data()
 
 bool Data::open()
 {
+#ifndef SYMBIAN
     QString dbPath = QDir::homePath() + "/.firu/";
     QDir path;
     path.mkpath( dbPath );
+#else
+    QString dbPath;
+#endif
     return m_schema->open( dbPath + "firu.db" );
 }
 

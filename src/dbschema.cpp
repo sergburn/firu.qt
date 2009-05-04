@@ -7,6 +7,7 @@
 
 #include "dbschema.h"
 #include <QDebug>
+#include <QDir>
 
 #define SQLOK( _e ) ( ((_e) == SQLITE_OK || (_e) == SQLITE_DONE || (_e) == SQLITE_ROW ) ? SQLITE_OK : (_e) )
 
@@ -44,6 +45,11 @@ DbSchema::DbSchema( QObject* parent )
    m_selectTransByRmark( NULL ),
    m_lastSrc( QLocale::C ), m_lastTrg ( QLocale::C )
 {
+    int err = sqlite3_initialize();
+    if ( err )
+    {
+        LogSqliteError( "DbSchema" );
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -55,17 +61,17 @@ DbSchema::~DbSchema()
     {
         sqlite3_close( m_db );
     }
+    sqlite3_shutdown();
 }
 
 // ----------------------------------------------------------------------------
 
 bool DbSchema::open( const QString& dbPath )
 {
-    qDebug() << "Fi: " << QLocale::languageToString( QLocale::Finnish );
-    qDebug() << "Ru: " << QLocale::languageToString( QLocale::Russian );
-    qDebug() << "Db: " << dbPath;
+    QString path = QDir::toNativeSeparators( dbPath );
+    qDebug() << "Db: " << path;
 
-    int err = sqlite3_open( dbPath.toUtf8().constData(), &m_db );
+    int err = sqlite3_open( path.toUtf8().constData(), &m_db );
     if ( err == SQLITE_OK )
     {
         return true;
