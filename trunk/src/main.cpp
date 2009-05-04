@@ -36,12 +36,8 @@
 #include <QtGui>
 #include <QApplication>
 
-#include <sqlite3.h>
-
 int main(int argc, char *argv[])
 {
-    sqlite3_initialize();
-
     QApplication a(argc, argv);
 #ifdef QT_KEYPAD_NAVIGATION
     a.setKeypadNavigationEnabled( false );
@@ -52,26 +48,33 @@ int main(int argc, char *argv[])
     qDebug() << "db open? " << isOpen; 
     qDebug() << "I'm at " << QDir::currentPath();
     
-    FiruMainWindow w( dat );
-    w.show();
-    
-    QString importDict;
-    QStringList args = a.arguments();
-    for ( int i = 1; i < args.count(); i++ )
+    int res = 0;
+    if ( isOpen )
     {
-        if ( args[i] == "-import" && args.count() > i + 1 )
+        FiruMainWindow w( dat );
+        w.show();
+        
+        QString importDict;
+        QStringList args = a.arguments();
+        for ( int i = 1; i < args.count(); i++ )
         {
-            importDict = args[i+1];
-            i++;
+            if ( args[i] == "-import" && args.count() > i + 1 )
+            {
+                importDict = args[i+1];
+                i++;
+            }
         }
+        
+        if ( importDict.length() )
+        {
+            w.importDict( importDict );
+        }
+        
+        res = a.exec();
     }
-    
-    if ( importDict.length() )
+    else
     {
-        w.importDict( importDict );
+        res = 1;
     }
-    
-    int res = a.exec();
-    sqlite3_shutdown();
     return res;
 }

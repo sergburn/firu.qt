@@ -23,27 +23,28 @@ FORMS += src/firumainwindow.ui \
     src/entryviewdialog.ui
 RESOURCES += 
 DEFINES += SQLITE_THREADSAFE=0 \
-    SQLITE_OMIT_LOAD_EXTENSION
-symbian: { 
+    SQLITE_OMIT_LOAD_EXTENSION \
+    SQLITE_OMIT_DEPRECATED
+symbian { 
     TARGET.UID3 = 0xE92D4440
     HEADERS += firuqt.loc \
         src/AppUi_S60.h \
         external/sqlite/sqlite3.h
     SOURCES += firuqt.rss \
         firuqt_reg.rss \
-        src/firuqt_reg.rss \
+        firuqt_reg.rss \
         src/AppUi_S60.cpp \
         external/sqlite/sqlite3.c
     DEFINES += SQLITE_OS_UNIX=1
     DEPENDPATH += external/sqlite
 }
-unix: { 
+linux { 
     CONFIG += qt \
         debug
     LIBS += -lsqlite3
-    debug::SOURCES += /usr/share/qtcreator/gdbmacros/gdbmacros.cpp
+    SOURCES += /usr/share/qtcreator/gdbmacros/gdbmacros.cpp
 }
-windows: { 
+win32 { 
     CONFIG += qt \
         debug
     DEPENDPATH += external/sqlite
