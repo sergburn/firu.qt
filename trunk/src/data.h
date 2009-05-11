@@ -36,15 +36,18 @@ public:
     };
 
     Translation() : m_fmark( Unknown ), m_rmark( Unknown )  {};
-    Translation( int id, const QString& text, int fmark, int rmark )
+    Translation( int id, const QString& text, Mark fmark, Mark rmark )
             : Word( id, text ), m_fmark( fmark ), m_rmark( rmark )  {};
 
-    Mark getFmark() const;
-    Mark getRmark() const;
+    Mark getFmark() const { return m_fmark; };
+    Mark getRmark() const { return m_rmark; };
+
+    void setFmark( Mark );
+    void setRmark( Mark );
 
 private:
-    int m_fmark;
-    int m_rmark;
+    Mark m_fmark;
+    Mark m_rmark;
 };
 
 class TranslationTest
