@@ -337,6 +337,38 @@ void DbSchema::readTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record 
 
 // ----------------------------------------------------------------------------
 
+int DbSchema::saveTranslationMarks( Lang src, Lang trg, TransViewRecord r )
+{
+    prepareStatements( src, trg );
+    sqlite3_stmt* stmt = m_updateTrans;
+
+    int pos = sqlite3_bind_parameter_index( stmt, ":id" );
+    int err = sqlite3_bind_int( stmt, pos, r.id );
+    if ( !err )
+    {
+        pos = sqlite3_bind_parameter_index( stmt, ":fmark" );
+        err = sqlite3_bind_int( stmt, pos, r.fmark );
+    }
+    if ( !err )
+    {
+        pos = sqlite3_bind_parameter_index( stmt, ":rmark" );
+        err = sqlite3_bind_int( stmt, pos, r.rmark );
+    }
+    if ( !err )
+    {
+        err = sqlite3_step( stmt );
+    }
+    if ( err != SQLITE_DONE )
+    {
+        LogSqliteError( "saveTranslationMarks" );
+    }
+    sqlite3_clear_bindings( stmt );
+    sqlite3_reset( stmt );
+    return SQLOK( err );
+}
+
+// ----------------------------------------------------------------------------
+
 int DbSchema::sqlCallback( void* pSelf, int nCol, char** argv, char** colv )
 {
     DbSchema* self = reinterpret_cast<DbSchema*>( pSelf );
@@ -619,6 +651,14 @@ int DbSchema::prepareStatements( Lang src, Lang trg )
         {
             sql = QString( SelectByPattern ).arg( transTableName );
             err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_selectTransByPattern, NULL );
+        }
+
+        // Update Trans
+        const char* UpdateTrans = "UPDATE %1 SET fmark = :fmark, rmark= :rmark WHERE id = :id;";
+        if ( !err )
+        {
+            sql = QString( UpdateTrans ).arg( transTableName );
+            err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_updateTrans, NULL );
         }
 
         if ( !err )

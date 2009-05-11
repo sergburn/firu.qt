@@ -59,6 +59,8 @@ public:
     QList<TransViewRecord> getTranslationsByEntry( Lang src, Lang trg, qint64 sid );
     QList<TransViewRecord> getTranslationsByFmark( Lang src, Lang trg, int fmark );
     QList<TransViewRecord> getTranslationsByRmark( Lang src, Lang trg, int rmark );
+
+    int saveTranslationMarks( Lang src, Lang trg, TransViewRecord r );
     
     bool langTableExists( Lang lang );
     bool transTableExists( Lang source, Lang target );

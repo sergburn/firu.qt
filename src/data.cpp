@@ -7,6 +7,24 @@
 #include "data.h"
 
 // ----------------------------------------------------------------------------
+// TRANSLATION
+// ----------------------------------------------------------------------------
+
+void Translation::setFmark( Mark m )
+{
+    m_fmark = m;
+}
+
+// ----------------------------------------------------------------------------
+
+void Translation::setRmark( Mark m )
+{
+    m_rmark = m;
+}
+
+// ----------------------------------------------------------------------------
+// DATA
+// ----------------------------------------------------------------------------
 
 Data::Data() 
 : m_schema( NULL )
@@ -47,6 +65,8 @@ bool Data::select( Lang src, Lang trg )
     }
     return false;
 }
+
+// ----------------------------------------------------------------------------
 
 void Data::getLanguages( Lang& src, Lang& trg ) const
 {
@@ -210,8 +230,13 @@ QList<Translation> Data::getTranslations( const Word& word )
             m_schema->getTranslationsByEntry( m_source_lang, m_target_lang, word.getId() );
     foreach ( DbSchema::TransViewRecord r, trans )
     {
-        Translation t( r.id, r.target, r.fmark, r.rmark );
+        Translation t( r.id, r.target, (Translation::Mark) r.fmark, (Translation::Mark) r.rmark );
         translations.append( t );
+
+        // change mark
+        r.fmark = Translation::ToLearn;
+        r.rmark = Translation::ToLearn;
+        m_schema->saveTranslationMarks( m_source_lang, m_target_lang, r );
     }
     return translations;
 }

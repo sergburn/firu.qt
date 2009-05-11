@@ -38,7 +38,7 @@ symbian {
     DEFINES += SQLITE_OS_UNIX=1
     DEPENDPATH += external/sqlite
 }
-linux { 
+unix {
     CONFIG += qt \
         debug
     LIBS += -lsqlite3
