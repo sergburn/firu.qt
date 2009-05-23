@@ -8,7 +8,8 @@ HEADERS += src/AppUi.h \
     src/trainerdialog.h \
     src/data.h \
     src/dbschema.h \
-    src/entryviewdialog.h
+    src/entryviewdialog.h \
+    src/query.h
 SOURCES += src/AppUi.cpp \
     src/firumainwindow.cpp \
     src/main.cpp \
@@ -16,7 +17,8 @@ SOURCES += src/AppUi.cpp \
     src/trainerdialog.cpp \
     src/data.cpp \
     src/dbschema.cpp \
-    src/entryviewdialog.cpp
+    src/entryviewdialog.cpp \
+    src/query.cpp
 FORMS += src/firumainwindow.ui \
     src/firuqt.ui \
     src/trainerdialog.ui \
@@ -38,7 +40,7 @@ symbian {
     DEFINES += SQLITE_OS_UNIX=1
     DEPENDPATH += external/sqlite
 }
-unix {
+unix { 
     CONFIG += qt \
         debug
     LIBS += -lsqlite3

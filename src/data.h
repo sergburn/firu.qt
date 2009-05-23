@@ -13,6 +13,16 @@ class Data;
 class Word
 {
 public:
+    static Word* create();
+    static Word* find_exact( QString );
+    static Word* load( qint64 );
+
+    QList<Translation> translations();
+    bool addTranslation( QString );
+
+    bool save();
+
+public:
     Word() : m_id( 0 ) {};
     Word( qint64 id, const QString& text ) : m_id( id ), m_text( text ) {};
 
