@@ -14,42 +14,18 @@
 #include <QLocale>
 #include "sqlite3.h"
 
-typedef QLocale::Language Lang;
+#include "query.h"
+#include "model.h"
 
 class DbSchema : public QObject
 {
     Q_OBJECT
     
 public:
-    DbSchema( QObject* parent );
     virtual ~DbSchema();
 
-    class EntryRecord
-    {
-    public:
-        EntryRecord() : id( 0 ) {};
-        qint64 id;
-        QString text;
-    };
-    
-    class TransRecord
-    {
-    public:
-        TransRecord() : id( 0 ), sid( 0 ), fmark( 0 ), rmark( 0 ) {};
-        qint64 id;
-        qint64 sid;
-        QString target;
-        int fmark;
-        int rmark;
-    };
-    
-    class TransViewRecord : public TransRecord
-    {
-    public:
-        QString source;
-    };
-    
-    bool open( const QString& dbPath );
+    static DbSchema* instance();
+    static DbSchema* open( const QString& dbPath, QObject* parent );
     
     int getEntry( Lang lang, qint64 id, EntryRecord& record );
     int getEntry( Lang lang, const QString& text, EntryRecord& record );
@@ -75,7 +51,8 @@ public:
     bool commit();
     void rollback();
 
-    int prepareStatements( Lang src, Lang trg );
+    QSharedPointer<WordQuery> getWordQuery( Lang src );
+    QSharedPointer<TranslationQuery> getTranslationQuery( Lang src, Lang trg );
 
 signals:
     void onLongOpProgress();
@@ -106,22 +83,13 @@ private:
     void freeStatements();
     
     void LogSqliteError( const char * );
-    
+
+    template <class T> QSharedPointer<T> getQuery( const char* className, Lang src = QLocale::C, Lang trg = QLocale::C );
+    QWeakPointer<Query> findQuery( const char* className, Lang src = QLocale::C, Lang trg = QLocale::C );
+
 private:
     sqlite3* m_db;
-    
-    sqlite3_stmt* m_insertEntry;
-    sqlite3_stmt* m_insertTrans;
-    sqlite3_stmt* m_updateTrans;
-    sqlite3_stmt* m_selectEntryById;
-    sqlite3_stmt* m_selectEntriesByPattern;
-    sqlite3_stmt* m_selectTransByPattern;
-    sqlite3_stmt* m_selectTransById;
-    sqlite3_stmt* m_selectTransBySid;
-    sqlite3_stmt* m_selectTransByText;
-    sqlite3_stmt* m_selectTransByFmark;
-    sqlite3_stmt* m_selectTransByRmark;
-    Lang m_lastSrc, m_lastTrg;
+    QList<QWeakPointer<Query> > m_queries;
 };
 
 #endif /* DBSCHEMA_H_ */

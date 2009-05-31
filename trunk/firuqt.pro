@@ -9,7 +9,11 @@ HEADERS += src/AppUi.h \
     src/data.h \
     src/dbschema.h \
     src/entryviewdialog.h \
-    src/query.h
+    src/query.h \
+    src/model/word.h \
+    src/model/translation.h \
+    src/model/translationquery.h \
+    src/model/model.h
 SOURCES += src/AppUi.cpp \
     src/firumainwindow.cpp \
     src/main.cpp \
@@ -18,7 +22,10 @@ SOURCES += src/AppUi.cpp \
     src/data.cpp \
     src/dbschema.cpp \
     src/entryviewdialog.cpp \
-    src/query.cpp
+    src/query.cpp \
+    src/model/word.cpp \
+    src/model/translation.cpp \
+    src/model/translationquery.cpp
 FORMS += src/firumainwindow.ui \
     src/firuqt.ui \
     src/trainerdialog.ui \
