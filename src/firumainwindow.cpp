@@ -121,8 +121,8 @@ void FiruMainWindow::showTranslation( QListWidgetItem* item )
 
     if ( !m_reverse )
     {
-        Word word( item->data( Qt::UserRole ).toLongLong(), item->text() );
-        QList<Translation> trans = m_data.getTranslations( word );
+        qint64 sid = item->data( Qt::UserRole ).toLongLong();
+        Translation::List trans = Translation::findBySourceEntry( sid, m_data.source(), m_data.target() );
         foreach ( Translation t, trans )
         {
             translations.append( t.getText() );

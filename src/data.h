@@ -6,59 +6,11 @@
 #include <QStringList>
 #include <QLocale>
 
+#include "model/model.h"
+
 typedef QLocale::Language Lang;
 
 class Data;
-
-class Word
-{
-public:
-    static Word* create();
-    static Word* find_exact( QString );
-    static Word* load( qint64 );
-
-    QList<Translation> translations();
-    bool addTranslation( QString );
-
-    bool save();
-
-public:
-    Word() : m_id( 0 ) {};
-    Word( qint64 id, const QString& text ) : m_id( id ), m_text( text ) {};
-
-    const QString& getText() const { return m_text; };
-    qint64 getId() const { return m_id; };
-
-private:
-    qint64 m_id;
-    QString m_text;
-};
-
-class Translation : public Word
-{
-public:
-    enum Mark {
-        Unknown = 0,
-        ToLearn = 1,
-        Good    = 2,
-        Better  = 3,
-        Learned = 4
-    };
-
-    Translation() : m_fmark( Unknown ), m_rmark( Unknown )  {};
-    Translation( int id, const QString& text, Mark fmark, Mark rmark )
-            : Word( id, text ), m_fmark( fmark ), m_rmark( rmark )  {};
-
-    Mark getFmark() const { return m_fmark; };
-    Mark getRmark() const { return m_rmark; };
-
-    void setFmark( Mark );
-    void setRmark( Mark );
-
-private:
-    Mark m_fmark;
-    Mark m_rmark;
-};
 
 class TranslationTest
 {
@@ -121,6 +73,8 @@ public:
     bool open();
     bool select( Lang src, Lang trg );
     void getLanguages( Lang& src, Lang& trg ) const;
+    Lang source() { return m_source_lang; }
+    Lang target() { return m_target_lang; }
 
     int getNumEntries( Lang lang );
     int getNumTranslations( Lang src, Lang trg );

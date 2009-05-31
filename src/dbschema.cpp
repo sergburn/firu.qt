@@ -9,6 +9,8 @@
 #include <QDebug>
 #include <QDir>
 
+DbSchema* g_schema = NULL;
+
 #define SQLOK( _e ) ( ((_e) == SQLITE_OK || (_e) == SQLITE_DONE || (_e) == SQLITE_ROW ) ? SQLITE_OK : (_e) )
 
 // ----------------------------------------------------------------------------
@@ -35,14 +37,6 @@ DbSchema::DbSchema( QObject* parent )
    m_insertEntry( NULL ),
    m_insertTrans( NULL ),
    m_updateTrans( NULL ),
-   m_selectEntryById( NULL ),
-   m_selectEntriesByPattern( NULL ),
-   m_selectTransByPattern( NULL ),
-   m_selectTransById( NULL ),
-   m_selectTransBySid( NULL ),
-   m_selectTransByText( NULL ),
-   m_selectTransByFmark( NULL ),
-   m_selectTransByRmark( NULL ),
    m_lastSrc( QLocale::C ), m_lastTrg ( QLocale::C )
 {
     int err = sqlite3_initialize();
@@ -62,11 +56,28 @@ DbSchema::~DbSchema()
         sqlite3_close( m_db );
     }
     sqlite3_shutdown();
+    g_schema = NULL:
 }
 
 // ----------------------------------------------------------------------------
 
-bool DbSchema::open( const QString& dbPath )
+DbSchema* DbSchema::instance()
+{
+    return g_schema;
+}
+
+// ----------------------------------------------------------------------------
+
+DbSchema* DbSchema::open( const QString& dbPath, QObject* parent )
+{
+    assert( !g_schema );
+    g_schema = new DbSchema( parent );
+    g_schema->doOpen( dbPath );
+}
+
+// ----------------------------------------------------------------------------
+
+bool DbSchema::doOpen( const QString& dbPath )
 {
     QString path = QDir::toNativeSeparators( dbPath );
     qDebug() << "Db: " << path;
@@ -703,4 +714,60 @@ void DbSchema::LogSqliteError( const char* where )
         ": err " << sqlite3_errcode( m_db ) << 
         ", exterr "  << sqlite3_extended_errcode( m_db ) <<
         ", msg " << err;
+}
+
+// ----------------------------------------------------------------------------
+
+QSharedPointer<WordQuery> DbSchema::getWordQuery( Lang src )
+{
+    return getQuery<WordQuery>( "WordQuery", src );
+}
+
+// ----------------------------------------------------------------------------
+
+QSharedPointer<TranslationQuery> DbSchema::getTranslationQuery( Lang src, Lang trg )
+{
+    return getQuery<TranslationQuery>( "TranslationQuery", src, trg );
+}
+
+// ----------------------------------------------------------------------------
+
+template <class T>
+QSharedPointer<T> DbSchema::getQuery( const char* className, Lang src, Lang trg )
+{
+    QSharedPointer<T> q;
+    QWeakPointer<Query> p = findQuery( className, src, trg );
+    if ( !p )
+    {
+        q = new T( m_db, src, trg );
+        m_queries.append( q.toWeakRef() );
+    }
+    return q;
+}
+
+// ----------------------------------------------------------------------------
+
+QWeakPointer<Query> DbSchema::findQuery( const char* className, Lang src, Lang trg )
+{
+    QWeakPointer<Query> wp;
+    for ( int i = 0; i < m_queries.count(); i++ )
+    {
+        QSharedPointer<Query>& p = m_queries[i].toStrongRef();
+        if ( !p )
+        {
+            m_queries.removeAt( i-- );
+            continue;
+        }
+        else if ( p->metaObject()->className() == className )
+        {
+            bool srcOk = ( src == QLocale::C || p->source() == src );
+            bool trgOk = ( trg == QLocale::C || p->target() == trg );
+            if ( srcOk && trgOk )
+            {
+                wp = m_queries[i];
+                break;
+            }
+        }
+    }
+    return wp;
 }
