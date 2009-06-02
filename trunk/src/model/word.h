@@ -19,9 +19,9 @@ public:
     Word( Lang lang ) : m_id( 0 ), m_lang( lang ) {}
     Word( const QString& text, Lang lang ) : m_id( 0 ), m_text( text ), m_lang( lang ) {}
 
-    static Word* create();
-    static Word* find_exact( QString );
-    static Word* load( qint64 );
+    static Ptr find( qint64 );
+    static List find( const QString& pattern, TextMatch match = FullMatch );
+    static List filter( const List& list, const QString& pattern, TextMatch match = FullMatch );
 
     bool save( bool withTranslations = true );
 
@@ -30,7 +30,7 @@ public:
     qint64 getId() const { return m_id; }
 
     Translation::List translations();
-    bool addTranslation( QString );
+    bool addTranslation( const Translation& trans );
 
 private:
     Word();

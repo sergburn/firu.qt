@@ -43,7 +43,7 @@ Translation::Translation( Lang src, Lang trg )
 
 // ----------------------------------------------------------------------------
 
-Translation::~Translation( Lang src, Lang trg )
+Translation::~Translation()
 {
     delete m_extension;
 }
@@ -57,9 +57,21 @@ Translation::Translation( qint64 sid, const QString& text, Lang src, Lang trg )
 
 // ----------------------------------------------------------------------------
 
-Translation* Translation::find( qint64 id )
+Translation::Ptr Translation::find( qint64 id )
 {
-
+    Translation::Ptr p;
+    TranslationQuery::Ptr qry = m_extension->query( src, trg );
+    if ( qry )
+    {
+        qry->filterId = id;
+        qry->start();
+        if ( qry->next() )
+        {
+            p = TranslationUtility::createFromQuery( *qry );
+        }
+        delete qry;
+    }
+    return p;
 }
 
 // ----------------------------------------------------------------------------

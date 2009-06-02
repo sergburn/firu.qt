@@ -34,11 +34,11 @@
 #include "data.h"
 
 #include <QtGui>
-#include <QApplication>
+#include "firuapp.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    FiruApp a(argc, argv);
 #ifdef QT_KEYPAD_NAVIGATION
     a.setKeypadNavigationEnabled( false );
 #endif

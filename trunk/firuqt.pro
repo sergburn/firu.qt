@@ -13,7 +13,9 @@ HEADERS += src/AppUi.h \
     src/model/word.h \
     src/model/translation.h \
     src/model/translationquery.h \
-    src/model/model.h
+    src/model/model.h \
+    src/firuapp.h \
+    src/model/wordquery.h
 SOURCES += src/AppUi.cpp \
     src/firumainwindow.cpp \
     src/main.cpp \
@@ -25,7 +27,9 @@ SOURCES += src/AppUi.cpp \
     src/query.cpp \
     src/model/word.cpp \
     src/model/translation.cpp \
-    src/model/translationquery.cpp
+    src/model/translationquery.cpp \
+    src/firuapp.cpp \
+    src/model/wordquery.cpp
 FORMS += src/firumainwindow.ui \
     src/firuqt.ui \
     src/trainerdialog.ui \

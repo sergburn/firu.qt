@@ -1,9 +1,16 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include <QLocale>
+
 typedef QLocale::Language Lang;
 
-#include "word.h"
-#include "translation.h"
+enum TextMatch
+{
+    FullMatch,
+    StartsWith,
+    Contains,
+    EndsWith
+};
 
 #endif // MODEL_H
