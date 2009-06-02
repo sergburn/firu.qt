@@ -7,7 +7,7 @@ class TranslationQuery : public Query
 public:
     typedef QSharedPointer<TranslationQuery> Ptr;
 
-    TranslationQuery( Lang src, Lang trg );
+    TranslationQuery( sqlite3* db, Lang src, Lang trg );
 
     enum Sort
     {
@@ -42,6 +42,7 @@ protected: // from Query
 
 private:
     TranslationQuery();
+    Q_DISABLE_COPY( TranslationQuery );
 
 protected:
     Record m_record;

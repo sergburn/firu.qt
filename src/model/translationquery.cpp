@@ -2,15 +2,8 @@
 
 // ----------------------------------------------------------------------------
 
-TranslationQuery::get( Lang src, Lang trg )
-{
-    DbSchema::instance()->getTranslationQuery();
-}
-
-// ----------------------------------------------------------------------------
-
 TranslationQuery::TranslationQuery( sqlite3* db, Lang src, Lang trg )
-    : Query( db ), m_srcLang( src ), m_trgLang( trg )
+    : Query( db, src, trg )
 {
 }
 
