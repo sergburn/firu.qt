@@ -1,6 +1,9 @@
 #ifndef WORDQUERY_H
 #define WORDQUERY_H
 
+#include <QSharedPointer>
+#include "query.h"
+
 class WordQuery : public Query
 {
 public:

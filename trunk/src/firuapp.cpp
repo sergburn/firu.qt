@@ -2,8 +2,11 @@
 
 // ----------------------------------------------------------------------------
 
-FiruApp::FiruApp()
+FiruApp::FiruApp( int argc, char *argv[] )
+    : QApplication( argc, argv )
 {
+    m_settings = new Settings;
+
     if ( m_settings->getSourceLanguage() == QLocale::C )
     {
         m_settings->setSourceLanguage( QLocale::Finnish );

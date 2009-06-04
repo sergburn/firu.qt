@@ -1,9 +1,13 @@
-#include "firumainwindow.h"
-#include "trainerdialog.h"
-#include "entryviewdialog.h"
 #include <QMenu>
 #include <QAction>
 #include <QKeyEvent>
+
+#include "firumainwindow.h"
+#include "trainerdialog.h"
+#include "entryviewdialog.h"
+
+#include "model/word.h"
+#include "model/translation.h"
 
 FiruMainWindow::FiruMainWindow( Data& data, QWidget *parent)
     : QMainWindow( parent ), m_data( data ), m_reverse( false )
@@ -71,19 +75,19 @@ void FiruMainWindow::updateList()
     m_ui.listSources->clear();
     if ( m_pattern.length() > 2 )
     {
-        QList<Word> words;
+        Word::List words;
         if ( !m_reverse )
         {
-            words = m_data.searchWords( m_pattern );
+            words = Word::find( m_pattern, StartsWith );
         }
         else
         {
-            words = m_data.searchTranslations( m_pattern );
+//            words = Translation::find( m_pattern, Contains );
         }
-        foreach( Word w, words )
+        foreach( Word::Ptr wp, words )
         {
-            QListWidgetItem* item = new QListWidgetItem( w.getText() );
-            item->setData( Qt::UserRole, w.getId() );
+            QListWidgetItem* item = new QListWidgetItem( wp->getText() );
+            item->setData( Qt::UserRole, wp->getId() );
             m_ui.listSources->addItem( item );
         }
     }
@@ -123,15 +127,15 @@ void FiruMainWindow::showTranslation( QListWidgetItem* item )
     {
         qint64 sid = item->data( Qt::UserRole ).toLongLong();
         Translation::List trans = Translation::findBySourceEntry( sid, m_data.source(), m_data.target() );
-        foreach ( Translation t, trans )
+        foreach ( Translation::Ptr tp, trans )
         {
-            translations.append( t.getText() );
+            translations.append( tp->getText() );
         }
     }
     else
     {
-        Word word = m_data.getWord( item->data( Qt::UserRole ).toLongLong() );
-        translations.append( word.getText() );
+//        Word word = m_data.getWord( item->data( Qt::UserRole ).toLongLong() );
+//        translations.append( word.getText() );
     }
 
     EntryViewDialog view;

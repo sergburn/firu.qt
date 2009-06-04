@@ -11,11 +11,12 @@ class Settings;
 class FiruApp : public QApplication
 {
 public:
-    FiruApp();
+    FiruApp( int argc, char *argv[] );
     static FiruApp* get();
     static Settings& settings();
 
 private:
+    FiruApp();
     Settings* m_settings;
 };
 
@@ -34,6 +35,6 @@ private:
 //    QSettings m_settings;
     Lang m_src;
     Lang m_trg;
-}
+};
 
 #endif // FIRUAPP_H
