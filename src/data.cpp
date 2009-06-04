@@ -3,7 +3,7 @@
 #include <QTime>
 #include <QApplication>
 
-#include "dbschema.h"
+#include "model/dbschema.h"
 #include "data.h"
 
 // ----------------------------------------------------------------------------
@@ -17,7 +17,7 @@
 Data::Data() 
 : m_schema( NULL )
 {
-    m_schema = new DbSchema( this );
+    m_schema = new DbSchema();
 }
 
 // ----------------------------------------------------------------------------

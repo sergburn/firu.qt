@@ -1,6 +1,9 @@
 #ifndef TRANSLATIONQUERY_H
 #define TRANSLATIONQUERY_H
 
+#include <QSharedPointer>
+#include "query.h"
+
 /** Selects all translations */
 class TranslationQuery : public Query
 {

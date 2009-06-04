@@ -18,7 +18,7 @@ public:
 //
 //    Status execute();
 //    int errorCode() const;
-    start();
+    int start();
 
 //signals:
 //    void onQueryProgress( int progress );

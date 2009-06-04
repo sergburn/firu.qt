@@ -33,7 +33,7 @@ public:
     TestResult getResult() const;
 
 private:
-    Translation m_challenge;
+//    Translation m_challenge;
     TestResult m_result;
     QStringList m_hints;
 };
@@ -89,10 +89,10 @@ public slots:
     void setTargetLanguage( Lang lang );
 
 public:
-    Word getWord( qint64 id );
-    QList<Word> searchWords( const QString& pattern );
-    QList<Word> searchTranslations( const QString& pattern );
-    QList<Translation> getTranslations( const Word& word );
+//    Word getWord( qint64 id );
+//    QList<Word> searchWords( const QString& pattern );
+//    QList<Word> searchTranslations( const QString& pattern );
+//    QList<Translation> getTranslations( const Word& word );
 
     Exercise createExercise();
     
