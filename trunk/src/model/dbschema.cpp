@@ -390,23 +390,7 @@ int DbSchema::sqlCallback( void* pSelf, int nCol, char** argv, char** colv )
 
 int DbSchema::onSqlCallback( int, char**, char** )
 {
-    return 0;
-}
-
-// ----------------------------------------------------------------------------
-
-int DbSchema::sqlProgress( void* pSelf )
-{
-    DbSchema* self = reinterpret_cast<DbSchema*>( pSelf );
-    return self->onSqlProgress();
-}
-
-// ----------------------------------------------------------------------------
-
-int DbSchema::onSqlProgress()
-{
-    emit onLongOpProgress();
-    return 0;
+    emit onSqlProgress();
 }
 
 // ----------------------------------------------------------------------------

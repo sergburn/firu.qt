@@ -2,8 +2,9 @@
 
 // ----------------------------------------------------------------------------
 
-Query::Query( sqlite3* db, Lang src, Lang trg )
+Query::Query( QObject* parent, sqlite3* db, Lang src, Lang trg )
     :
+    QObject( parent )
     m_db( db ),
     m_stmt( NULL ), m_sortAscending( true ),
     m_srcLang( src ), m_trgLang( trg )
@@ -47,14 +48,47 @@ bool Query::next()
         case SQLITE_ROW:
             read();
             return true;
-        default: // error
-            LogSqliteError( "Query::next()" );
-            // fall through
+
         case SQLITE_DONE:
             sqlite3_clear_bindings( stmt );
             sqlite3_reset( stmt );
+            emit onQueryFinish( SUCCESS );
+            return false;
+
+        default: // error
+            LogSqliteError( "Query::next()" );
+            sqlite3_clear_bindings( stmt );
+            sqlite3_reset( stmt );
+            emit onQueryFinish( FAILURE );
             return false;
     }
+}
+
+// ----------------------------------------------------------------------------
+
+int Query::sqlCallback( void* p )
+{
+    Query* self = reinterpret_cast<Query*>( p );
+    return self->handleCallback();
+}
+
+// ----------------------------------------------------------------------------
+
+int Query::handleCallback()
+{
+    emit onQueryProgress( 0 );
+}
+
+// ----------------------------------------------------------------------------
+
+int Query::reset()
+{
+    m_conditions = 0;
+    m_sets = 0;
+    m_sortAscending = true;
+    sqlite3_clear_bindings( stmt );
+    sqlite3_reset( stmt );
+    doReset();
 }
 
 // ----------------------------------------------------------------------------
@@ -66,6 +100,17 @@ int Query::addCondition( QString& sql, const char* condition )
 
     sql.append( condition );
     m_conditions++;
+}
+
+// ----------------------------------------------------------------------------
+
+int Query::addSet( QString& sql, const char* expr )
+{
+    if ( m_sets == 0 ) sql.append( " SET " );
+    if ( m_sets > 0 ) sql.append( ", " );
+
+    sql.append( expr );
+    m_sets++;
 }
 
 // ----------------------------------------------------------------------------

@@ -8,39 +8,48 @@ typedef QLocale::Language Lang;
 class Query : public QObject
 {
 public:
-    Query( sqlite3* db, Lang src = QLocale::C, Lang trg = QLocale::C );
+    Query( QObject* parent, sqlite3* db, Lang src = QLocale::C, Lang trg = QLocale::C );
     ~Query();
 
-//    enum Status
-//    {
-//        NONE, RUNNING, SUCCESS, FAILURE
-//    };
+    enum Status
+    {
+        NONE, RUNNING, SUCCESS, FAILURE
+    };
 //
-//    Status execute();
 //    int errorCode() const;
     int start();
+    bool next();
 
-//signals:
-//    void onQueryProgress( int progress );
-//    void onQueryFinish( Status status );
+    void reset();
+
+signals:
+    void onQueryProgress( int progress );
+    void onQueryFinish( Status status );
 
     Lang source() { return m_srcLang; }
     Lang target() { return m_trgLang; }
 
 protected:
     int addCondition( QString& sql, const char* condition );
+    int addSorting( QString& sql, const char* condition );
+    int addSet( QString& sql, const char* expr );
+
     int bindInt( const char* parameter, int value );
     int bindInt64( const char* parameter, qint64 value );
     int bindString( const char* parameter, const QString& value );
-    int addSorting( QString& sql, const char* condition );
 
     virtual int prepare() = 0;
     virtual int bind() = 0;
     virtual void read() = 0;
 
+    virtual int handleCallback();
+    virtual void doReset() {}
+
 private:
     Query();
     Query( const Query& );
+
+    static int sqlCallback( void* );
 
 protected:
     sqlite3* m_db;
@@ -48,6 +57,9 @@ protected:
     bool m_sortAscending;
     Lang m_srcLang;
     Lang m_trgLang;
+
+    int m_conditions;
+    int m_sets;
 };
 
 #endif // QUERY_H

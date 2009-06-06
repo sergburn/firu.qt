@@ -50,7 +50,7 @@ int TranslationQuery::prepare( const char* tableName )
     const char* TransView =
         "SELECT t.id, t.sid, t.text, t.fmark, t.rmark "
         "FROM %1 as t ";
-    sql = QString( SelectTransView ).arg( DbSchema::getTransTableName( m_srcLang, m_trgLang ) );
+    sql = QString( TransView ).arg( DbSchema::getTransTableName( m_srcLang, m_trgLang ) );
 
     if ( filterId ) addCondition( "t.id = :id" );
     if ( filterSid ) addCondition( "t.sid = :sid" );
@@ -78,4 +78,45 @@ int TranslationQuery::bind()
     if ( !err && filterRmark >= 0 ) err = bindInt64( ":rmark", filterRmark );
     LogIfSqlError( err, "TranslationQuery::bind()" );
     return err;
+}
+
+// ----------------------------------------------------------------------------
+
+UpdateMarkQuery::UpdateMarkQuery( sqlite3* db, Lang src, Lang trg )
+    : TranslationQuery( db, src, trg )
+{
+    resetMarks();
+}
+
+// ----------------------------------------------------------------------------
+
+void UpdateMarkQuery::resetMarks()
+{
+    m_fMarkValue = Mark::Undefined;
+    m_rMarkValue = Mark::Undefined;
+}
+
+// ----------------------------------------------------------------------------
+
+int UpdateMarkQuery::prepare()
+{
+    const char* MarkUpdate = "UPDATE %1 SET %2 = :mark ";
+    sql = QString( MarkUpdate ).arg( DbSchema::getTransTableName( m_srcLang, m_trgLang ) );
+
+    if ( filterId ) addCondition( "id = :id" );
+    if ( filterSid ) addCondition( "sid = :sid" );
+    if ( filterFmark >= 0 ) addCondition( "fmark = :fmark" );
+    if ( filterRmark >= 0 ) addCondition( "rmark = :rmark" );
+
+    if ( m_fMarkValue > Mark::Undefined )
+    {
+        addSet( "fmark = :fmark" );
+    }
+
+    if ( m_rMarkValue > Mark::Undefined )
+    {
+        addSet( "rmark = :rmark" );
+    }
+
+    return sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_stmt, NULL );
 }
