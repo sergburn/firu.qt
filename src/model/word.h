@@ -19,9 +19,12 @@ public:
     Word( Lang lang ) : m_id( 0 ), m_lang( lang ) {}
     Word( const QString& text, Lang lang ) : m_id( 0 ), m_text( text ), m_lang( lang ) {}
 
-    static Ptr find( Lang lang, qint64 );
+    Ptr find( qint64 id );
+    List find( const QString& pattern, TextMatch match = StartsWith );
+
+    static Ptr find( Lang lang, qint64 id );
     static List find( Lang lang, const QString& pattern, TextMatch match = StartsWith );
-    static List filter( Lang lang, const List& list, const QString& pattern, TextMatch match = StartsWith );
+    static List filter( const List& list, const QString& pattern, TextMatch match = StartsWith );
 
     bool save( bool withTranslations = true );
 

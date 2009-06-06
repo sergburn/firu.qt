@@ -23,11 +23,13 @@ public:
     qint64 filterId;
     /** Selects words by Pattern */
     QString filterPattern;
+    void resetFilters();
 
 protected: // from Query
     virtual int bind();
     virtual int prepare();
     virtual void read();
+    virtual void doReset { resetFilters(); }
 
 private:
     WordQuery();
