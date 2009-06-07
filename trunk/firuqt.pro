@@ -7,7 +7,7 @@ HEADERS += src/AppUi.h \
     src/firuqt.h \
     src/trainerdialog.h \
     src/data.h \
-    src/model/dbschema.h \
+    src/model/database.h \
     src/entryviewdialog.h \
     src/model/query.h \
     src/model/word.h \
@@ -23,7 +23,7 @@ SOURCES += src/AppUi.cpp \
     src/firuqt.cpp \
     src/trainerdialog.cpp \
     src/data.cpp \
-    src/model/dbschema.cpp \
+    src/model/database.cpp \
     src/entryviewdialog.cpp \
     src/model/query.cpp \
     src/model/word.cpp \

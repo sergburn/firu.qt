@@ -20,6 +20,21 @@ FiruApp::FiruApp( int argc, char *argv[] )
 
 // ----------------------------------------------------------------------------
 
+bool FiruApp::openDatabase()
+{
+#ifndef SYMBIAN
+    QString dbPath = QDir::homePath() + "/.firu/";
+    QDir path;
+    path.mkpath( dbPath );
+#else
+    QString dbPath;
+#endif
+    m_database = Database::open( dbPath + "firu.db" );
+    return ( m_database != NULL );
+}
+
+// ----------------------------------------------------------------------------
+
 FiruApp* FiruApp::get()
 {
     return dynamic_cast<FiruApp*>( qApp );
@@ -31,6 +46,14 @@ Settings& FiruApp::settings()
 {
     FiruApp* self = get();
     return *(self->m_settings);
+}
+
+// ----------------------------------------------------------------------------
+
+Database& FiruApp::database()
+{
+    FiruApp* self = get();
+    return *(self->m_database);
 }
 
 // ----------------------------------------------------------------------------

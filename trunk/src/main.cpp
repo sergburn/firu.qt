@@ -31,7 +31,6 @@
 #include "firumainwindow.h"
 #include "firuqt.h"
 #include "trainerdialog.h"
-#include "data.h"
 
 #include <QtGui>
 #include "firuapp.h"
@@ -43,8 +42,7 @@ int main(int argc, char *argv[])
     a.setKeypadNavigationEnabled( false );
 #endif
 
-    Data dat;
-    bool isOpen = dat.open();
+    bool isOpen = a.openDatabase();
     qDebug() << "db open? " << isOpen; 
     qDebug() << "I'm at " << QDir::currentPath();
     

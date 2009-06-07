@@ -29,7 +29,7 @@ protected: // from Query
     virtual int bind();
     virtual int prepare();
     virtual void read();
-    virtual void doReset { resetFilters(); }
+    virtual void doReset() { resetFilters(); }
 
 private:
     WordQuery();
