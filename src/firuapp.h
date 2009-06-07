@@ -5,6 +5,7 @@
 #include <QSettings>
 
 #include "model/model.h"
+#include "model/database.h"
 
 class Settings;
 
@@ -14,10 +15,14 @@ public:
     FiruApp( int argc, char *argv[] );
     static FiruApp* get();
     static Settings& settings();
+    static Database& database();
+
+    bool openDatabase();
 
 private:
     FiruApp();
     Settings* m_settings;
+    Database* m_database;
 };
 
 class Settings

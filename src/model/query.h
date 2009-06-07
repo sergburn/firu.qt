@@ -2,12 +2,16 @@
 #define QUERY_H
 
 #include <QObject>
+#include <QSharedPointer>
+#include <sqlite3.h>
 
-typedef QLocale::Language Lang;
+#include "model.h"
 
 class Query : public QObject
 {
 public:
+    typedef QSharedPointer<Query> Ptr;
+
     Query( QObject* parent, sqlite3* db, Lang src = QLocale::C, Lang trg = QLocale::C );
     ~Query();
 
@@ -15,15 +19,16 @@ public:
     {
         NONE, RUNNING, SUCCESS, FAILURE
     };
-//
-//    int errorCode() const;
-    int start();
-    bool next();
 
+    bool start();
+    bool next();
+    bool execute();
+
+    int error() const;
     void reset();
 
 signals:
-    void onQueryProgress( int progress );
+    void onQueryProgress();
     void onQueryFinish( Status status );
 
     Lang source() { return m_srcLang; }
@@ -42,14 +47,14 @@ protected:
     virtual int bind() = 0;
     virtual void read() = 0;
 
-    virtual int handleCallback();
     virtual void doReset() {}
 
 private:
     Query();
     Query( const Query& );
 
-    static int sqlCallback( void* );
+private slots:
+    void queryProgress();
 
 protected:
     sqlite3* m_db;

@@ -89,11 +89,6 @@ public slots:
     void setTargetLanguage( Lang lang );
 
 public:
-//    Word getWord( qint64 id );
-//    QList<Word> searchWords( const QString& pattern );
-//    QList<Word> searchTranslations( const QString& pattern );
-//    QList<Translation> getTranslations( const Word& word );
-
     Exercise createExercise();
     
 signals:

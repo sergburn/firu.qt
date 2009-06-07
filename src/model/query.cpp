@@ -4,7 +4,7 @@
 
 Query::Query( QObject* parent, sqlite3* db, Lang src, Lang trg )
     :
-    QObject( parent )
+    QObject( parent ), 
     m_db( db ),
     m_stmt( NULL ), m_sortAscending( true ),
     m_srcLang( src ), m_trgLang( trg )
@@ -20,7 +20,7 @@ Query::~Query()
 
 // ----------------------------------------------------------------------------
 
-int Query::start()
+bool Query::start()
 {
     int err = SQLITE_OK;
     if ( !m_stmt )
@@ -35,7 +35,7 @@ int Query::start()
 
         err = bind();
     }
-    return err;
+    return SQLOK( err ) == SQLITE_OK;
 }
 
 // ----------------------------------------------------------------------------
@@ -66,17 +66,29 @@ bool Query::next()
 
 // ----------------------------------------------------------------------------
 
-int Query::sqlCallback( void* p )
+bool Query::execute()
 {
-    Query* self = reinterpret_cast<Query*>( p );
-    return self->handleCallback();
+    int err = start();
+    if ( !err )
+    {
+        while ( next() );
+        err = sqlite3_error( m_db );
+    }
+    return SQLOK( err ) == SQLITE_OK;
 }
 
 // ----------------------------------------------------------------------------
 
-int Query::handleCallback()
+int Query::error() const
 {
-    emit onQueryProgress( 0 );
+    return sqlite3_error( m_db );
+}
+
+// ----------------------------------------------------------------------------
+
+int Query::queryProgress()
+{
+    emit onQueryProgress();
 }
 
 // ----------------------------------------------------------------------------

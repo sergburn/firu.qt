@@ -65,7 +65,7 @@ private:
 protected: // from Query
     virtual int prepare();
     virtual void read();
-    virtual void doReset { resetFilters(); }
+    virtual void doReset() { resetFilters(); }
 
 protected:
     Record m_record;
@@ -88,7 +88,7 @@ public:
 protected:
     virtual int prepare();
     virtual void read() {}
-    virtual void doReset { TranslationQuery::reset(); resetMarks(); }
+    virtual void doReset() { TranslationQuery::reset(); resetMarks(); }
 
 private:
     UpdateMarkQuery();

@@ -18,6 +18,8 @@ public:
     Ptr findWord( qint64 id );
     List findWords( const QString& pattern, TextMatch match = StartsWith );
 
+    Lang source() { return m_srcLang; }
+
 private:
     Vocabulary();
     Q_DISABLE_COPY( Vocabulary );
@@ -35,6 +37,9 @@ public:
 
     Translation* find( qint64 id );
     List findBySourceEntry( qint64 sid );
+
+    Lang source() { return m_srcLang; }
+    Lang target() { return m_trgLang; }
 
 private:
     Translations();
@@ -58,6 +63,11 @@ public:
 
     Vocabulary& vocabulary() { return m_vocab; }
     Translations& translations() { return m_trans; }
+
+    Lang source() { return m_vocab.source(); }
+    Lang target() { return m_trans.target(); }
+
+    bool import( const QString& file );
 
 private:
     Dictionary();

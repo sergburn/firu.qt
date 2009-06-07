@@ -1,15 +1,15 @@
 /*
- * dbschema.cpp
+ * database.cpp
  *
  *  Created on: Apr 28, 2009
  *      Author: burnevsk
  */
 
-#include "dbschema.h"
+#include "database.h"
 #include <QDebug>
 #include <QDir>
 
-DbSchema* g_schema = NULL;
+Database* g_schema = NULL;
 
 #define SQLOK( _e ) ( ((_e) == SQLITE_OK || (_e) == SQLITE_DONE || (_e) == SQLITE_ROW ) ? SQLITE_OK : (_e) )
 
@@ -31,53 +31,56 @@ QString getTransTableName( Lang source, Lang target )
 
 // ----------------------------------------------------------------------------
 
-DbSchema::DbSchema( QObject* parent )
+Database::Database( QObject* parent )
    : QObject( parent ), 
-   m_db( NULL ),
-   m_insertEntry( NULL ),
-   m_insertTrans( NULL ),
-   m_updateTrans( NULL ),
-   m_lastSrc( QLocale::C ), m_lastTrg ( QLocale::C )
+   m_db( NULL )
 {
     int err = sqlite3_initialize();
     if ( err )
     {
-        LogSqliteError( "DbSchema" );
+        LogSqliteError( "Database" );
     }
 }
 
 // ----------------------------------------------------------------------------
 
-DbSchema::~DbSchema()
+Database::~Database()
 {
-    freeStatements();
     if ( m_db )
     {
         sqlite3_close( m_db );
     }
     sqlite3_shutdown();
-    g_schema = NULL:
+    g_schema = NULL;
 }
 
 // ----------------------------------------------------------------------------
 
-DbSchema* DbSchema::instance()
+Database* Database::instance()
 {
+    assert( g_schema );
     return g_schema;
 }
 
 // ----------------------------------------------------------------------------
 
-DbSchema* DbSchema::open( const QString& dbPath, QObject* parent )
+Database* Database::open( const QString& dbPath, QObject* parent )
 {
     assert( !g_schema );
-    g_schema = new DbSchema( parent );
-    g_schema->doOpen( dbPath );
+    g_schema = new Database( parent );
+    if ( g_schema->doOpen( dbPath ) )
+    {
+        return g_schema;
+    }
+    else
+    {
+        delete g_schema;
+    }
 }
 
 // ----------------------------------------------------------------------------
 
-bool DbSchema::doOpen( const QString& dbPath )
+bool Database::doOpen( const QString& dbPath )
 {
     QString path = QDir::toNativeSeparators( dbPath );
     qDebug() << "Db: " << path;
@@ -90,6 +93,7 @@ bool DbSchema::doOpen( const QString& dbPath )
     else if ( m_db )
     {
         sqlite3_close( m_db );
+        m_db = NULL;
     }
 
     if ( err )
@@ -102,7 +106,7 @@ bool DbSchema::doOpen( const QString& dbPath )
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::addEntry( Lang lang, const QString& text, qint64& id )
+int Database::addEntry( Lang lang, const QString& text, qint64& id )
 {
     int err = SQLITE_OK;
     prepareStatements( lang, m_lastTrg );
@@ -135,7 +139,7 @@ int DbSchema::addEntry( Lang lang, const QString& text, qint64& id )
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::addTranslation( Lang src, Lang trg, qint64 sid, const QString& text, qint64& id )
+int Database::addTranslation( Lang src, Lang trg, qint64 sid, const QString& text, qint64& id )
 {
     int err = SQLITE_OK;
     prepareStatements( src, trg );
@@ -175,7 +179,7 @@ int DbSchema::addTranslation( Lang src, Lang trg, qint64 sid, const QString& tex
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::getEntry( Lang lang, const QString& text, EntryRecord& record )
+int Database::getEntry( Lang lang, const QString& text, EntryRecord& record )
 {
     prepareStatements( lang, m_lastTrg );
     int pos = sqlite3_bind_parameter_index( m_selectEntriesByPattern, ":text" );
@@ -188,7 +192,7 @@ int DbSchema::getEntry( Lang lang, const QString& text, EntryRecord& record )
     
 // ----------------------------------------------------------------------------
 
-int DbSchema::getEntry( Lang lang, qint64 id, EntryRecord& record )
+int Database::getEntry( Lang lang, qint64 id, EntryRecord& record )
 {
     prepareStatements( lang, m_lastTrg );
     int pos = sqlite3_bind_parameter_index( m_selectEntryById, ":id" );
@@ -201,9 +205,9 @@ int DbSchema::getEntry( Lang lang, qint64 id, EntryRecord& record )
 
 // ----------------------------------------------------------------------------
 
-QList<DbSchema::EntryRecord> DbSchema::getEntries( Lang lang, const QString& pattern )
+QList<Database::EntryRecord> Database::getEntries( Lang lang, const QString& pattern )
 {
-    QList<DbSchema::EntryRecord> list;
+    QList<Database::EntryRecord> list;
     QString pat = pattern + "%";
 
     int err = prepareStatements( lang, m_lastTrg );
@@ -220,9 +224,9 @@ QList<DbSchema::EntryRecord> DbSchema::getEntries( Lang lang, const QString& pat
 
 // ----------------------------------------------------------------------------
 
-QList<DbSchema::EntryRecord> DbSchema::getAllEntryRecords( sqlite3_stmt* stmt )
+QList<Database::EntryRecord> Database::getAllEntryRecords( sqlite3_stmt* stmt )
 {
-    QList<DbSchema::EntryRecord> list;
+    QList<Database::EntryRecord> list;
     forever
     {
         EntryRecord record;
@@ -239,7 +243,7 @@ QList<DbSchema::EntryRecord> DbSchema::getAllEntryRecords( sqlite3_stmt* stmt )
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::nextEntryRecord( sqlite3_stmt* stmt, EntryRecord& record )
+int Database::nextEntryRecord( sqlite3_stmt* stmt, EntryRecord& record )
 {
     int err = sqlite3_step( stmt );
     switch ( err ) 
@@ -259,7 +263,7 @@ int DbSchema::nextEntryRecord( sqlite3_stmt* stmt, EntryRecord& record )
 
 // ----------------------------------------------------------------------------
 
-void DbSchema::readEntryRecord( sqlite3_stmt* stmt, EntryRecord& record )
+void Database::readEntryRecord( sqlite3_stmt* stmt, EntryRecord& record )
 {
     record.id = sqlite3_column_int64( stmt, 0 );
     record.text = QString::fromUtf8( (const char*) sqlite3_column_text( stmt, 1 ) );
@@ -267,7 +271,7 @@ void DbSchema::readEntryRecord( sqlite3_stmt* stmt, EntryRecord& record )
 
 // ----------------------------------------------------------------------------
 
-QList<DbSchema::TransViewRecord> DbSchema::getTranslationsByEntry( Lang src, Lang trg, qint64 sid )
+QList<Database::TransViewRecord> Database::getTranslationsByEntry( Lang src, Lang trg, qint64 sid )
 {
     prepareStatements( src, trg );
     sqlite3_stmt* stmt = m_selectTransBySid;
@@ -276,12 +280,12 @@ QList<DbSchema::TransViewRecord> DbSchema::getTranslationsByEntry( Lang src, Lan
     if ( !err )
         return getAllTransViewRecords( stmt );
     else
-        return QList<DbSchema::TransViewRecord>();
+        return QList<Database::TransViewRecord>();
 }
 
 // ----------------------------------------------------------------------------
 
-QList<DbSchema::TransViewRecord> DbSchema::getTranslationsByPattern( Lang src, Lang trg, const QString& pattern )
+QList<Database::TransViewRecord> Database::getTranslationsByPattern( Lang src, Lang trg, const QString& pattern )
 {
     QString pat = pattern + "%";
     prepareStatements( src, trg );
@@ -296,9 +300,9 @@ QList<DbSchema::TransViewRecord> DbSchema::getTranslationsByPattern( Lang src, L
 
 // ----------------------------------------------------------------------------
 
-QList<DbSchema::TransViewRecord> DbSchema::getAllTransViewRecords( sqlite3_stmt* stmt )
+QList<Database::TransViewRecord> Database::getAllTransViewRecords( sqlite3_stmt* stmt )
 {
-    QList<DbSchema::TransViewRecord> list;
+    QList<Database::TransViewRecord> list;
     forever
     {
         TransViewRecord record;
@@ -315,7 +319,7 @@ QList<DbSchema::TransViewRecord> DbSchema::getAllTransViewRecords( sqlite3_stmt*
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::nextTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record )
+int Database::nextTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record )
 {
     int err = sqlite3_step( stmt );
     switch ( err ) 
@@ -335,7 +339,7 @@ int DbSchema::nextTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record )
 
 // ----------------------------------------------------------------------------
 
-void DbSchema::readTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record )
+void Database::readTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record )
 {
     // SELECT t.id, t.sid, /*e.text,*/ t.text, t.fmark, t.rmark
     record.id = sqlite3_column_int64( stmt, 0 );
@@ -348,7 +352,7 @@ void DbSchema::readTransViewRecord( sqlite3_stmt* stmt, TransViewRecord& record 
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::saveTranslationMarks( Lang src, Lang trg, TransViewRecord r )
+int Database::saveTranslationMarks( Lang src, Lang trg, TransViewRecord r )
 {
     prepareStatements( src, trg );
     sqlite3_stmt* stmt = m_updateTrans;
@@ -380,36 +384,36 @@ int DbSchema::saveTranslationMarks( Lang src, Lang trg, TransViewRecord r )
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::sqlCallback( void* pSelf, int nCol, char** argv, char** colv )
+int Database::sqlCallback( void* pSelf, int nCol, char** argv, char** colv )
 {
-    DbSchema* self = reinterpret_cast<DbSchema*>( pSelf );
+    Database* self = reinterpret_cast<Database*>( pSelf );
     return self->onSqlCallback( nCol, argv, colv );
 }
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::onSqlCallback( int, char**, char** )
+int Database::onSqlCallback( int, char**, char** )
 {
     emit onSqlProgress();
 }
 
 // ----------------------------------------------------------------------------
 
-bool DbSchema::langTableExists( Lang lang )
+bool Database::langTableExists( Lang lang )
 {
     return tableExists( getEntryTableName( lang ) );
 }
 
 // ----------------------------------------------------------------------------
 
-bool DbSchema::transTableExists( Lang src, Lang trg )
+bool Database::transTableExists( Lang src, Lang trg )
 {
     return tableExists( getTransTableName( src, trg ) );
 }
 
 // ----------------------------------------------------------------------------
 
-bool DbSchema::tableExists( const QString& table )
+bool Database::tableExists( const QString& table )
 {
     const char* KSqlFindTable = 
         "SELECT 1 FROM sqlite_master WHERE type='table' AND name='%1'";
@@ -435,14 +439,14 @@ bool DbSchema::tableExists( const QString& table )
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::sqlGetTable( const QString& /*sql*/ )
+int Database::sqlGetTable( const QString& /*sql*/ )
 {
     return -1;
 }
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::sqlExecute( QString sql )
+int Database::sqlExecute( QString sql )
 {
 //    sqlite3_progress_handler( m_db, 10, sqlCallback, this );
     int err = sqlite3_exec( m_db, sql.toUtf8().constData(), NULL, NULL, NULL );
@@ -455,7 +459,7 @@ int DbSchema::sqlExecute( QString sql )
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::createLangTable( Lang lang )
+int Database::createLangTable( Lang lang )
 {
     const char* KSqlCreateEntriesTable = 
         "CREATE TABLE IF NOT EXISTS %1 ( id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT );";
@@ -469,7 +473,7 @@ int DbSchema::createLangTable( Lang lang )
     if ( !err )
     {
         const char* KSqlCreateEntriesIndex = 
-            "CREATE INDEX IF NOT EXISTS index_%1_text ON %1 ( text ASC );";
+            "CREATE UNIQUE INDEX IF NOT EXISTS index_%1_text ON %1 ( text ASC );";
         
         QString sql = QString( KSqlCreateEntriesIndex ).arg ( langTableName );
         
@@ -487,7 +491,7 @@ int DbSchema::createLangTable( Lang lang )
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::createTransTable( Lang src, Lang trg )
+int Database::createTransTable( Lang src, Lang trg )
 {
     const char* KSqlCreateTransTable = 
         "CREATE TABLE IF NOT EXISTS %1 ( "
@@ -552,43 +556,92 @@ int DbSchema::createTransTable( Lang src, Lang trg )
 
 // ----------------------------------------------------------------------------
 
-bool DbSchema::begin()
+bool Database::begin()
 {
-    int err = sqlExecute( QString("BEGIN TRANSACTION;") );
-    if ( err )
+    if ( !inTransaction() )
     {
-        LogSqliteError( "begin" );
+        m_transactionError = sqlExecute( QString("BEGIN TRANSACTION;") );
+        if ( m_transactionError )
+        {
+            LogSqliteError( "begin" );
+        }
     }
-    return !err;
+
+    if ( !m_transactionError )
+    {
+        m_transactionLevel++;
+        return true;
+    }
+
+    return false;
 }
 
 // ----------------------------------------------------------------------------
 
-bool DbSchema::commit()
+bool Database::commit()
 {
-    int err = sqlExecute( QString("COMMIT TRANSACTION;") );
-    if ( err )
+    if ( !inTransaction() )
     {
-        LogSqliteError( "begin" );
-        rollback();
+        return false;
     }
-    return !err;
+    else if ( m_transactionLevel > 1 )
+    {
+        m_transactionLevel--;
+        return true;
+    }
+    else // m_transactionLevel == 1
+    {
+        if ( !m_transactionError )
+        {
+            m_transactionError = sqlExecute( QString("COMMIT TRANSACTION;") );
+        }
+
+        if ( m_transactionError )
+        {
+            LogSqliteError( "commit" );
+            rollback();
+            return false;
+        }
+        else
+        {
+            emit onTransactionFinish( true );
+            m_transactionLevel = 0;
+            return true;
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
 
-void DbSchema::rollback()
+void Database::rollback()
 {
-    int err = sqlExecute( QString("ROLLBACK TRANSACTION;") );
-    if ( err )
+    if ( m_transactionLevel > 1 )
     {
-        LogSqliteError( "begin" );
+        m_transactionError = SQLITE_ABORT;
+        m_transactionLevel--;
+        return;
+    }
+    else
+    {
+        int err = sqlExecute( QString("ROLLBACK TRANSACTION;") );
+        if ( err )
+        {
+            LogSqliteError( "rollback" );
+        }
+        emit onTransactionFinish( false );
     }
 }
 
 // ----------------------------------------------------------------------------
 
-int DbSchema::prepareStatements( Lang src, Lang trg )
+bool Database::inTransaction() const
+{
+    return m_transactionLevel > 0;
+}
+
+// ----------------------------------------------------------------------------
+
+int Database::prepareStatements( Lang src, Lang trg )
 {
     if ( m_lastSrc != src || m_lastTrg != trg )
     {
@@ -674,23 +727,7 @@ int DbSchema::prepareStatements( Lang src, Lang trg )
 
 // ----------------------------------------------------------------------------
 
-void DbSchema::freeStatements()
-{
-    m_lastSrc = m_lastTrg = QLocale::C;
-    sqlite3_finalize( m_insertEntry );              m_insertEntry = NULL;
-    sqlite3_finalize( m_insertTrans );              m_insertTrans  = NULL;
-    sqlite3_finalize( m_selectEntriesByPattern );   m_selectEntriesByPattern = NULL;
-    sqlite3_finalize( m_selectTransByPattern );     m_selectTransByPattern = NULL;
-    sqlite3_finalize( m_selectTransById );          m_selectTransById = NULL;
-    sqlite3_finalize( m_selectTransBySid );         m_selectTransBySid = NULL;
-    sqlite3_finalize( m_selectTransByText );        m_selectTransByText = NULL;
-    sqlite3_finalize( m_selectTransByFmark );       m_selectTransByFmark = NULL;
-    sqlite3_finalize( m_selectTransByRmark );       m_selectTransByRmark = NULL;
-}
-
-// ----------------------------------------------------------------------------
-
-void DbSchema::LogSqliteError( const char* where )
+void Database::LogSqliteError( const char* where )
 {
     QString err( sqlite3_errmsg( m_db ) );
     qDebug() << 
@@ -702,56 +739,43 @@ void DbSchema::LogSqliteError( const char* where )
 
 // ----------------------------------------------------------------------------
 
-QSharedPointer<WordQuery> DbSchema::getWordQuery( Lang src )
+void Database::addQuery( Query::Ptr query )
 {
-    return getQuery<WordQuery>( "WordQuery", src );
-}
-
-// ----------------------------------------------------------------------------
-
-QSharedPointer<TranslationQuery> DbSchema::getTranslationQuery( Lang src, Lang trg )
-{
-    return getQuery<TranslationQuery>( "TranslationQuery", src, trg );
-}
-
-// ----------------------------------------------------------------------------
-
-template <class T>
-QSharedPointer<T> DbSchema::getQuery( const char* className, Lang src, Lang trg )
-{
-    QSharedPointer<T> q;
-    QWeakPointer<Query> p = findQuery( className, src, trg );
-    if ( !p )
+    int pos = doFindQuery( query->metaObject()->classname(), query->source(), query->target() );
+    if ( pos >= 0 )
     {
-        q = new T( m_db, src, trg );
-        m_queries.append( q.toWeakRef() );
+        m_queries.removeAt( pos );
     }
-    return q;
+    m_queries.append( query );
 }
 
 // ----------------------------------------------------------------------------
 
-QWeakPointer<Query> DbSchema::findQuery( const char* className, Lang src, Lang trg )
+Query::Ptr Database::findQuery( const char* className, Lang src, Lang trg )
 {
-    QWeakPointer<Query> wp;
-    for ( int i = 0; i < m_queries.count(); i++ )
+    int pos = doFindQuery( classname, src, trg );
+    if ( pos >= 0 )
+        return m_queries[pos];
+    else
+        return Query::Ptr();
+}
+
+// ----------------------------------------------------------------------------
+
+int Database::doFindQuery( const char* className, Lang src, Lang trg )
+{
+    for( int i = 0; i < m_queries.count(); i++ )
     {
-        QSharedPointer<Query>& p = m_queries[i].toStrongRef();
-        if ( !p )
-        {
-            m_queries.removeAt( i-- );
-            continue;
-        }
-        else if ( p->metaObject()->className() == className )
+        const Query::Ptr& p = m_queries.at( i );
+        if ( p && p->metaObject()->className() == className )
         {
             bool srcOk = ( src == QLocale::C || p->source() == src );
             bool trgOk = ( trg == QLocale::C || p->target() == trg );
             if ( srcOk && trgOk )
             {
-                wp = m_queries[i];
-                break;
+                return i;
             }
         }
     }
-    return wp;
+    return -1;
 }
