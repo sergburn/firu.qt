@@ -16,7 +16,9 @@ HEADERS += src/AppUi.h \
     src/model/model.h \
     src/firuapp.h \
     src/model/wordquery.h \
-    src/model/dictionary.h
+    src/model/dictionary.h \
+    src/model/itembase.h \
+    src/model/itemextensionbase.h
 SOURCES += src/AppUi.cpp \
     src/firumainwindow.cpp \
     src/main.cpp \
@@ -31,7 +33,9 @@ SOURCES += src/AppUi.cpp \
     src/model/translationquery.cpp \
     src/firuapp.cpp \
     src/model/wordquery.cpp \
-    src/model/dictionary.cpp
+    src/model/dictionary.cpp \
+    src/model/itembase.cpp \
+    src/model/itemextensionbase.cpp
 FORMS += src/firumainwindow.ui \
     src/firuqt.ui \
     src/trainerdialog.ui \
