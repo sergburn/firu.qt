@@ -36,6 +36,8 @@ public:
     const QString& getText() const { return m_text; }
     qint64 getId() const { return m_id; }
 
+    void setText( const QString& text );
+
     Translation::List translations();
     bool addTranslation( const Translation& trans );
     bool addTranslation( const QString& text, Lang trg );

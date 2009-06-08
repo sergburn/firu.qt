@@ -14,38 +14,37 @@ public:
         {
             t->m_id = query.record().id;
             t->m_text = query.record().text;
+            t->m_changed = false;
         }
         return Word::Ptr( t );
     }
 
-    WordSelectQuery::Ptr getSelectQuery( Lang src )
+    template <classT>
+    QSharedPointer<T> getQuery( Lang src, Lang trg = QLocale::C )
     {
         Database* db = Database::instance();
-        Query::Ptr q = db->findQuery( "SelectWordByIdQuery", src );
+        Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), src, trg );
         if ( !q )
         {
-            q = new SelectWordByIdQuery( *db, src );
+            q = new T( *db, src, trg );
             db->addQuery( q );
         }
-        return q->dynamicCast<SelectWordByIdQuery>();
+        return q->dynamicCast<T>();
+    }
+
+    WordSelectQuery::Ptr getSelectQuery( Lang src )
+    {
+        return getQuery<WordSelectByIdQuery>( src );
     }
 
     WordSelectQuery::Ptr getCreateQuery( Lang src )
     {
-        if ( !m_createQuery )
-        {
-            m_createQuery = Database::getWordCreateQuery( src );
-        }
-        return m_createQuery;
+        return getQuery<WordCreateQuery>( src );
     }
 
     WordUpdateQuery::Ptr getUpdateQuery( Lang src )
     {
-        if ( !m_updateQuery )
-        {
-            m_updateQuery = Database::getWordUpdateQuery( src );
-        }
-        return m_updateQuery;
+        return getQuery<WordUpdateQuery>( src );
     }
 };
 
@@ -61,6 +60,14 @@ Word::Word( Lang lang )
 Word::Word( const QString& text, Lang lang )
     : m_id( 0 ), m_text( text ), m_lang( lang ), m_changed( true )
 {
+}
+
+// ----------------------------------------------------------------------------
+
+void Word::setText( const QString& text )
+{
+    m_text = text;
+    m_changed = true;
 }
 
 // ----------------------------------------------------------------------------
