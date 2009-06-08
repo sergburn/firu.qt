@@ -1,9 +1,10 @@
 #include "translation.h"
+#include "itemextensionbase.h"
 #include "translationquery.h"
 
 // ----------------------------------------------------------------------------
 
-class TranslationExtension
+class TranslationExtension : public ItemExtensionBase
 {
 public:
     static Translation::Ptr createFromQuery( const TranslationQuery& query )
@@ -28,24 +29,14 @@ public:
         }
         return m_query;
     }
-
-private:
-    TranslationQuery::Ptr m_query;
 };
 
 // ----------------------------------------------------------------------------
 
 Translation::Translation( Lang src, Lang trg )
-    : m_srcLang( src ), m_trgLang( trg )
+    : ItemBase( src, trg )
 {
     m_extension = new TranslationExtension();
-}
-
-// ----------------------------------------------------------------------------
-
-Translation::~Translation()
-{
-    delete m_extension;
 }
 
 // ----------------------------------------------------------------------------
@@ -53,6 +44,13 @@ Translation::~Translation()
 Translation::Translation( qint64 sid, const QString& text, Lang src, Lang trg )
     : m_sid( sid ), m_text( text ), m_srcLang( src ), m_trgLang( trg )
 {
+}
+
+// ----------------------------------------------------------------------------
+
+Translation::~Translation()
+{
+    delete m_extension;
 }
 
 // ----------------------------------------------------------------------------
@@ -92,4 +90,11 @@ Translation::List Translation::findBySourceEntry( qint64 sid, Lang src, Lang trg
         delete qry;
     }
     return list;
+}
+
+// ----------------------------------------------------------------------------
+
+TranslationExtension& Translation::extension()
+{
+    return *( dynamic_cast<TranslationExtension>( m_extension ) );
 }

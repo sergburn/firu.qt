@@ -1,48 +1,36 @@
 #include "word.h"
+#include "itemextensionbase.h"
 #include "wordquery.h"
 #include "database.h"
 
 // ----------------------------------------------------------------------------
 
-class WordExtension
+class WordExtension : public ItemExtensionBase
 {
 public:
-    static Word::Ptr createFromQuery( const WordQuery& query )
+    static Word::Ptr createFromQuery( const Query* query )
     {
-        Word* t = new Word( query.source, query.target );
+        Word* t = new Word( query->source() );
         if ( t )
         {
             t->m_id = query.record().id;
             t->m_text = query.record().text;
-            t->m_changed = false;
+            t->m_changed = 0;
         }
         return Word::Ptr( t );
     }
 
-    template <classT>
-    QSharedPointer<T> getQuery( Lang src, Lang trg = QLocale::C )
-    {
-        Database* db = Database::instance();
-        Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), src, trg );
-        if ( !q )
-        {
-            q = new T( *db, src, trg );
-            db->addQuery( q );
-        }
-        return q->dynamicCast<T>();
-    }
-
-    WordSelectQuery::Ptr getSelectQuery( Lang src )
+    static WordSelectQuery::Ptr getSelectQuery( Lang src )
     {
         return getQuery<WordSelectByIdQuery>( src );
     }
 
-    WordSelectQuery::Ptr getCreateQuery( Lang src )
+    static WordCreateQuery::Ptr getCreateQuery( Lang src )
     {
         return getQuery<WordCreateQuery>( src );
     }
 
-    WordUpdateQuery::Ptr getUpdateQuery( Lang src )
+    static WordUpdateQuery::Ptr getUpdateQuery( Lang src )
     {
         return getQuery<WordUpdateQuery>( src );
     }
@@ -51,15 +39,31 @@ public:
 // ----------------------------------------------------------------------------
 
 Word::Word( Lang lang )
-    : m_id( 0 ), m_lang( lang ), m_changed( true )
+    : ItemBase( lang )
 {
+    m_extension = new WordExtension();
 }
 
 // ----------------------------------------------------------------------------
 
 Word::Word( const QString& text, Lang lang )
-    : m_id( 0 ), m_text( text ), m_lang( lang ), m_changed( true )
+    : ItemBase( lang ), m_text( text )
 {
+    m_extension = new WordExtension();
+}
+
+// ----------------------------------------------------------------------------
+
+Word::~Word()
+{
+    delete m_extension;
+}
+
+// ----------------------------------------------------------------------------
+
+WordExtension& Word::extension()
+{
+    return *( dynamic_cast<WordExtension>( m_extension ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -171,10 +175,6 @@ bool Word::save( bool withTranslations )
             {
                 m_id = query->m_id;
             }
-            else
-            {
-                db->rollback();
-            }
         }
         else // duplicate
         {
@@ -207,10 +207,16 @@ bool Word::save( bool withTranslations )
 
 // ----------------------------------------------------------------------------
 
-void Word::handleTransactionFinish( bool success )
+bool Word::doSaveAssociates()
 {
-    m_changed = !success;
-    disconnect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
+    bool ok = true;
+    foreach( Translation::Ptr t, m_translations )
+    {
+        t->setSourceEntry( m_id );
+        ok = t->save();
+        if ( !ok ) break;
+    }
+    return ok;
 }
 
 // ----------------------------------------------------------------------------

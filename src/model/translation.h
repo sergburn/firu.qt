@@ -5,10 +5,11 @@
 #include <QSharedPointer>
 
 #include "model.h"
+#include "itembase.h"
 
 class TranslationExtension;
 
-class Translation
+class Translation : public ItemBase
 {
 public:
     typedef QSharedPointer<Translation> Ptr;
@@ -19,7 +20,7 @@ public:
     Translation( qint64 sid, const QString& text, Lang src, Lang trg );
 
     QString getText() const { return m_text; }
-    qint64 getId() const { return m_id; }
+    void setText( const QString& text );
 
     Mark fmark() { return m_fmark; }
     Mark rmark() { return m_rmark; }
@@ -30,21 +31,21 @@ public:
     static Translation* find( qint64 id, Lang src, Lang trg );
     static List findBySourceEntry( qint64 sid, Lang src, Lang trg );
 
+    static bool saveMarks();
+
 private:
     Translation();
     Q_DISABLE_COPY( Translation );
 
+    TranslationExtension& extension();
+
 private:
-    qint64 m_id;
     qint64 m_sid;
     QString m_text;
     Mark m_fmark;
     Mark m_rmark;
-    Lang m_srcLang;
-    Lang m_trgLang;
 
     friend class TranslationExtension;
-    TranslationExtension* m_extension;
 };
 
 #endif // TRANSLATION_H

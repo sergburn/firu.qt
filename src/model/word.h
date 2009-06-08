@@ -5,11 +5,12 @@
 #include <QSharedPointer>
 
 #include "model.h"
+#include "itembase.h"
 #include "translation.h"
 
 class WordExtension;
 
-class Word
+class Word : public ItemBase
 {
 public:
     typedef QSharedPointer<Word> Ptr;
@@ -34,8 +35,6 @@ public:
 
 public:
     const QString& getText() const { return m_text; }
-    qint64 getId() const { return m_id; }
-
     void setText( const QString& text );
 
     Translation::List translations();
@@ -46,19 +45,18 @@ private:
     Word();
     Q_DISABLE_COPY( Word );
 
+    virtual bool doSaveAssociates();
+
 private slots:
     void handleTransactionFinish( bool success );
 
 private:
-    qint64 m_id;
     QString m_text;
     Translation::List m_translations;
-    Lang m_lang;
 
     bool m_changed;
 
     friend class WordExtension;
-    WordExtension* m_extension;
 };
 
 #endif // WORD_H
