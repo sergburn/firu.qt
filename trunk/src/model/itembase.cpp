@@ -103,7 +103,7 @@ void ItemBase::destroy( qint64 id )
 
 void ItemBase::handleTransactionFinish( bool success )
 {
-    m_changed = !success;
+    m_changed = success ? 0 : m_changed;
     disconnect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
 }
 
