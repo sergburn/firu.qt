@@ -2,7 +2,7 @@
 
 // ----------------------------------------------------------------------------
 
-QSharedPointer<T> getQuery( Lang src, Lang trg = QLocale::C )
+QSharedPointer<T> ItemExtensionBase::getQuery( Lang src, Lang trg = QLocale::C )
 {
     Database* db = Database::instance();
     Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), src, trg );

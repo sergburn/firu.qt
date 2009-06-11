@@ -31,7 +31,7 @@ public:
     static Translation* find( qint64 id, Lang src, Lang trg );
     static List findBySourceEntry( qint64 sid, Lang src, Lang trg );
 
-    static bool saveMarks();
+    static bool saveMarks( qint64 sid );
 
 private:
     Translation();
