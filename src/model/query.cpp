@@ -2,6 +2,17 @@
 
 // ----------------------------------------------------------------------------
 
+Query::Query( sqlite3* db, Lang src, QObject* parent )
+    :
+    QObject( parent ),
+    m_db( db ),
+    m_stmt( NULL ), m_sortAscending( true ),
+    m_srcLang( src ), m_trgLang( QLocale::C )
+{
+}
+
+// ----------------------------------------------------------------------------
+
 Query::Query( sqlite3* db, Lang src, Lang trg, QObject* parent )
     :
     QObject( parent ), 
@@ -22,19 +33,10 @@ Query::~Query()
 
 bool Query::start()
 {
-    int err = SQLITE_OK;
-    if ( !m_stmt )
-    {
-        err = prepare();
-    }
+    sqlite3_clear_bindings( stmt );
+    sqlite3_reset( stmt );
 
-    if ( !err )
-    {
-        sqlite3_clear_bindings( stmt );
-        sqlite3_reset( stmt );
-
-        err = bind();
-    }
+    int err = bind();
     return SQLOK( err ) == SQLITE_OK;
 }
 
@@ -185,15 +187,16 @@ QString Query::createPattern( const QString& text, TextMatch match )
 
 // ----------------------------------------------------------------------------
 
-QString Query::selectBaseSql( const QString& tableName ) const
+QString Query::selectBaseSql() const
 {
-    return QString( "SELECT * FROM %1" ).arg( tableName );
+    return QString( "SELECT * FROM %1" ).arg( m_tableName );
 }
 
 // ----------------------------------------------------------------------------
 
-QString Query::deleteBaseSql( const QString& tableName ) const
+QString Query::deleteBaseSql() const
 {
-    return QString( "DELETE FROM %1" ).arg( tableName );
+    return QString( "DELETE FROM %1" ).arg( m_tableName );
 }
 
+// ----------------------------------------------------------------------------

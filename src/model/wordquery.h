@@ -35,11 +35,13 @@ protected:
     Record m_record;
 };
 
-class WordByIdQuery : public WordsQuery
+// ----------------------------------------------------------------------------
+
+class WordByIdQuery : public FilteredByPKeyQuery
 {
 public:
-    WordByIdQuery( sqlite* db, Lang src, QObject* parent = NULL );
-    void setId( qint64 id );
+    WordByIdQuery( sqlite* db, Lang src, QObject* parent = NULL )
+        : FilteredByPKeyQuery( db, src, parent ) {}
 
 protected: // from Query
     virtual int bind();
@@ -47,6 +49,8 @@ protected: // from Query
 private:
     qint64 m_id;
 };
+
+// ----------------------------------------------------------------------------
 
 class WordsByPatternQuery : public WordsQuery
 {
