@@ -12,7 +12,7 @@ class Query : public QObject
 public:
     typedef QSharedPointer<Query> Ptr;
 
-    Query( QObject* parent, sqlite3* db, Lang src = QLocale::C, Lang trg = QLocale::C );
+    Query( sqlite3* db, Lang src = QLocale::C, Lang trg = QLocale::C, QObject* parent = NULL );
     ~Query();
 
     enum Status
@@ -43,11 +43,15 @@ protected:
     int bindInt64( const char* parameter, qint64 value );
     int bindString( const char* parameter, const QString& value );
 
-    virtual int prepare() = 0;
-    virtual int bind() = 0;
-    virtual void read() = 0;
+    QString createPattern( const QString& text, TextMatch match );
 
-    virtual void doReset() {}
+    virtual int bind() {}
+    virtual void read() {}
+
+    virtual QString selectBaseSql( const QString& tableName ) const;
+    virtual QString updateBaseSql( const QString& tableName ) const = 0;
+    virtual QString insertBaseSql( const QString& tableName ) const = 0;
+    virtual QString deleteBaseSql( const QString& tableName ) const;
 
 private:
     Query();
@@ -65,6 +69,7 @@ protected:
 
     int m_conditions;
     int m_sets;
+    QString m_tableName;
 };
 
 #endif // QUERY_H

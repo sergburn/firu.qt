@@ -2,7 +2,7 @@
 
 // ----------------------------------------------------------------------------
 
-Query::Query( QObject* parent, sqlite3* db, Lang src, Lang trg )
+Query::Query( sqlite3* db, Lang src, Lang trg, QObject* parent )
     :
     QObject( parent ), 
     m_db( db ),
@@ -164,3 +164,36 @@ int Query::addSorting( QString& sql, const char* field )
     if ( !m_sortAscending ) sort.append( " DESC" );
     sql.append( sort );
 }
+
+// ----------------------------------------------------------------------------
+
+QString Query::createPattern( const QString& text, TextMatch match )
+{
+    switch ( match )
+    {
+        case StartsWith:
+            return pattern.append('%');
+        case Contains:
+            return pattern.prepend('%').append('%');
+        case EndsWith:
+            return pattern.prepend('%');
+        case FullMatch:
+        default:
+            return text;
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+QString Query::selectBaseSql( const QString& tableName ) const
+{
+    return QString( "SELECT * FROM %1" ).arg( tableName );
+}
+
+// ----------------------------------------------------------------------------
+
+QString Query::deleteBaseSql( const QString& tableName ) const
+{
+    return QString( "DELETE FROM %1" ).arg( tableName );
+}
+
