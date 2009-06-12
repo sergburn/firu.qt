@@ -4,12 +4,12 @@
 #include <QSharedPointer>
 #include "query.h"
 
-class WordQuery : public Query
+class WordsQuery : public Query
 {
 public:
-    typedef QSharedPointer<WordQuery> Ptr;
+    typedef QSharedPointer<WordsQuery> Ptr;
 
-    WordQuery( Lang src );
+    WordsQuery( sqlite* db, Lang src, QObject* parent = NULL );
 
     class Record
     {
@@ -18,25 +18,48 @@ public:
     };
     const Record& record() const;
 
-    // Filters
-    /** Selects words by ID */
-    qint64 filterId;
-    /** Selects words by Pattern */
-    QString filterPattern;
-    void resetFilters();
-
 protected: // from Query
     virtual int bind();
-    virtual int prepare();
     virtual void read();
-    virtual void doReset() { resetFilters(); }
+
+    QString selectBaseSql() const;
+    QString updateBaseSql() const;
+    QString insertBaseSql() const;
+    QString deleteBaseSql() const;
 
 private:
-    WordQuery();
-    Q_DISABLE_COPY( WordQuery );
+    WordsQuery();
+    Q_DISABLE_COPY( WordsQuery );
 
 protected:
     Record m_record;
+};
+
+class WordByIdQuery : public WordsQuery
+{
+public:
+    WordByIdQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    void setId( qint64 id );
+
+protected: // from Query
+    virtual int bind();
+
+private:
+    qint64 m_id;
+};
+
+class WordsByPatternQuery : public WordsQuery
+{
+public:
+    WordsByPatternQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    void setPattern( const QString& pattern, TextMatch match );
+
+protected: // from Query
+    virtual int bind();
+
+private:
+    QString m_pattern;
+    TextMatch m_match;
 };
 
 #endif // WORDQUERY_H
