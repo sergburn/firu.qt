@@ -4,7 +4,7 @@ WordsQuery::WordsQuery( sqlite* db, Lang src, QObject* parent = NULL )
     : Query( db, src, QLocale::C, parent )
 {
     m_tableName = DbSchema::getWordTableName( src );
-    QString sql = selectBaseSql( m_tableName );
+    QString sql = selectBaseSql();
     return sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_stmt, NULL );
 }
 
@@ -25,38 +25,25 @@ void WordsQuery::read()
 
 // ----------------------------------------------------------------------------
 
-QString WordsQuery::selectBaseSql( const char* tableName ) const
-{
-    return QString( "SELECT * FROM %1" ).arg(  );
-}
-
-// ----------------------------------------------------------------------------
-
-QString WordsQuery::deleteBaseSql( const char* tableName ) const
-{
-    return QString( "DELETE FROM %1" ).arg( DbSchema::getWordTableName( m_srcLang ) );
-}
-
-// ----------------------------------------------------------------------------
-
 QString WordsQuery::updateBaseSql() const
 {
-    return QString( "UPDATE %1 SET text = :text" ).arg( DbSchema::getWordTableName( m_srcLang ) );
+    return QString( "UPDATE %1 SET text = :text" ).arg( m_tableName );
 }
 
 // ----------------------------------------------------------------------------
 
 QString WordsQuery::insertBaseSql() const
 {
-    return QString( "INSERT INTO %1 ( text ) VALUES ( :text )" ).arg( DbSchema::getWordTableName( m_srcLang ) );
+    return QString( "INSERT INTO %1 ( text ) VALUES ( :text )" ).arg( m_tableName );
 }
 
+// ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
 WordByIdQuery::WordByIdQuery( sqlite* db, Lang src, QObject* parent )
     : WordsQuery( db, src, parent )
 {
-    QString sql = selectBaseSql( m_tableName );
+    QString sql = selectBaseSql();
     addCondition( sql, "e.id = :id" );
     sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_stmt, NULL );
 }
@@ -77,6 +64,7 @@ int WordByIdQuery::bind()
     return err;
 }
 
+// ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
 WordsByPatternQuery::WordsByPatternQuery( sqlite* db, Lang src, QObject* parent )

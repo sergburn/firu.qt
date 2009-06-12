@@ -12,7 +12,8 @@ class Query : public QObject
 public:
     typedef QSharedPointer<Query> Ptr;
 
-    Query( sqlite3* db, Lang src = QLocale::C, Lang trg = QLocale::C, QObject* parent = NULL );
+    Query( sqlite3* db, Lang src, QObject* parent = NULL );
+    Query( sqlite3* db, Lang src, Lang trg, QObject* parent = NULL );
     ~Query();
 
     enum Status
@@ -48,10 +49,10 @@ protected:
     virtual int bind() {}
     virtual void read() {}
 
-    virtual QString selectBaseSql( const QString& tableName ) const;
-    virtual QString updateBaseSql( const QString& tableName ) const = 0;
-    virtual QString insertBaseSql( const QString& tableName ) const = 0;
-    virtual QString deleteBaseSql( const QString& tableName ) const;
+    virtual QString selectBaseSql() const;
+    virtual QString updateBaseSql() const = 0;
+    virtual QString insertBaseSql() const = 0;
+    virtual QString deleteBaseSql() const;
 
 private:
     Query();
@@ -70,6 +71,37 @@ protected:
     int m_conditions;
     int m_sets;
     QString m_tableName;
+};
+
+// ----------------------------------------------------------------------------
+
+class FilteredByPKeyQuery : public Query
+{
+public:
+    FilteredByPKeyQuery( sqlite* db, Lang src, QObject* parent = NULL )
+        : Query( db, src, QLocale::C, parent ) {}
+
+    FilteredByPKeyQuery( sqlite* db, Lang src, Lang src, QObject* parent = NULL )
+        : Query( db, src, trg, parent ) {}
+
+    void setPrimaryKey( qint64 id )
+    {
+        m_id = id;
+    }
+
+protected:
+    void addPrimaryKeyCondition( QString& sql)
+    {
+        addCondition( "id = :id" );
+    }
+
+    int bindPrimaryKey()
+    {
+        return bindInt64( ":id", m_id );
+    }
+
+private:
+    qint64 m_id;
 };
 
 #endif // QUERY_H
