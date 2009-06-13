@@ -152,9 +152,7 @@ void Query::addPrimaryKeyCondition( QString& sql)
 
 void Query::addSet( QString& sql, const char* expr )
 {
-    if ( m_sets == 0 ) sql.append( " SET " );
     if ( m_sets > 0 ) sql.append( ", " );
-
     sql.append( expr );
     m_sets++;
 }
@@ -237,7 +235,7 @@ QString Query::selectBaseSql() const
 
 QString Query::updateBaseSql() const
 {
-    return QString( "UPDATE %1" ).arg( m_tableName );
+    return QString( "UPDATE %1 SET" ).arg( m_tableName );
 }
 
 // ----------------------------------------------------------------------------

@@ -24,11 +24,6 @@ protected: // from Query
     virtual int bind();
     virtual void read();
 
-    QString selectBaseSql() const;
-    QString updateBaseSql() const;
-    QString insertBaseSql() const;
-    QString deleteBaseSql() const;
-
 private:
     WordsQuery();
     Q_DISABLE_COPY( WordsQuery );
@@ -48,9 +43,6 @@ public:
 protected: // from Query
     virtual QString buildSql() const;
     virtual int bind();
-
-private:
-    qint64 m_id;
 };
 
 // ----------------------------------------------------------------------------
@@ -72,16 +64,30 @@ private:
 
 // ----------------------------------------------------------------------------
 
-class InsertWordQuery : public WordsQuery
+class WordUpdateQuery : public WordsQuery
 {
 public:
-    InsertWordQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    WordUpdateQuery( sqlite* db, Lang src, QObject* parent = NULL );
 
     virtual int execute();
 
 protected: // from Query
     virtual QString buildSql() const;
     virtual int bind();
+};
+
+// ----------------------------------------------------------------------------
+
+class WordInsertQuery : public WordUpdateQuery
+{
+public:
+    WordInsertQuery( sqlite* db, Lang src, QObject* parent = NULL );
+
+    virtual int execute();
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual bool execute();
 };
 
 #endif // WORDQUERY_H

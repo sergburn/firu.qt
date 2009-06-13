@@ -2,9 +2,10 @@
 
 // ----------------------------------------------------------------------------
 
-TranslationQuery::TranslationQuery( sqlite3* db, Lang src, Lang trg )
-    : Query( db, src, trg )
+TranslationQuery::TranslationQuery( sqlite3* db, Lang src, Lang trg, QObject* parent = NULL )
+    : Query( db, src, trg, parent )
 {
+    m_tableName = DbSchema::getTransTableName( src, trg );
 }
 
 // ----------------------------------------------------------------------------
@@ -24,12 +25,9 @@ const TranslationQuery::Record& TranslationQuery::record() const
 
 // ----------------------------------------------------------------------------
 
-void TranslationQuery::resetFilters()
+TranslationQuery::Record& TranslationQuery::record()
 {
-    filterId = 0;
-    filterSid = 0;
-    filterFmark = -1;
-    filterRmark = -1;
+    return m_record;
 }
 
 // ----------------------------------------------------------------------------
@@ -45,41 +43,123 @@ void TranslationQuery::read()
 
 // ----------------------------------------------------------------------------
 
-int TranslationQuery::prepare( const char* tableName )
+QString TranslationQuery::buildSql() const
 {
-    const char* TransView =
-        "SELECT t.id, t.sid, t.text, t.fmark, t.rmark "
-        "FROM %1 as t ";
-    sql = QString( TransView ).arg( DbSchema::getTransTableName( m_srcLang, m_trgLang ) );
+    return selectBaseSql();
+}
 
-    if ( filterId ) addCondition( "t.id = :id" );
-    if ( filterSid ) addCondition( "t.sid = :sid" );
-    if ( filterFmark >= 0 ) addCondition( "t.fmark = :fmark" );
-    if ( filterRmark >= 0 ) addCondition( "t.rmark = :rmark" );
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-    switch ( m_sort )
-    {
-        case FMARK: addSorting( "t.fmark" ); break;
-        case RMARK: addSorting( "t.rmark" ); break;
-        default: break;
-    }
-
-    return sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_stmt, NULL );
+TranslationByIdQuery::TranslationByIdQuery( sqlite* db, Lang src, Lang trg, QObject* parent )
+    : TranslationsQuery( db, src, trg, parent )
+{
 }
 
 // ----------------------------------------------------------------------------
 
-int TranslationQuery::bind()
+QString TranslationByIdQuery::buildSql() const
 {
-    int err = SQLITE_OK;
-    if ( filterId ) err = bindInt64( ":id", filterId );
-    if ( !err && filterSid ) err = bindInt64( ":sid", filterSid );
-    if ( !err && filterFmark >= 0 ) err = bindInt( ":fmark", filterFmark );
-    if ( !err && filterRmark >= 0 ) err = bindInt64( ":rmark", filterRmark );
-    LogIfSqlError( err, "TranslationQuery::bind()" );
+    QString sql = selectBaseSql();
+    addPrimaryKeyCondition( sql );
+}
+
+// ----------------------------------------------------------------------------
+
+int TranslationByIdQuery::bind()
+{
+    return bindPrimaryKey();
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+TranslationBySidQuery::TranslationBySidQuery( sqlite* db, Lang src, Lang trg, QObject* parent )
+    : TranslationsQuery( db, src, trg, parent )
+{
+}
+
+// ----------------------------------------------------------------------------
+
+QString TranslationBySidQuery::buildSql() const
+{
+    QString sql = selectBaseSql();
+    addCondition( sql, "sid = :sid" );
+}
+
+// ----------------------------------------------------------------------------
+
+void TranslationBySidQuery::setSourceEntry( qint64 id )
+{
+    m_sid = id;
+}
+
+// ----------------------------------------------------------------------------
+
+int TranslationBySidQuery::bind()
+{
+    return bindInt64( ":sid", m_sid );
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+TranslationUpdateQuery::TranslationUpdateQuery( sqlite* db, Lang src, QObject* parent )
+    : TranslationsQuery( db, src, parent )
+{
+}
+
+// ----------------------------------------------------------------------------
+
+QString TranslationUpdateQuery::buildSql() const
+{
+    QString sql = updateBaseSql();
+    addSet( sql, "text = :text");
+    addSet( sql, "sid = :sid");
+    addSet( sql, "fmark = :fmark");
+    addSet( sql, "rmark = :rmark");
+    return sql;
+}
+
+// ----------------------------------------------------------------------------
+
+int TranslationUpdateQuery::bind()
+{
+    int err = bindInt64( ":sid", m_record.text );
+    if ( !err ) err = bindString( ":text", m_record.text );
+    if ( !err ) err = bindInt( ":fmark", m_record.fmark );
+    if ( !err ) err = bindString( ":rmark", m_record.rmark );
     return err;
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+TranslationInsertQuery::TranslationInsertQuery( sqlite* db, Lang src, QObject* parent )
+    : TranslationsQuery( db, src, parent )
+{
+}
+
+// ----------------------------------------------------------------------------
+
+QString TranslationInsertQuery::buildSql() const
+{
+    return QString( "INSERT INTO %1 ( sid, text, fmark, rmark ) VALUES ( :sid, :text, :fmark, : rmark )" ).arg( m_tableName );
+}
+
+// ----------------------------------------------------------------------------
+
+int TranslationInsertQuery::execute()
+{
+    int err = TranslationsQuery::execute();
+    if ( !err )
+    {
+        m_record.id = sqlite3_last_insert_rowid( m_db );
+    }
+    return err;
+}
+
+// ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
 UpdateMarkQuery::UpdateMarkQuery( sqlite3* db, Lang src, Lang trg )

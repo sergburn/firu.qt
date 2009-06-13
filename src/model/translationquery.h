@@ -6,41 +6,12 @@
 #include "query.h"
 
 /** Selects all translations */
-class TranslationQuery : public Query
+class TranslationsQuery : public Query
 {
 public:
-    typedef QSharedPointer<TranslationQuery> Ptr;
+    typedef QSharedPointer<TranslationsQuery> Ptr;
 
-    TranslationQuery( sqlite3* db, Lang src, Lang trg );
-
-    // Filters
-    /** Selects translations by ID */
-    qint64 filterId;
-    /** Selects translations by source entry ID */
-    qint64 filterSid;
-    /** Selects translations by fmark */
-    int filterFmark;
-    /** Selects translations by rmark */
-    int filterRmark;
-
-    void resetFilters();
-
-protected: // from Query
-    virtual int bind();
-
-private:
-    TranslationQuery();
-    Q_DISABLE_COPY( TranslationQuery );
-};
-
-// ----------------------------------------------------------------------------
-
-class SelectTranslationsQuery : public TranslationQuery
-{
-public:
-    typedef QSharedPointer<SelectTranslationQuery> Ptr;
-
-    SelectTranslationQuery( sqlite3* db, Lang src, Lang trg );
+    TranslationsQuery( sqlite3* db, Lang src, Lang trg, QObject* parent = NULL );
 
     enum Sort
     {
@@ -56,20 +27,80 @@ public:
         int fmark;
         int rmark;
     };
+    Record& record();
     const Record& record() const;
 
-private:
-    SelectTranslationsQuery();
-    Q_DISABLE_COPY( SelectTranslationsQuery );
-
 protected: // from Query
-    virtual int prepare();
+    virtual QString buildSql() const;
+    virtual int bind();
     virtual void read();
-    virtual void doReset() { resetFilters(); }
+
+private:
+    TranslationsQuery();
+    Q_DISABLE_COPY( TranslationsQuery );
 
 protected:
     Record m_record;
     Sort m_sort;
+};
+
+// ----------------------------------------------------------------------------
+
+class TranslationByIdQuery : public TranslationsQuery
+{
+public:
+    TranslationByIdQuery( sqlite* db, Lang src, QObject* parent = NULL )
+        : WordsQuery( db, src, parent ) {}
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual int bind();
+};
+
+// ----------------------------------------------------------------------------
+
+class TranslationsBySidQuery : public TranslationsQuery
+{
+public:
+    TranslationsBySidQuery( sqlite* db, Lang src, QObject* parent = NULL )
+        : WordsQuery( db, src, parent ) {}
+
+    void setSourceEntry( qint64 id );
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual int bind();
+
+private:
+    qint64 m_sid;
+};
+
+// ----------------------------------------------------------------------------
+
+class TranslationUpdateQuery : public TranslationsQuery
+{
+public:
+    WordUpdateQuery( sqlite* db, Lang src, QObject* parent = NULL );
+
+    virtual int execute();
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual int bind();
+};
+
+// ----------------------------------------------------------------------------
+
+class TranslationInsertQuery : public TranslationsUpdateQuery
+{
+public:
+    WordInsertQuery( sqlite* db, Lang src, QObject* parent = NULL );
+
+    virtual int execute();
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual bool execute();
 };
 
 // ----------------------------------------------------------------------------
