@@ -21,9 +21,11 @@ public:
         NONE, RUNNING, SUCCESS, FAILURE
     };
 
+    void setPrimaryKey( qint64 id );
+
     bool start();
     bool next();
-    bool execute();
+    virtual bool execute();
 
     int error() const;
     void reset();
@@ -36,13 +38,15 @@ signals:
     Lang target() { return m_trgLang; }
 
 protected:
-    int addCondition( QString& sql, const char* condition );
-    int addSorting( QString& sql, const char* condition );
-    int addSet( QString& sql, const char* expr );
+    void addCondition( QString& sql, const char* condition );
+    void addSorting( QString& sql, const char* condition );
+    void addSet( QString& sql, const char* expr );
+    void addPrimaryKeyCondition( QString& sql );
 
     int bindInt( const char* parameter, int value );
     int bindInt64( const char* parameter, qint64 value );
     int bindString( const char* parameter, const QString& value );
+    int bindPrimaryKey();
 
     QString createPattern( const QString& text, TextMatch match );
 
@@ -50,9 +54,10 @@ protected:
     virtual void read() {}
 
     virtual QString selectBaseSql() const;
-    virtual QString updateBaseSql() const = 0;
-    virtual QString insertBaseSql() const = 0;
+    virtual QString updateBaseSql() const;
     virtual QString deleteBaseSql() const;
+    virtual QString insertBaseSql() const = 0;
+    virtual QString buildSql() const = 0;
 
 private:
     Query();
@@ -71,37 +76,7 @@ protected:
     int m_conditions;
     int m_sets;
     QString m_tableName;
-};
-
-// ----------------------------------------------------------------------------
-
-class FilteredByPKeyQuery : public Query
-{
-public:
-    FilteredByPKeyQuery( sqlite* db, Lang src, QObject* parent = NULL )
-        : Query( db, src, QLocale::C, parent ) {}
-
-    FilteredByPKeyQuery( sqlite* db, Lang src, Lang src, QObject* parent = NULL )
-        : Query( db, src, trg, parent ) {}
-
-    void setPrimaryKey( qint64 id )
-    {
-        m_id = id;
-    }
-
-protected:
-    void addPrimaryKeyCondition( QString& sql)
-    {
-        addCondition( "id = :id" );
-    }
-
-    int bindPrimaryKey()
-    {
-        return bindInt64( ":id", m_id );
-    }
-
-private:
-    qint64 m_id;
+    qint64 m_pk;
 };
 
 #endif // QUERY_H

@@ -32,21 +32,11 @@ bool ItemBase::save( bool withAssociates )
     {
         if ( m_id )
         {
-            // update
-            UpdateQuery::Ptr query = m_extension->getUpdateQuery( m_srcLang, m_trgLang );
-            writeToRecord( query );
-            ok = query->execute();
+            ok = doUpdate();
         }
         else if ( !exists( m_text ) )
         {
-            // create
-            CreateQuery::Ptr query = m_extension->getCreateQuery( m_srcLang, m_trgLang );
-            writeToRecord( query );
-            ok = query->execute();
-            if ( ok )
-            {
-                m_id = query->m_id;
-            }
+            ok = doCreate();
         }
         else // duplicate
         {
@@ -57,7 +47,6 @@ bool ItemBase::save( bool withAssociates )
     if ( withAssociates && ok )
     {
         ok = doSaveAssociates();
-        // TODO: handle deleted translations
     }
 
     if ( ok )
@@ -79,12 +68,11 @@ void ItemBase::destroy( qint64 id )
     Database* db = Database::instance();
     db->begin();
 
-    Query::Ptr query = m_extension->getDeleteQuery( id, m_srcLang, m_trgLang );
-    ok = query->execute();
+    doDelete();
 
     if ( ok )
     {
-        ok = doDestroyAssociates();
+        ok = doDeleteAssociates();
     }
 
     if ( ok )

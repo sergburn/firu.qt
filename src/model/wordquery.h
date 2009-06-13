@@ -16,9 +16,11 @@ public:
         qint64 id;
         QString text;
     };
+    Record& record();
     const Record& record() const;
 
 protected: // from Query
+    virtual QString buildSql() const;
     virtual int bind();
     virtual void read();
 
@@ -37,13 +39,14 @@ protected:
 
 // ----------------------------------------------------------------------------
 
-class WordByIdQuery : public FilteredByPKeyQuery
+class WordByIdQuery : public WordsQuery
 {
 public:
     WordByIdQuery( sqlite* db, Lang src, QObject* parent = NULL )
-        : FilteredByPKeyQuery( db, src, parent ) {}
+        : WordsQuery( db, src, parent ) {}
 
 protected: // from Query
+    virtual QString buildSql() const;
     virtual int bind();
 
 private:
@@ -59,11 +62,26 @@ public:
     void setPattern( const QString& pattern, TextMatch match );
 
 protected: // from Query
+    virtual QString buildSql() const;
     virtual int bind();
 
 private:
     QString m_pattern;
     TextMatch m_match;
+};
+
+// ----------------------------------------------------------------------------
+
+class InsertWordQuery : public WordsQuery
+{
+public:
+    InsertWordQuery( sqlite* db, Lang src, QObject* parent = NULL );
+
+    virtual int execute();
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual int bind();
 };
 
 #endif // WORDQUERY_H
