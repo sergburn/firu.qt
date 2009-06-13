@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 
 WordsQuery::WordsQuery( sqlite* db, Lang src, QObject* parent = NULL )
-    : Query( db, src, QLocale::C, parent )
+    : Query( db, src, parent )
 {
     m_tableName = DbSchema::getWordTableName( src );
 }
@@ -35,13 +35,6 @@ void WordsQuery::read()
 QString WordsQuery::buildSql() const
 {
     return selectBaseSql();
-}
-
-// ----------------------------------------------------------------------------
-
-QString WordsQuery::insertBaseSql() const
-{
-    return QString( "INSERT INTO %1 ( text ) VALUES ( :text )" ).arg( m_tableName );
 }
 
 // ----------------------------------------------------------------------------
@@ -102,28 +95,45 @@ int WordsByPatternQuery::bind()
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-InsertWordQuery::InsertWordQuery( sqlite* db, Lang src, QObject* parent )
+WordUpdateQuery::WordUpdateQuery( sqlite* db, Lang src, QObject* parent )
     : WordsQuery( db, src, parent )
 {
 }
 
 // ----------------------------------------------------------------------------
 
-QString InsertWordQuery::buildSql() const
+QString WordUpdateQuery::buildSql() const
 {
-    QString sql = insertBaseSql();
+    QString sql = updateBaseSql();
+    addSet( sql, "text = :text");
+    return sql;
 }
 
 // ----------------------------------------------------------------------------
 
-int InsertWordQuery::bind()
+int WordUpdateQuery::bind()
 {
     return bindString( ":text", m_record.text );
 }
 
 // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-int InsertWordQuery::execute()
+WordInsertQuery::WordInsertQuery( sqlite* db, Lang src, QObject* parent )
+    : WordsQuery( db, src, parent )
+{
+}
+
+// ----------------------------------------------------------------------------
+
+QString WordInsertQuery::buildSql() const
+{
+    return QString( "INSERT INTO %1 ( text ) VALUES ( :text )" ).arg( m_tableName );
+}
+
+// ----------------------------------------------------------------------------
+
+int WordInsertQuery::execute()
 {
     int err = WordsQuery::execute();
     if ( !err )

@@ -38,7 +38,7 @@ public:
 
     static WordInsertQuery::Ptr getInsertQuery( Lang src, const Word& word )
     {
-        WordInsertQuery::Ptr q = getQuery<WordCreateQuery>( src );
+        WordInsertQuery::Ptr q = getQuery<WordInsertQuery>( src );
         setToQuery( q, word );
         return q;
     }

@@ -56,7 +56,6 @@ protected:
     virtual QString selectBaseSql() const;
     virtual QString updateBaseSql() const;
     virtual QString deleteBaseSql() const;
-    virtual QString insertBaseSql() const = 0;
     virtual QString buildSql() const = 0;
 
 private:
