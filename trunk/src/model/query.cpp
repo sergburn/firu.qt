@@ -33,11 +33,29 @@ Query::~Query()
 
 bool Query::start()
 {
-    sqlite3_clear_bindings( stmt );
-    sqlite3_reset( stmt );
+    if ( !m_stmt )
+    {
+        QString sql = buildSql();
+        int err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_stmt, NULL );
+        if ( err )
+        {
+            LogSqliteError( "Query::start(), prepare" );
+            return false;
+        }
+    }
+    else
+    {
+        sqlite3_clear_bindings( stmt );
+        sqlite3_reset( stmt );
+    }
 
     int err = bind();
-    return SQLOK( err ) == SQLITE_OK;
+    if ( err )
+    {
+        LogSqliteError( "Query::start(), bind" );
+        return false;
+    }
+    return true;
 }
 
 // ----------------------------------------------------------------------------
@@ -95,6 +113,13 @@ int Query::queryProgress()
 
 // ----------------------------------------------------------------------------
 
+void Query::setPrimaryKey( qint64 id )
+{
+    m_pk = id;
+}
+
+// ----------------------------------------------------------------------------
+
 int Query::reset()
 {
     m_conditions = 0;
@@ -107,7 +132,7 @@ int Query::reset()
 
 // ----------------------------------------------------------------------------
 
-int Query::addCondition( QString& sql, const char* condition )
+void Query::addCondition( QString& sql, const char* condition )
 {
     if ( m_conditions == 0 ) sql.append( "WHERE " );
     if ( m_conditions > 0 ) sql.append( " AND " );
@@ -118,13 +143,30 @@ int Query::addCondition( QString& sql, const char* condition )
 
 // ----------------------------------------------------------------------------
 
-int Query::addSet( QString& sql, const char* expr )
+void Query::addPrimaryKeyCondition( QString& sql)
+{
+    addCondition( "id = :id" );
+}
+
+// ----------------------------------------------------------------------------
+
+void Query::addSet( QString& sql, const char* expr )
 {
     if ( m_sets == 0 ) sql.append( " SET " );
     if ( m_sets > 0 ) sql.append( ", " );
 
     sql.append( expr );
     m_sets++;
+}
+
+// ----------------------------------------------------------------------------
+
+void Query::addSorting( QString& sql, const char* field )
+{
+    QString sort( " ORDER BY %1" );
+    sort.arg( field );
+    if ( !m_sortAscending ) sort.append( " DESC" );
+    sql.append( sort );
 }
 
 // ----------------------------------------------------------------------------
@@ -159,12 +201,11 @@ int Query::bindString( const char* parameter, const QString& value )
 
 // ----------------------------------------------------------------------------
 
-int Query::addSorting( QString& sql, const char* field )
+int Query::bindPrimaryKey()
 {
-    QString sort( " ORDER BY %1" );
-    sort.arg( field );
-    if ( !m_sortAscending ) sort.append( " DESC" );
-    sql.append( sort );
+    int err = bindInt64( ":id", m_pk );
+    LogIfSqlError( err, "Query::bindPrimaryKey" );
+    return err;
 }
 
 // ----------------------------------------------------------------------------
@@ -194,9 +235,14 @@ QString Query::selectBaseSql() const
 
 // ----------------------------------------------------------------------------
 
+QString Query::updateBaseSql() const
+{
+    return QString( "UPDATE %1" ).arg( m_tableName );
+}
+
+// ----------------------------------------------------------------------------
+
 QString Query::deleteBaseSql() const
 {
     return QString( "DELETE FROM %1" ).arg( m_tableName );
 }
-
-// ----------------------------------------------------------------------------

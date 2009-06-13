@@ -8,7 +8,7 @@
 class WordExtension : public ItemExtensionBase
 {
 public:
-    static Word::Ptr createFromQuery( const Query* query )
+    static Word::Ptr createFromQuery( const WordsQuery* query )
     {
         Word* t = new Word( query->source() );
         if ( t )
@@ -20,19 +20,34 @@ public:
         return Word::Ptr( t );
     }
 
+    static void setToQuery( WordsQuery* query, const Word& word )
+    {
+        query->record().id = word.getId();
+        query->record().text = word.getText();
+    }
+
     static WordSelectQuery::Ptr getSelectQuery( Lang src )
     {
         return getQuery<WordSelectByIdQuery>( src );
     }
 
-    static WordCreateQuery::Ptr getCreateQuery( Lang src )
+    static WordsByPatternQuery::Ptr getSelectByPatternQuery( Lang src )
     {
-        return getQuery<WordCreateQuery>( src );
+        return getQuery<WordsByPatternQuery>( src );
     }
 
-    static WordUpdateQuery::Ptr getUpdateQuery( Lang src )
+    static WordInsertQuery::Ptr getInsertQuery( Lang src, const Word& word )
     {
-        return getQuery<WordUpdateQuery>( src );
+        WordInsertQuery::Ptr q = getQuery<WordCreateQuery>( src );
+        setToQuery( q, word );
+        return q;
+    }
+
+    static WordUpdateQuery::Ptr getUpdateQuery( Lang src, const Word& word )
+    {
+        WordUpdateQuery::Ptr q = getQuery<WordUpdateQuery>( src );
+        setToQuery( q, word );
+        return q;
     }
 };
 
@@ -49,21 +64,6 @@ Word::Word( Lang lang )
 Word::Word( const QString& text, Lang lang )
     : ItemBase( lang ), m_text( text )
 {
-    m_extension = new WordExtension();
-}
-
-// ----------------------------------------------------------------------------
-
-Word::~Word()
-{
-    delete m_extension;
-}
-
-// ----------------------------------------------------------------------------
-
-WordExtension& Word::extension()
-{
-    return *( dynamic_cast<WordExtension>( m_extension ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -85,13 +85,13 @@ Word::Ptr Word::create( const QString& text, Lang lang )
 
 // ----------------------------------------------------------------------------
 
-Word::Ptr Word::find( qint64 )
+Word::Ptr Word::find( qint64 id )
 {
     Word::Ptr p;
-    WordQuery::Ptr qry = m_extension->query( src, trg );
+    WordsQuery::Ptr qry = WordExtension::getSelectQuery( m_srcLang );
     if ( qry )
     {
-        qry->filterId = id;
+        qry->setPrimaryKey( id );
         if ( qry->start() && qry->next() )
         {
             p = WordExtension::createFromQuery( *qry );
@@ -105,10 +105,10 @@ Word::Ptr Word::find( qint64 )
 Word::List Word::find( const QString& pattern, TextMatch match, int limit )
 {
     List words;
-    WordQuery::Ptr qry = m_extension->query( src, trg );
+    WordQuery::Ptr qry = WordExtension::getSelectByPatternQuery( m_srcLang );
     if ( qry )
     {
-        qry->filterId = id;
+        qry->setPattern( pattern, match );
         if ( qry->start() )
         {
             while( qry->next() )
@@ -150,58 +150,21 @@ Word::List Word::filter( const List& list, const QString& pattern, TextMatch mat
 
 // ----------------------------------------------------------------------------
 
-bool Word::save( bool withTranslations )
+bool Word::doUpdate()
 {
-    Database* db = Database::instance();
-    db->begin();
+    WordUpdateQuery::Ptr query = WordExtension::getUpdateQuery( m_src, *this );
+    return query->execute();
+}
 
-    bool ok = false;
-    if ( m_changed )
-    {
-        if ( m_id )
-        {
-            // update
-            WordUpdateQuery::Ptr query = m_extension->getUpdateQuery( m_src );
-            query->m_text = m_text;
-            ok = query->execute();
-        }
-        else if ( !exists( m_text ) )
-        {
-            // create
-            WordCreateQuery::Ptr query = m_extension->getCreateQuery( m_src );
-            query->m_text = m_text;
-            ok = query->execute();
-            if ( ok )
-            {
-                m_id = query->m_id;
-            }
-        }
-        else // duplicate
-        {
-            ok = false;
-        }
-    }
+// ----------------------------------------------------------------------------
 
-    if ( withTranslations && ok )
-    {
-        // TODO: handle deleted translations
-        foreach( Translation::Ptr t, m_translations )
-        {
-            t->setSourceEntry( m_id );
-            ok = t->save();
-            if ( !ok ) break;
-        }
-    }
-
+bool Word::doInsert()
+{
+    WordInsertQuery::Ptr query = WordExtension::getInsertQuery( m_src, *this );
+    ok = query->execute();
     if ( ok )
     {
-        connect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
-        return db->commit();
-    }
-    else
-    {
-        rollback();
-        return false;
+        m_id = query->record().id;
     }
 }
 
@@ -212,11 +175,17 @@ bool Word::doSaveAssociates()
     bool ok = true;
     foreach( Translation::Ptr t, m_translations )
     {
-        t->setSourceEntry( m_id );
-        ok = t->save();
+        ok = t->save( m_id );
         if ( !ok ) break;
     }
     return ok;
+}
+
+// ----------------------------------------------------------------------------
+
+bool Word::doDeleteAssociates()
+{
+    return Translation::destroyBySourceEntry( m_id, m_srcLang, m_trgLang );
 }
 
 // ----------------------------------------------------------------------------
@@ -245,7 +214,15 @@ Translation::List Word::translations( Lang trg )
     if ( m_translations.count() == 0 )
     {
         // try to load translations
-        m_translations = Translation::findBySourceEntry( m_id, m_lang, trg );
+        m_trgLang = trg;
+        m_translations = Translation::findBySourceEntry( m_id, m_srcLang, m_trgLang );
+        // drop marks for these translations
+        foreach( Translation t, m_translations )
+        {
+            t.fmark().restart();
+            t.rmark().restart();
+        }
+        Translation::saveMarks( m_translations, m_id );
     }
     return m_translations;
 }

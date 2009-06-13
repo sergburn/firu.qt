@@ -28,6 +28,11 @@ public:
 
 public:
     Mark() : m_value( Undefined ) {}
+    MarkValue operator()() const { return m_value; }
+
+    MarkValue reset() { return m_value = Undefined; }
+    MarkValue clear() { return m_value = Unknown; }
+    MarkValue restart() { return m_value = ToLearn; }
 
     MarkValue upgrade()
     {
@@ -37,11 +42,15 @@ public:
         }
         return m_value;
     }
-    MarkValue drop() { return m_value = ToLearn; }
-    MarkValue clear() { return m_value = Unknown; }
-    MarkValue reset() { return m_value = Undefined; }
-    MarkValue init() { return m_value = ToLearn; }
-    MarkValue operator()() const { return m_value; }
+
+    MarkValue downgrade()
+    {
+        if ( m_value > ToLearn )
+        {
+            m_value = (MarkValue)((int)m_value-1);
+        }
+        return m_value;
+    }
 
 private:
     MarkValue m_value;

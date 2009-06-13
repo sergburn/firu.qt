@@ -18,7 +18,11 @@ public:
     static void destroy( qint64 id );
 
 protected:
+    virtual bool doInsert() = 0;
+    virtual bool doUpdate() = 0;
     virtual bool doSaveAssociates() {}
+    virtual bool doDelete() = 0;
+    virtual bool doDeleteAssociates() {}
 
 private:
     ItemBase();
