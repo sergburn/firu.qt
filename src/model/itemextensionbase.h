@@ -1,17 +1,33 @@
 #ifndef ITEMEXTENSIONBASE_H
 #define ITEMEXTENSIONBASE_H
 
+#include "model.h"
+#include "database.h"
+
 class ItemExtensionBase
 {
 public:
     template <classT>
-    static QSharedPointer<T> getQuery( Lang src, Lang trg = QLocale::C )
+    static QSharedPointer<T> getQuery( Lang src )
     {
         Database* db = Database::instance();
-        Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), src, trg );
+        Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), src );
         if ( !q )
         {
-            q = new T( *db, src, trg );
+            q = new T( db, src, db );
+            db->addQuery( q );
+        }
+        return q->dynamicCast<T>();
+    }
+
+    template <classT>
+    static QSharedPointer<T> getQuery( LangPair langs )
+    {
+        Database* db = Database::instance();
+        Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), langs.first, langs.second );
+        if ( !q )
+        {
+            q = new T( db, langs, db );
             db->addQuery( q );
         }
         return q->dynamicCast<T>();

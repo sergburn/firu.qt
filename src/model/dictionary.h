@@ -10,48 +10,6 @@
 
 // ----------------------------------------------------------------------------
 
-class Vocabulary
-{
-public:
-    Vocabulary( Lang src );
-
-    Ptr findWord( qint64 id );
-    List findWords( const QString& pattern, TextMatch match = StartsWith );
-
-    Lang source() { return m_srcLang; }
-
-private:
-    Vocabulary();
-    Q_DISABLE_COPY( Vocabulary );
-
-private:
-    Lang m_srcLang;
-};
-
-// ----------------------------------------------------------------------------
-
-class Translations
-{
-public:
-    Translations( Lang src, Lang trg );
-
-    Translation* find( qint64 id );
-    List findBySourceEntry( qint64 sid );
-
-    Lang source() { return m_srcLang; }
-    Lang target() { return m_trgLang; }
-
-private:
-    Translations();
-    Q_DISABLE_COPY( Translations );
-
-private:
-    Lang m_srcLang;
-    Lang m_trgLang;
-};
-
-// ----------------------------------------------------------------------------
-
 class Dictionary
 {
 public:
@@ -59,23 +17,37 @@ public:
     typedef QList<Ptr> List;
 
 public:
-    Dictionary( Lang src, Lang trg );
-
-    Vocabulary& vocabulary() { return m_vocab; }
-    Translations& translations() { return m_trans; }
+    Dictionary( LangPair langs );
+    bool open();
 
     Lang source() { return m_vocab.source(); }
     Lang target() { return m_trans.target(); }
 
-    bool import( const QString& file );
+    bool addWord( const QString& word, const QStringList& translations );
+    static Dictionary::Ptr import( const QString& file );
+
+    Word::List findWords( const QString& pattern, TextMatch match = StartsWith );
+    Translation::List findTranslations( const QString& pattern, TextMatch match = StartsWith );
+
+    /** Adds all word's translations to learning set, i.e. marks them as ToLearn */
+    bool setWordToLearn( qint64 id )
+    {
+        // drop marks for these translations
+        foreach( Translation t, m_translations )
+        {
+            t.fmark().restart();
+            t.rmark().restart();
+        }
+        Translation::saveMarks( m_translations, m_id );
+    }
 
 private:
     Dictionary();
     Q_DISABLE_COPY( Dictionary );
 
 private:
-    Vocabulary m_vocab;
-    Translations m_trans;
+    Lang m_srcLang;
+    Lang m_trgLang;
 };
 
 #endif // DICTIONARY_H

@@ -764,18 +764,27 @@ Query::Ptr Database::findQuery( const char* className, Lang src, Lang trg )
 
 int Database::doFindQuery( const char* className, Lang src, Lang trg )
 {
-    for( int i = 0; i < m_queries.count(); i++ )
+    if ( m_queries.contains( className ) )
     {
-        const Query::Ptr& p = m_queries.at( i );
-        if ( p && p->metaObject()->className() == className )
+        QueryLangPairHash allForClass = m_queries[classname];
+        LangPair langs( src, trg );
+        if ( allForClass.contains( langs ) )
         {
-            bool srcOk = ( src == QLocale::C || p->source() == src );
-            bool trgOk = ( trg == QLocale::C || p->target() == trg );
-            if ( srcOk && trgOk )
-            {
-                return i;
-            }
+            return allForClass[langs];
         }
     }
+//    for( int i = 0; i < m_queries.count(); i++ )
+//    {
+//        const Query::Ptr& p = m_queries.at( i );
+//        if ( p && p->metaObject()->className() == className )
+//        {
+//            bool srcOk = ( src == QLocale::C || p->source() == src );
+//            bool trgOk = ( trg == QLocale::C || p->target() == trg );
+//            if ( srcOk && trgOk )
+//            {
+//                return i;
+//            }
+//        }
+//    }
     return -1;
 }

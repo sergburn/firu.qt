@@ -104,8 +104,8 @@ int TranslationBySidQuery::bind()
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-TranslationUpdateQuery::TranslationUpdateQuery( sqlite* db, Lang src, QObject* parent )
-    : TranslationsQuery( db, src, parent )
+TranslationUpdateQuery::TranslationUpdateQuery( sqlite* db, Lang src, Lang trg, QObject* parent )
+    : TranslationsQuery( db, src, trg, parent )
 {
 }
 
@@ -135,8 +135,8 @@ int TranslationUpdateQuery::bind()
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-TranslationInsertQuery::TranslationInsertQuery( sqlite* db, Lang src, QObject* parent )
-    : TranslationsQuery( db, src, parent )
+TranslationInsertQuery::TranslationInsertQuery( sqlite* db, Lang src, Lang trg, QObject* parent )
+    : TranslationsQuery( db, src, trg, parent )
 {
 }
 
@@ -162,10 +162,11 @@ int TranslationInsertQuery::execute()
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-UpdateMarkQuery::UpdateMarkQuery( sqlite3* db, Lang src, Lang trg )
-    : TranslationQuery( db, src, trg )
+UpdateMarksQuery::UpdateMarksQuery( sqlite3* db, Lang src, Lang trg, QObject* parent )
+:   TranslationsQuery( db, src, trg, parent ),
+    m_fMarkValue( Undefined ),
+    m_rMarkValue( Undefined )
 {
-    resetMarks();
 }
 
 // ----------------------------------------------------------------------------
@@ -174,6 +175,27 @@ void UpdateMarkQuery::resetMarks()
 {
     m_fMarkValue = Mark::Undefined;
     m_rMarkValue = Mark::Undefined;
+}
+
+// ----------------------------------------------------------------------------
+
+QString UpdateMarksQuery::buildSql() const
+{
+    QString sql = updateBaseSql();
+    addSet( sql, "fmark = :fmark");
+    addSet( sql, "rmark = :rmark");
+    addCondition( sql, "sid = :sid");
+    return sql;
+}
+
+// ----------------------------------------------------------------------------
+
+int UpdateMarksQuery::bind()
+{
+    int err = bindInt64( ":sid", m_record.text );
+    if ( !err ) err = bindInt( ":fmark", m_record.fmark );
+    if ( !err ) err = bindString( ":rmark", m_record.rmark );
+    return err;
 }
 
 // ----------------------------------------------------------------------------

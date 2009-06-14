@@ -33,24 +33,16 @@ public:
 
 // ----------------------------------------------------------------------------
 
-Translation::Translation( Lang src, Lang trg )
-    : ItemBase( src, trg )
-{
-    m_extension = new TranslationExtension();
-}
-
-// ----------------------------------------------------------------------------
-
-Translation::Translation( qint64 sid, const QString& text, Lang src, Lang trg )
-    : m_sid( sid ), m_text( text ), m_srcLang( src ), m_trgLang( trg )
+Translation::Translation( LangPair langs )
+    : ItemBase( langs )
 {
 }
 
 // ----------------------------------------------------------------------------
 
-Translation::~Translation()
+Translation::Translation( qint64 sid, const QString& text, LangPair langs )
+    : ItemBase( langs ), m_sid( sid ), m_text( text )
 {
-    delete m_extension;
 }
 
 // ----------------------------------------------------------------------------

@@ -49,8 +49,7 @@ protected:
 class TranslationByIdQuery : public TranslationsQuery
 {
 public:
-    TranslationByIdQuery( sqlite* db, Lang src, QObject* parent = NULL )
-        : WordsQuery( db, src, parent ) {}
+    TranslationByIdQuery( sqlite* db, Lang src, Lang trg, QObject* parent = NULL );
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -62,8 +61,7 @@ protected: // from Query
 class TranslationsBySidQuery : public TranslationsQuery
 {
 public:
-    TranslationsBySidQuery( sqlite* db, Lang src, QObject* parent = NULL )
-        : WordsQuery( db, src, parent ) {}
+    TranslationsBySidQuery( sqlite* db, Lang src, Lang trg, QObject* parent = NULL );
 
     void setSourceEntry( qint64 id );
 
@@ -80,7 +78,7 @@ private:
 class TranslationUpdateQuery : public TranslationsQuery
 {
 public:
-    WordUpdateQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    TranslationUpdateQuery( sqlite* db, Lang src, Lang trg, QObject* parent = NULL );
 
     virtual int execute();
 
@@ -94,7 +92,7 @@ protected: // from Query
 class TranslationInsertQuery : public TranslationsUpdateQuery
 {
 public:
-    WordInsertQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    TranslationInsertQuery( sqlite* db, Lang src, Lang trg, QObject* parent = NULL );
 
     virtual int execute();
 
@@ -105,25 +103,20 @@ protected: // from Query
 
 // ----------------------------------------------------------------------------
 
-class UpdateMarkQuery : public TranslationQuery
+class UpdateMarksQuery : public TranslationsQuery
 {
 public:
     typedef QSharedPointer<UpdateMarkQuery> Ptr;
 
-    UpdateMarkQuery( sqlite3* db, Lang src, Lang trg );
+    UpdateMarksQuery( sqlite3* db, Lang src, Lang trg, QObject* parent = NULL );
 
     Mark::MarkValue m_fMarkValue;
     Mark::MarkValue m_rMarkValue;
     void resetMarks();
 
-protected:
-    virtual int prepare();
-    virtual void read() {}
-    virtual void doReset() { TranslationQuery::reset(); resetMarks(); }
-
-private:
-    UpdateMarkQuery();
-    Q_DISABLE_COPY( UpdateMarkQuery );
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual bool execute();
 };
 
 #endif // TRANSLATIONQUERY_H
