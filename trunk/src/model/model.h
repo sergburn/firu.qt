@@ -4,6 +4,7 @@
 #include <QLocale>
 
 typedef QLocale::Language Lang;
+typedef QPair<Lang, Lang> LangPair;
 
 enum TextMatch
 {
@@ -28,6 +29,7 @@ public:
 
 public:
     Mark() : m_value( Undefined ) {}
+    explicit Mark( MarkValue val ) : m_value( val ) {}
     MarkValue operator()() const { return m_value; }
 
     MarkValue reset() { return m_value = Undefined; }

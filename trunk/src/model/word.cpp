@@ -26,9 +26,9 @@ public:
         query->record().text = word.getText();
     }
 
-    static WordSelectQuery::Ptr getSelectQuery( Lang src )
+    static WordByIdQuery::Ptr getSelectQuery( Lang src )
     {
-        return getQuery<WordSelectByIdQuery>( src );
+        return getQuery<WordByIdQuery>( src );
     }
 
     static WordsByPatternQuery::Ptr getSelectByPatternQuery( Lang src )
@@ -36,18 +36,14 @@ public:
         return getQuery<WordsByPatternQuery>( src );
     }
 
-    static WordInsertQuery::Ptr getInsertQuery( Lang src, const Word& word )
+    static WordInsertQuery::Ptr getInsertQuery( Lang src )
     {
-        WordInsertQuery::Ptr q = getQuery<WordInsertQuery>( src );
-        setToQuery( q, word );
-        return q;
+        return getQuery<WordInsertQuery>( src );
     }
 
-    static WordUpdateQuery::Ptr getUpdateQuery( Lang src, const Word& word )
+    static WordUpdateQuery::Ptr getUpdateQuery( Lang src )
     {
-        WordUpdateQuery::Ptr q = getQuery<WordUpdateQuery>( src );
-        setToQuery( q, word );
-        return q;
+        return getQuery<WordUpdateQuery>( src );
     }
 };
 
@@ -152,7 +148,8 @@ Word::List Word::filter( const List& list, const QString& pattern, TextMatch mat
 
 bool Word::doUpdate()
 {
-    WordUpdateQuery::Ptr query = WordExtension::getUpdateQuery( m_src, *this );
+    Query::Ptr query = WordExtension::getUpdateQuery( m_src );
+    query->setToQuery( *this );
     return query->execute();
 }
 
@@ -160,7 +157,8 @@ bool Word::doUpdate()
 
 bool Word::doInsert()
 {
-    WordInsertQuery::Ptr query = WordExtension::getInsertQuery( m_src, *this );
+    Query::Ptr query = WordExtension::getInsertQuery( m_src );
+    query->setToQuery( *this );
     ok = query->execute();
     if ( ok )
     {
@@ -211,18 +209,30 @@ bool Word::match( const QString& pattern, TextMatch match )
 
 Translation::List Word::translations( Lang trg )
 {
-    if ( m_translations.count() == 0 )
+    Translation::List list = m_translations.value( trg );
+    if ( list.count() == 0 )
     {
         // try to load translations
-        m_trgLang = trg;
-        m_translations = Translation::findBySourceEntry( m_id, m_srcLang, m_trgLang );
-        // drop marks for these translations
-        foreach( Translation t, m_translations )
-        {
-            t.fmark().restart();
-            t.rmark().restart();
-        }
-        Translation::saveMarks( m_translations, m_id );
+        list = Translation::findBySourceEntry( m_id, m_srcLang, trg );
+        m_translations[ trg ] = list;
     }
-    return m_translations;
+    return list;
+}
+
+// ----------------------------------------------------------------------------
+
+bool Translation::addTranslation( const QString& text, Lang trg )
+{
+    Translation::List list = translations( trg );
+
+    // avoid duplicates
+    foreach( Translation t, list )
+    {
+        if ( t.getText() == text ) return false;
+    }
+
+    Translation::Ptr t = new Translation( m_id, text, Langs( m_srcLang, trg ) );
+    list.append( t );
+    m_translations[ trg ] = list;
+    return true;
 }

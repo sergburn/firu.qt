@@ -16,22 +16,31 @@ public:
     typedef QList<Ptr> List;
 
 public:
-    Translation( Lang src, Lang trg );
-    Translation( qint64 sid, const QString& text, Lang src, Lang trg );
+    Translation( LangPair langs );
+    Translation( qint64 sid, const QString& text, LangPair langs );
+
+    qint64 getSid() const { return m_sid; }
 
     QString getText() const { return m_text; }
     void setText( const QString& text );
 
-    Mark fmark() { return m_fmark; }
-    Mark rmark() { return m_rmark; }
+    Mark& fmark() { return m_fmark; }
+    Mark& rmark() { return m_rmark; }
 
-    Translation* find( qint64 id );
+    const Mark& fmark() const { return m_fmark; }
+    const Mark& rmark() const { return m_rmark; }
+
+    Translation::Ptr find( qint64 id );
     List findBySourceEntry( qint64 sid );
 
-    static Translation* find( qint64 id, Lang src, Lang trg );
-    static List findBySourceEntry( qint64 sid, Lang src, Lang trg );
+    static Translation::Ptr find( qint64 id, LangPair langs );
+    static List findBySourceEntry( qint64 sid, LangPair langs );
 
-    static bool saveMarks( qint64 sid );
+    /** Marks this translation as ToLearn */
+    bool addToUserDict();
+
+    /** Marks all translations of the sid as ToLearn */
+    static bool addToUserDict( qint64 sid, LangPair langs );
 
 private:
     Translation();

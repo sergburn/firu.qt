@@ -29,6 +29,8 @@ public:
     static Database* instance();
     static Database* open( const QString& dbPath, QObject* parent );
     
+    sqlite3* db();
+
     bool langTableExists( Lang lang );
     bool transTableExists( Lang source, Lang target );
   
@@ -63,7 +65,11 @@ private:
 
 private:
     sqlite3* m_db;
-    QList<Query::Ptr> m_queries;
+
+    typedef QHash<LangPair, Query::Ptr> QueryLangPairHash;
+    typedef QHash<QString, QueryLangPairHash> QuerySuperHash;
+    QuerySuperHash m_queries;
+
     int m_transactionLevel;
     int m_transactionError;
 };

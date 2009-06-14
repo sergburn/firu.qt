@@ -3,28 +3,32 @@
 
 // ----------------------------------------------------------------------------
 
-Vocabulary::Vocabulary( Lang src )
-    : m_srcLang( src )
+Dictionary::Dictionary( LangPair langs )
+    : m_srcLang( langs.first ), m_trgLang( langs.second )
 {
 }
 
 // ----------------------------------------------------------------------------
 
-Translations::Translations( Lang src, Lang trg )
-    : m_srcLang( src ), m_trgLang( trg )
+bool Dictionary::open()
 {
+    // Create needed tables
+    if ( !Database::langTableExists( m_srcLang ) )
+    {
+        int err = Database::createLangTable( m_srcLang );
+        if ( err ) return false;
+    }
+    if ( !Database::transTableExists( m_srcLang, m_trgLang ) )
+    {
+        int err = Database::createTransTable( m_srcLang, m_trgLang );
+        if ( err ) return false;
+    }
+    return true;
 }
 
 // ----------------------------------------------------------------------------
 
-Dictionary::Dictionary( Lang src, Lang trg )
-    : m_vocab( src ), m_trans( src, trg )
-{
-}
-
-// ----------------------------------------------------------------------------
-
-bool Data::import( const QString& fileName )
+Dictionary::Ptr Dictionary::import( const QString& fileName )
 {
     QFile file( fileName );
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
@@ -34,7 +38,8 @@ bool Data::import( const QString& fileName )
     }
 
     qint64 total = file.size();
-    int numAdded = 0;
+    int numWords = 0;
+    int numTranslations = 0;
 
     Lang src = QLocale::C;
     Lang trg = QLocale::C;
@@ -45,6 +50,9 @@ bool Data::import( const QString& fileName )
     Database* db = Database::instance();
     db->begin();
 
+    Dictionary::Ptr dict;
+
+    bool ok = true;
     QTextStream in( &file );
     while ( !in.atEnd() )
     {
@@ -60,6 +68,13 @@ bool Data::import( const QString& fileName )
             {
                 trg = QLocale::Russian; // getLang( line );
             }
+
+            if ( src != QLocale::C && trg != QLocale::C )
+            {
+                dict = new Dictionary( LangPair( src, trg ) );
+                ok = dict->open();
+                if ( !ok ) break;
+            }
         }
         else if ( !line.isEmpty() && !line[0].isSpace() )
         {
@@ -74,22 +89,24 @@ bool Data::import( const QString& fileName )
                 targets.append( line.mid( start, end - start ) );
             }
         }
-        else if ( line.trimmed().isEmpty() )
+        else if ( line.trimmed().isEmpty() && dict )
         {
-            int res = addTranslations( src, trg, source, targets );
+            int res = dp->addWord( source, targets );
             if ( res < 0 )
             {
                 db->rollback();
-                return false;
+                ok = false;
+                break;
             }
             numAdded += res;
             ops++;
             if ( ops % 100 == 0 )
             {
-                if ( db->commit() )
-                   db->begin();
-                else
-                    return false;
+                if ( !db->commit() && !db->begin() )
+                {
+                    ok = false;
+                    break;
+                }
 
                 double prog = in.pos() * 100.0 / total;
                 emit progress( prog );
@@ -102,12 +119,12 @@ bool Data::import( const QString& fileName )
     }
     m_schema->commit();
     qDebug() << "Added" << numAdded << "new translations";
-    return true;
+    return ok;
 }
 
 // ----------------------------------------------------------------------------
 
-int Data::addTranslations( Lang src, Lang trg, const QString& source, const QStringList& targets )
+int Dictionary::addWord( const QString& source, const QStringList& targets )
 {
     if ( source.length() == 0 || targets.count() == 0 )
     {
@@ -115,81 +132,26 @@ int Data::addTranslations( Lang src, Lang trg, const QString& source, const QStr
     }
     int err = 0;
 
-    // Create needed tables
-    if ( !m_schema->langTableExists( src ) )
-    {
-        err = m_schema->createLangTable( src );
-        if ( err ) return -1;
-    }
-    if ( !m_schema->transTableExists( src, trg ) )
-    {
-        err = m_schema->createTransTable( src, trg );
-        if ( err ) return -1;
-    }
-
-//    static int ops = 0;
-//    static int getEntryTime = 0;
-//    static int addEntryTime = 0;
-//    static int getTransTime = 0;
-//    static int addTransTime = 0;
-
-//    QTime bench;
-//    bench.start();
-//    ops++;
-
     // Add source
-    Word::Ptr wp = Word::find( src, source, FullMatch );
-    if ( !wp )
+    Word::Ptr word = findWord( source, FullMatch );
+    if ( !word )
     {
-        wp = new Word( source, src );
-    }
-    else
-    {
-        wp->loadTranslations();
+        qDebug() << "newWord: " << source;
+        word = new Word( source, m_srcLang );
+        word->save();
     }
 
+    int numAddedTranslations = 0;
     foreach( QString target, targets )
     {
-        wp->addTranslation( target, trg );
-    }
-
-    if ( !entry.id )
-    {
-        err = m_schema->addEntry( src, source, entry.id );
-        if ( err ) return -1;
-//        addEntryTime = (addEntryTime * ( ops-1 ) + bench.restart() ) / ops;
-    }
-
-    // Add translation
-    bool exists = false;
-    QList<DbSchema::TransViewRecord> translations = m_schema->getTranslationsByEntry( src, trg, entry.id );
-//    getTransTime = (getTransTime * ( ops-1 ) + bench.restart() ) / ops;
-    int numAdded = 0;
-    foreach ( const QString& target, targets )
-    {
-        qDebug() << "addTranslation: " << source << "<->" << target;
-        foreach ( DbSchema::TransViewRecord trans, translations )
+        if ( word->addTranslation( target, m_trgLang ) )
         {
-            if ( trans.target == target )
-            {
-                exists = true;
-                break;
-            }
-        }
-        if ( !exists )
-        {
-            qint64 tid = 0;
-            err = m_schema->addTranslation( src, trg, entry.id, target, tid );
-            if ( err ) return -1;
-            numAdded++;
-    //        addTransTime = (addTransTime * ( ops-1 ) + bench.restart() ) / ops;
+            qDebug() << "newTranslation: " << target;
+            numAddedTranslations++;
         }
     }
 
-//    qDebug() << "Times:" <<
-//            "getEntry" << getEntryTime <<
-//            "addEntry" << addEntryTime <<
-//            "getTrans" << getTransTime <<
-//            "addTrans" << addTransTime;
+    word->save();
+
     return numAdded;
 }

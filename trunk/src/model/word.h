@@ -37,7 +37,7 @@ public:
     const QString& getText() const { return m_text; }
     void setText( const QString& text );
 
-    Translation::List translations();
+    Translation::List translations( Lang trg );
     bool addTranslation( const Translation& trans );
     bool addTranslation( const QString& text, Lang trg );
 
@@ -52,7 +52,7 @@ private slots:
 
 private:
     QString m_text;
-    Translation::List m_translations;
+    QMap<Lang, Translation::List> m_translations;
 
     bool m_changed;
 

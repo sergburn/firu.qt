@@ -6,8 +6,10 @@
 class ItemBase
 {
 public:
-    ItemBase( Lang src, Lang trg = QLocale::C );
+    ItemBase( Lang src );
+    ItemBase( LangPair langs );
 
+    LangPair getLangs() const { return LangPair( m_srcLang, m_trgLang ); }
     qint64 getId() const { return m_id; }
 
     bool load( qint64 id );

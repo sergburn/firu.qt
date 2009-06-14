@@ -1,8 +1,9 @@
 #include "wordquery.h"
 
 // ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-WordsQuery::WordsQuery( sqlite* db, Lang src, QObject* parent = NULL )
+WordsQuery::WordsQuery( Database* db, Lang src, QObject* parent = NULL )
     : Query( db, src, parent )
 {
     m_tableName = DbSchema::getWordTableName( src );
@@ -40,11 +41,12 @@ QString WordsQuery::buildSql() const
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-WordByIdQuery::WordByIdQuery( sqlite* db, Lang src, QObject* parent )
-    : WordsQuery( db, src, parent )
+QString WordsCountQuery::buildSql() const
 {
+    QString sql = countBaseSql();
 }
 
+// ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
 QString WordByIdQuery::buildSql() const
@@ -61,13 +63,6 @@ int WordByIdQuery::bind()
 }
 
 // ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-WordsByPatternQuery::WordsByPatternQuery( sqlite* db, Lang src, QObject* parent )
-    : WordsQuery( db, src, parent )
-{
-}
-
 // ----------------------------------------------------------------------------
 
 void WordsByPatternQuery::setPattern( const QString& pattern, TextMatch match )
@@ -95,13 +90,6 @@ int WordsByPatternQuery::bind()
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-WordUpdateQuery::WordUpdateQuery( sqlite* db, Lang src, QObject* parent )
-    : WordsQuery( db, src, parent )
-{
-}
-
-// ----------------------------------------------------------------------------
-
 QString WordUpdateQuery::buildSql() const
 {
     QString sql = updateBaseSql();
@@ -117,13 +105,6 @@ int WordUpdateQuery::bind()
 }
 
 // ----------------------------------------------------------------------------
-// ----------------------------------------------------------------------------
-
-WordInsertQuery::WordInsertQuery( sqlite* db, Lang src, QObject* parent )
-    : WordsQuery( db, src, parent )
-{
-}
-
 // ----------------------------------------------------------------------------
 
 QString WordInsertQuery::buildSql() const

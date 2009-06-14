@@ -2,8 +2,15 @@
 
 // ----------------------------------------------------------------------------
 
-ItemBase::ItemBase( Lang src, Lang trg )
-    : m_id( 0 ), m_srcLang( src ), m_trgLang( trg ), m_changed( 0 )
+ItemBase::ItemBase( Lang src )
+    : m_id( 0 ), m_srcLang( src ), m_trgLang( QLocale::C ), m_changed( 0 )
+{
+}
+
+// ----------------------------------------------------------------------------
+
+ItemBase::ItemBase( LangPair langs )
+    : m_id( 0 ), m_srcLang( langs.first ), m_trgLang( langs.second ), m_changed( 0 )
 {
 }
 

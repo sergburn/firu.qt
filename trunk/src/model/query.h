@@ -12,8 +12,8 @@ class Query : public QObject
 public:
     typedef QSharedPointer<Query> Ptr;
 
-    Query( sqlite3* db, Lang src, QObject* parent = NULL );
-    Query( sqlite3* db, Lang src, Lang trg, QObject* parent = NULL );
+    Query( Database* db, Lang src, QObject* parent = NULL );
+    Query( Database* db, LangPair langs, QObject* parent = NULL );
     ~Query();
 
     enum Status
@@ -50,12 +50,14 @@ protected:
 
     QString createPattern( const QString& text, TextMatch match );
 
+    QString selectBaseSql() const;
+    QString countBaseSql() const;
+    QString updateBaseSql() const;
+    QString deleteBaseSql() const;
+
+protected:
     virtual int bind() {}
     virtual void read() {}
-
-    virtual QString selectBaseSql() const;
-    virtual QString updateBaseSql() const;
-    virtual QString deleteBaseSql() const;
     virtual QString buildSql() const = 0;
 
 private:

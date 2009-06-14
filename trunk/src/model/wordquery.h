@@ -9,7 +9,7 @@ class WordsQuery : public Query
 public:
     typedef QSharedPointer<WordsQuery> Ptr;
 
-    WordsQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    WordsQuery( Database* db, Lang src, QObject* parent = NULL );
 
     class Record
     {
@@ -34,10 +34,22 @@ protected:
 
 // ----------------------------------------------------------------------------
 
+class WordsCountQuery : public WordsQuery
+{
+public:
+    WordsCountQuery( Database* db, Lang src, QObject* parent = NULL )
+        : WordsQuery( db, src, parent ) {}
+
+protected: // from Query
+    virtual QString buildSql() const;
+};
+
+// ----------------------------------------------------------------------------
+
 class WordByIdQuery : public WordsQuery
 {
 public:
-    WordByIdQuery( sqlite* db, Lang src, QObject* parent = NULL )
+    WordByIdQuery( Database* db, Lang src, QObject* parent = NULL )
         : WordsQuery( db, src, parent ) {}
 
 protected: // from Query
@@ -50,7 +62,9 @@ protected: // from Query
 class WordsByPatternQuery : public WordsQuery
 {
 public:
-    WordsByPatternQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    WordsByPatternQuery( Database* db, Lang src, QObject* parent = NULL )
+        : WordsQuery( db, src, parent ) {}
+
     void setPattern( const QString& pattern, TextMatch match );
 
 protected: // from Query
@@ -67,7 +81,8 @@ private:
 class WordUpdateQuery : public WordsQuery
 {
 public:
-    WordUpdateQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    WordUpdateQuery( Database* db, Lang src, QObject* parent = NULL )
+        : WordsQuery( db, src, parent ) {}
 
     virtual int execute();
 
@@ -81,7 +96,8 @@ protected: // from Query
 class WordInsertQuery : public WordUpdateQuery
 {
 public:
-    WordInsertQuery( sqlite* db, Lang src, QObject* parent = NULL );
+    WordInsertQuery( Database* db, Lang src, QObject* parent = NULL )
+        : WordsInsertQuery( db, src, parent ) {}
 
     virtual int execute();
 

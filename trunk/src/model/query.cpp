@@ -2,10 +2,10 @@
 
 // ----------------------------------------------------------------------------
 
-Query::Query( sqlite3* db, Lang src, QObject* parent )
+Query::Query( Database* db, Lang src, QObject* parent )
     :
     QObject( parent ),
-    m_db( db ),
+    m_db( db->db() ),
     m_stmt( NULL ), m_sortAscending( true ),
     m_srcLang( src ), m_trgLang( QLocale::C )
 {
@@ -13,12 +13,12 @@ Query::Query( sqlite3* db, Lang src, QObject* parent )
 
 // ----------------------------------------------------------------------------
 
-Query::Query( sqlite3* db, Lang src, Lang trg, QObject* parent )
+Query::Query( Database* db, LangPair langs, QObject* parent )
     :
     QObject( parent ), 
-    m_db( db ),
+    m_db( db->db() ),
     m_stmt( NULL ), m_sortAscending( true ),
-    m_srcLang( src ), m_trgLang( trg )
+    m_srcLang( langs.first ), m_trgLang( langs.second )
 {
 }
 
@@ -229,6 +229,13 @@ QString Query::createPattern( const QString& text, TextMatch match )
 QString Query::selectBaseSql() const
 {
     return QString( "SELECT * FROM %1" ).arg( m_tableName );
+}
+
+// ----------------------------------------------------------------------------
+
+QString Query::countBaseSql() const
+{
+    return QString( "SELECT count(*) FROM %1" ).arg( m_tableName );
 }
 
 // ----------------------------------------------------------------------------
