@@ -7,6 +7,8 @@
 
 #include "model.h"
 
+class Database;
+
 class Query : public QObject
 {
 public:
@@ -56,7 +58,7 @@ protected:
     QString deleteBaseSql() const;
 
 protected:
-    virtual int bind() {}
+    virtual int bind() { return SQLITE_OK; }
     virtual void read() {}
     virtual QString buildSql() const = 0;
 

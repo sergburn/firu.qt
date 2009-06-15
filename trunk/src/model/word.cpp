@@ -8,9 +8,9 @@
 class WordExtension : public ItemExtensionBase
 {
 public:
-    static Word::Ptr createFromQuery( const WordsQuery* query )
+    static Word::Ptr createFromQuery( const WordsQuery& query )
     {
-        Word* t = new Word( query->source() );
+        Word* t = new Word( query.source() );
         if ( t )
         {
             t->m_id = query.record().id;
@@ -26,7 +26,12 @@ public:
         query->record().text = word.getText();
     }
 
-    static WordByIdQuery::Ptr getSelectQuery( Lang src )
+    static WordsQuery::Ptr getSelectQuery( Lang src )
+    {
+        return getQuery<WordsQuery>( src );
+    }
+
+    static WordByIdQuery::Ptr getSelectByIdQuery( Lang src )
     {
         return getQuery<WordByIdQuery>( src );
     }
@@ -52,7 +57,6 @@ public:
 Word::Word( Lang lang )
     : ItemBase( lang )
 {
-    m_extension = new WordExtension();
 }
 
 // ----------------------------------------------------------------------------
@@ -72,19 +76,10 @@ void Word::setText( const QString& text )
 
 // ----------------------------------------------------------------------------
 
-Word::Ptr Word::create( const QString& text, Lang lang )
-{
-    Word* w = new Word( text, lang );
-    save();
-    return Ptr( w );
-}
-
-// ----------------------------------------------------------------------------
-
-Word::Ptr Word::find( qint64 id )
+Word::Ptr Word::find( qint64 id, Lang src )
 {
     Word::Ptr p;
-    WordsQuery::Ptr qry = WordExtension::getSelectQuery( m_srcLang );
+    WordByIdQuery::Ptr qry = WordExtension::getSelectByIdQuery( src );
     if ( qry )
     {
         qry->setPrimaryKey( id );
@@ -98,10 +93,10 @@ Word::Ptr Word::find( qint64 id )
 
 // ----------------------------------------------------------------------------
 
-Word::List Word::find( const QString& pattern, TextMatch match, int limit )
+Word::List Word::find( const QString& pattern, Lang lang, TextMatch match, int limit )
 {
     List words;
-    WordQuery::Ptr qry = WordExtension::getSelectByPatternQuery( m_srcLang );
+    WordsByPatternQuery::Ptr qry = WordExtension::getSelectByPatternQuery( m_srcLang );
     if ( qry )
     {
         qry->setPattern( pattern, match );
@@ -118,14 +113,14 @@ Word::List Word::find( const QString& pattern, TextMatch match, int limit )
             }
         }
     }
-    return p;
+    return words;
 }
 
 // ----------------------------------------------------------------------------
 
-bool Word::exists( const QString& pattern )
+bool Word::exists( const QString& pattern, Lang lang )
 {
-    List matches = find( pattern, FullMatch, 1 );
+    List matches = find( pattern, lang, FullMatch, 1 );
     return matches.count() > 0;
 }
 
@@ -171,10 +166,13 @@ bool Word::doInsert()
 bool Word::doSaveAssociates()
 {
     bool ok = true;
-    foreach( Translation::Ptr t, m_translations )
+    foreach( Lang l, m_translations.keys() )
     {
-        ok = t->save( m_id );
-        if ( !ok ) break;
+        foreach( Translation::Ptr t, m_translations[l] )
+        {
+            ok = t->save();
+            if ( !ok ) break;
+        }
     }
     return ok;
 }
@@ -221,7 +219,7 @@ Translation::List Word::translations( Lang trg )
 
 // ----------------------------------------------------------------------------
 
-bool Translation::addTranslation( const QString& text, Lang trg )
+bool Word::addTranslation( const QString& text, Lang trg )
 {
     Translation::List list = translations( trg );
 
@@ -231,7 +229,7 @@ bool Translation::addTranslation( const QString& text, Lang trg )
         if ( t.getText() == text ) return false;
     }
 
-    Translation::Ptr t = new Translation( m_id, text, Langs( m_srcLang, trg ) );
+    Translation::Ptr t = new Translation( this, text, trg );
     list.append( t );
     m_translations[ trg ] = list;
     return true;

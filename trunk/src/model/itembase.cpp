@@ -43,7 +43,7 @@ bool ItemBase::save( bool withAssociates )
         }
         else if ( !exists( m_text ) )
         {
-            ok = doCreate();
+            ok = doInsert();
         }
         else // duplicate
         {

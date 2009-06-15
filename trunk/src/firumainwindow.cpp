@@ -9,8 +9,10 @@
 #include "model/word.h"
 #include "model/translation.h"
 
-FiruMainWindow::FiruMainWindow( Data& data, QWidget *parent)
-    : QMainWindow( parent ), m_data( data ), m_reverse( false )
+// ----------------------------------------------------------------------------
+
+FiruMainWindow::FiruMainWindow( QWidget *parent)
+    : QMainWindow( parent ), m_reverse( false )
 {
 	m_ui.setupUi(this);
 
@@ -30,18 +32,23 @@ FiruMainWindow::FiruMainWindow( Data& data, QWidget *parent)
     m_ui.prgTask->hide();
     
     setDirection( QLocale::Finnish, QLocale::Russian );
-    connect( &m_data, SIGNAL( progress( int ) ), m_ui.prgTask, SLOT( setValue( int ) ) );
+//    connect( &m_data, SIGNAL( progress( int ) ), m_ui.prgTask, SLOT( setValue( int ) ) );
 //    connect( m_data, SIGNAL( searchComplete ), this, SLOT( onSearchComplete ) );
 }
+
+// ----------------------------------------------------------------------------
 
 FiruMainWindow::~FiruMainWindow()
 {
 
 }
 
+// ----------------------------------------------------------------------------
+
 bool FiruMainWindow::setDirection( Lang src, Lang trg, bool reverse )
 {
-    if ( m_data.select( src, trg ) )
+    m_dictionary = Dictionary::Ptr( new Dictionary( LangPair( src, trg ) ) );
+    if ( m_dictionary->open() )
     {
         m_reverse = reverse;
         updateDirectionLabels();
@@ -50,6 +57,8 @@ bool FiruMainWindow::setDirection( Lang src, Lang trg, bool reverse )
     }
     return false;
 }
+
+// ----------------------------------------------------------------------------
 
 void FiruMainWindow::setInputWord( QString word )
 {
@@ -62,13 +71,17 @@ void FiruMainWindow::setInputWord( QString word )
     }
 }
 
+// ----------------------------------------------------------------------------
+
 void FiruMainWindow::importDict( const QString& file )
 {
     m_ui.prgTask->show();
     m_ui.prgTask->setValue( 0 );
-    m_data.importDictionary( file );
+    Dictionary::import( file );
     m_ui.prgTask->hide();
 }
+
+// ----------------------------------------------------------------------------
 
 void FiruMainWindow::updateList()
 {
@@ -78,7 +91,7 @@ void FiruMainWindow::updateList()
         Word::List words;
         if ( !m_reverse )
         {
-            words = Word::find( m_pattern, StartsWith );
+            words = m_dictionary->findWords( m_pattern, StartsWith );
         }
         else
         {
@@ -93,11 +106,15 @@ void FiruMainWindow::updateList()
     }
 }
 
+// ----------------------------------------------------------------------------
+
 void FiruMainWindow::on_actionOpenTrainer_triggered()
 {
     TrainerDialog t(this);
     t.exec();
 }
+
+// ----------------------------------------------------------------------------
 
 void FiruMainWindow::on_actionOpenDict_triggered()
 {
@@ -118,6 +135,8 @@ void FiruMainWindow::on_actionOpenDict_triggered()
 //    bar->addMenu( menu );
 }
 
+// ----------------------------------------------------------------------------
+
 void FiruMainWindow::showTranslation( QListWidgetItem* item )
 {
     QString entry = item->text();
@@ -126,11 +145,12 @@ void FiruMainWindow::showTranslation( QListWidgetItem* item )
     if ( !m_reverse )
     {
         qint64 sid = item->data( Qt::UserRole ).toLongLong();
-        Translation::List trans = Translation::findBySourceEntry( sid, m_data.source(), m_data.target() );
+        Translation::List trans = m_dictionary->findTranslations( sid );
         foreach ( Translation::Ptr tp, trans )
         {
             translations.append( tp->getText() );
         }
+        m_dictionary->addToUserDict( sid );
     }
     else
     {
@@ -156,6 +176,8 @@ void FiruMainWindow::showTranslation( QListWidgetItem* item )
 //            break;
 //    }
 //}
+
+// ----------------------------------------------------------------------------
 
 bool FiruMainWindow::eventFilter(QObject *obj, QEvent *event)
 {
@@ -219,6 +241,8 @@ bool FiruMainWindow::eventFilter(QObject *obj, QEvent *event)
     return QMainWindow::eventFilter(obj, event);
 }
 
+// ----------------------------------------------------------------------------
+
 void FiruMainWindow::on_actionSearch_reverse_toggled( bool reverse )
 {
     m_reverse = reverse;
@@ -227,11 +251,11 @@ void FiruMainWindow::on_actionSearch_reverse_toggled( bool reverse )
     updateList();
 }
 
+// ----------------------------------------------------------------------------
+
 void FiruMainWindow::updateDirectionLabels()
 {
-    Lang src, trg;
-    m_data.getLanguages( src, trg );
-    m_ui.laSource->setText( QLocale::languageToString( src ) );
-    m_ui.laTarget->setText( QLocale::languageToString( trg ) );
+    m_ui.laSource->setText( QLocale::languageToString( m_dictionary->source() ) );
+    m_ui.laTarget->setText( QLocale::languageToString( m_dictionary->target() ) );
     m_ui.laDir->setText( m_reverse ? "<-" : "->" );
 }

@@ -17,19 +17,13 @@ public:
     typedef QList<Ptr> List;
 
 public:
-    Word( Lang lang ) : m_id( 0 ), m_lang( lang ) {}
-    Word( const QString& text, Lang lang ) : m_id( 0 ), m_text( text ), m_lang( lang ) {}
+    Word( const QString& text, Lang lang );
 
-    Ptr find( qint64 id );
-    List find( const QString& pattern, TextMatch match = StartsWith, int limit = 0 );
-    bool Word::exists( const QString& pattern );
+    static Ptr find( qint64 id, Lang src );
+    static List find( const QString& pattern, Lang lang, TextMatch match = StartsWith, int limit = 0 );
+    static bool exists( const QString& pattern, Lang lang );
 
-    static Ptr create( const QString& text, Lang lang );
-    static Ptr find( Lang lang, qint64 id );
-    static List find( Lang lang, const QString& pattern, TextMatch match = StartsWith );
     static List filter( const List& list, const QString& pattern, TextMatch match = StartsWith );
-
-    bool loadTranslations();
 
     bool save( bool withTranslations = true );
 
@@ -43,6 +37,7 @@ public:
 
 private:
     Word();
+    Word( Lang lang );
     Q_DISABLE_COPY( Word );
 
     virtual bool doSaveAssociates();
@@ -53,8 +48,6 @@ private slots:
 private:
     QString m_text;
     QMap<Lang, Translation::List> m_translations;
-
-    bool m_changed;
 
     friend class WordExtension;
 };

@@ -44,7 +44,7 @@ QString WordsQuery::buildSql() const
 QString WordsCountQuery::buildSql() const
 {
     QString sql = countBaseSql();
-}
+    }
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -114,12 +114,12 @@ QString WordInsertQuery::buildSql() const
 
 // ----------------------------------------------------------------------------
 
-int WordInsertQuery::execute()
+bool WordInsertQuery::execute()
 {
     int err = WordsQuery::execute();
     if ( !err )
     {
         m_record.id = sqlite3_last_insert_rowid( m_db );
     }
-    return err;
+    return SQLOK( err ) == SQLITE_OK;
 }
