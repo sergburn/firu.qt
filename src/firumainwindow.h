@@ -4,14 +4,14 @@
 #include <QtGui/QMainWindow>
 #include "ui_firumainwindow.h"
 #include "AppUi.h"
-#include "data.h"
+#include "model/dictionary.h"
 
 class FiruMainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    FiruMainWindow( Data& data, QWidget *parent = 0 );
+    FiruMainWindow( QWidget *parent = 0 );
     ~FiruMainWindow();
 
 public slots:
@@ -32,7 +32,7 @@ private:
     void updateDirectionLabels();
     
 private slots:
-    void on_actionSearch_reverse_toggled(bool );
+    void on_actionSearch_reverse_toggled( bool );
     void on_actionOpenDict_triggered();
     void on_actionOpenTrainer_triggered();
     void showTranslation( QListWidgetItem* );
@@ -41,8 +41,9 @@ private:
     Ui::FiruMainWindowClass m_ui;
     AppUi m_appUi;
     QString m_pattern;
-    Data& m_data;
+    Dictionary::Ptr m_dictionary;
     bool m_reverse;
+    Word::List m_words;
     QList<QListWidgetItem> m_listItems;
 };
 

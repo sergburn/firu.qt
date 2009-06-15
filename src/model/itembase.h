@@ -6,10 +6,10 @@
 class ItemBase
 {
 public:
-    ItemBase( Lang src );
-    ItemBase( LangPair langs );
-
     LangPair getLangs() const { return LangPair( m_srcLang, m_trgLang ); }
+    Lang getSource() const { return m_srcLang; }
+    Lang getTarget() const { return m_trgLang; }
+
     qint64 getId() const { return m_id; }
 
     bool load( qint64 id );
@@ -22,9 +22,13 @@ public:
 protected:
     virtual bool doInsert() = 0;
     virtual bool doUpdate() = 0;
-    virtual bool doSaveAssociates() {}
+    virtual bool doSaveAssociates() { return true; }
     virtual bool doDelete() = 0;
-    virtual bool doDeleteAssociates() {}
+    virtual bool doDeleteAssociates() { return true; }
+
+protected:
+    ItemBase( Lang src );
+    ItemBase( LangPair langs );
 
 private:
     ItemBase();
@@ -38,8 +42,6 @@ protected:
     Lang m_srcLang;
     Lang m_trgLang;
     qint32 m_changed;
-
-    ItemExtensionBase* m_extension;
 };
 
 #endif // ITEMBASE_H

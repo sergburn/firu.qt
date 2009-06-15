@@ -4,7 +4,7 @@
 // ----------------------------------------------------------------------------
 
 Dictionary::Dictionary( LangPair langs )
-    : m_srcLang( langs.first ), m_trgLang( langs.second )
+    : m_langs( langs )
 {
 }
 
@@ -13,14 +13,14 @@ Dictionary::Dictionary( LangPair langs )
 bool Dictionary::open()
 {
     // Create needed tables
-    if ( !Database::langTableExists( m_srcLang ) )
+    if ( !Database::langTableExists( source() ) )
     {
-        int err = Database::createLangTable( m_srcLang );
+        int err = Database::createLangTable( source() );
         if ( err ) return false;
     }
-    if ( !Database::transTableExists( m_srcLang, m_trgLang ) )
+    if ( !Database::transTableExists( source(), target() ) )
     {
-        int err = Database::createTransTable( m_srcLang, m_trgLang );
+        int err = Database::createTransTable( source(), target() );
         if ( err ) return false;
     }
     return true;
@@ -137,14 +137,14 @@ int Dictionary::addWord( const QString& source, const QStringList& targets )
     if ( !word )
     {
         qDebug() << "newWord: " << source;
-        word = new Word( source, m_srcLang );
+        word = new Word( source, source() );
         word->save();
     }
 
     int numAddedTranslations = 0;
     foreach( QString target, targets )
     {
-        if ( word->addTranslation( target, m_trgLang ) )
+        if ( word->addTranslation( target, target() ) )
         {
             qDebug() << "newTranslation: " << target;
             numAddedTranslations++;
@@ -154,4 +154,25 @@ int Dictionary::addWord( const QString& source, const QStringList& targets )
     word->save();
 
     return numAdded;
+}
+
+// ----------------------------------------------------------------------------
+
+Translation::List Dictionary::findTranslations( qint64 sid )
+{
+    return Translation::findBySourceEntry( sid, m_langs );
+}
+
+// ----------------------------------------------------------------------------
+
+Word::List findWords( const QString& pattern, TextMatch match, int limit )
+{
+    return Word::find( pattern, source(), match, limit );
+}
+
+// ----------------------------------------------------------------------------
+
+Translation::List findTranslations( const QString& pattern, TextMatch match, int limit )
+{
+    return Translation::find( pattern, m_langs, match, limit );
 }

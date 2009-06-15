@@ -10,6 +10,8 @@ public:
     template <classT>
     static QSharedPointer<T> getQuery( Lang src )
     {
+        assert( src != QLocale::C );
+
         Database* db = Database::instance();
         Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), src );
         if ( !q )
@@ -23,6 +25,9 @@ public:
     template <classT>
     static QSharedPointer<T> getQuery( LangPair langs )
     {
+        assert( langs.first != QLocale::C );
+        assert( langs.second != QLocale::C );
+
         Database* db = Database::instance();
         Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), langs.first, langs.second );
         if ( !q )

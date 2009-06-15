@@ -5,8 +5,10 @@
 #include <QSharedPointer>
 
 #include "model.h"
+//#include "word.h"
 #include "itembase.h"
 
+class Word;
 class TranslationExtension;
 
 class Translation : public ItemBase
@@ -16,8 +18,7 @@ public:
     typedef QList<Ptr> List;
 
 public:
-    Translation( LangPair langs );
-    Translation( qint64 sid, const QString& text, LangPair langs );
+    Translation( const QSharedPointer<Word> word, const QString& text, Lang trg );
 
     qint64 getSid() const { return m_sid; }
 
@@ -30,10 +31,8 @@ public:
     const Mark& fmark() const { return m_fmark; }
     const Mark& rmark() const { return m_rmark; }
 
-    Translation::Ptr find( qint64 id );
-    List findBySourceEntry( qint64 sid );
-
-    static Translation::Ptr find( qint64 id, LangPair langs );
+    static Ptr find( qint64 id, LangPair langs );
+    static List find( const QString& pattern, LangPair langs, TextMatch match = StartsWith, int limit = 0 );
     static List findBySourceEntry( qint64 sid, LangPair langs );
 
     /** Marks this translation as ToLearn */
@@ -44,15 +43,15 @@ public:
 
 private:
     Translation();
+    Translation( LangPair langs );
     Q_DISABLE_COPY( Translation );
-
-    TranslationExtension& extension();
 
 private:
     qint64 m_sid;
     QString m_text;
     Mark m_fmark;
     Mark m_rmark;
+    QWeakPointer<Word> m_parent;
 
     friend class TranslationExtension;
 };

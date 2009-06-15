@@ -84,7 +84,7 @@ public:
     WordUpdateQuery( Database* db, Lang src, QObject* parent = NULL )
         : WordsQuery( db, src, parent ) {}
 
-    virtual int execute();
+    virtual bool execute();
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -97,7 +97,7 @@ class WordInsertQuery : public WordUpdateQuery
 {
 public:
     WordInsertQuery( Database* db, Lang src, QObject* parent = NULL )
-        : WordsInsertQuery( db, src, parent ) {}
+        : WordUpdateQuery( db, src, parent ) {}
 
     virtual int execute();
 

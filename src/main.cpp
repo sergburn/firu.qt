@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     int res = 0;
     if ( isOpen )
     {
-        FiruMainWindow w( dat );
+        FiruMainWindow w( a );
         w.show();
         
         QString importDict;
