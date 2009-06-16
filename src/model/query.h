@@ -32,25 +32,19 @@ public:
     int error() const;
     void reset();
 
+    Lang source() const { return m_srcLang; }
+    Lang target() const { return m_trgLang; }
+    LangPair getLangs() const { return LangPair( m_srcLang, m_trgLang ); }
+
 signals:
     void onQueryProgress();
     void onQueryFinish( Status status );
 
-    Lang source() { return m_srcLang; }
-    Lang target() { return m_trgLang; }
-
 protected:
-    void addCondition( QString& sql, const char* condition );
-    void addSorting( QString& sql, const char* condition );
-    void addSet( QString& sql, const char* expr );
-    void addPrimaryKeyCondition( QString& sql );
-
     int bindInt( const char* parameter, int value );
     int bindInt64( const char* parameter, qint64 value );
     int bindString( const char* parameter, const QString& value );
     int bindPrimaryKey();
-
-    QString createPattern( const QString& text, TextMatch match );
 
     QString selectBaseSql() const;
     QString countBaseSql() const;
@@ -72,12 +66,10 @@ private slots:
 protected:
     sqlite3* m_db;
     sqlite3_stmt* m_stmt;
-    bool m_sortAscending;
+
     Lang m_srcLang;
     Lang m_trgLang;
 
-    int m_conditions;
-    int m_sets;
     QString m_tableName;
     qint64 m_pk;
 };

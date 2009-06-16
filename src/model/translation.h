@@ -41,6 +41,11 @@ public:
     /** Marks all translations of the sid as ToLearn */
     static bool addToUserDict( qint64 sid, LangPair langs );
 
+protected:
+    virtual bool doInsert();
+    virtual bool doUpdate();
+    virtual bool doDelete();
+
 private:
     Translation();
     Translation( LangPair langs );

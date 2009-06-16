@@ -6,7 +6,6 @@ HEADERS += src/AppUi.h \
     src/firumainwindow.h \
     src/firuqt.h \
     src/trainerdialog.h \
-    src/data.h \
     src/model/database.h \
     src/entryviewdialog.h \
     src/model/query.h \
@@ -18,13 +17,14 @@ HEADERS += src/AppUi.h \
     src/model/wordquery.h \
     src/model/dictionary.h \
     src/model/itembase.h \
-    src/model/itemextensionbase.h
+    src/model/itemextensionbase.h \
+    src/firudebug.h \
+    src/model/sqlgenerator.h
 SOURCES += src/AppUi.cpp \
     src/firumainwindow.cpp \
     src/main.cpp \
     src/firuqt.cpp \
     src/trainerdialog.cpp \
-    src/data.cpp \
     src/model/database.cpp \
     src/entryviewdialog.cpp \
     src/model/query.cpp \
@@ -35,7 +35,9 @@ SOURCES += src/AppUi.cpp \
     src/model/wordquery.cpp \
     src/model/dictionary.cpp \
     src/model/itembase.cpp \
-    src/model/itemextensionbase.cpp
+    src/model/itemextensionbase.cpp \
+    src/firudebug.cpp \
+    src/model/sqlgenerator.cpp
 FORMS += src/firumainwindow.ui \
     src/firuqt.ui \
     src/trainerdialog.ui \

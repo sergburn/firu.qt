@@ -7,35 +7,37 @@
 class ItemExtensionBase
 {
 public:
-    template <classT>
+    template <class T>
     static QSharedPointer<T> getQuery( Lang src )
     {
-        assert( src != QLocale::C );
+//        assert( src != QLocale::C );
 
         Database* db = Database::instance();
-        Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), src );
+        Query::Ptr q = db->findQuery( T::staticMetaObject.className(), src );
         if ( !q )
         {
-            q = new T( db, src, db );
-            db->addQuery( q );
+            Query::Ptr tq( new T( db, src, db ) );
+            db->addQuery( tq );
+            q = tq;
         }
-        return q->dynamicCast<T>();
+        return q.dynamicCast<T>();
     }
 
-    template <classT>
+    template <class T>
     static QSharedPointer<T> getQuery( LangPair langs )
     {
-        assert( langs.first != QLocale::C );
-        assert( langs.second != QLocale::C );
+//        assert( langs.first != QLocale::C );
+//        assert( langs.second != QLocale::C );
 
         Database* db = Database::instance();
-        Query::Ptr q = db->findQuery( T::staticMetaObject.classname(), langs.first, langs.second );
+        Query::Ptr q = db->findQuery( T::staticMetaObject.className(), langs.first, langs.second );
         if ( !q )
         {
-            q = new T( db, langs, db );
-            db->addQuery( q );
+            Query::Ptr tq( new T( db, langs, db ) );
+            db->addQuery( tq );
+            q = tq;
         }
-        return q->dynamicCast<T>();
+        return q.dynamicCast<T>();
     }
 };
 

@@ -2,16 +2,14 @@
 #define TRANSLATIONQUERY_H
 
 #include <QSharedPointer>
-#include "model.h"
 #include "query.h"
 
 /** Selects all translations */
 class TranslationsQuery : public Query
 {
 public:
-    typedef QSharedPointer<TranslationsQuery> Ptr;
-
-    TranslationsQuery( sqlite3* db, Lang src, Lang trg, QObject* parent = NULL );
+    SHARED_POINTER( TranslationsQuery );
+    TranslationsQuery( Database* db, LangPair langs, QObject* parent = NULL );
 
     enum Sort
     {
@@ -19,7 +17,7 @@ public:
     };
     void setSort( Sort sort, bool ascending = true );
 
-    class Record
+    struct Record
     {
         qint64 id;
         qint64 sid;
@@ -49,7 +47,8 @@ protected:
 class TranslationByIdQuery : public TranslationsQuery
 {
 public:
-    TranslationByIdQuery( sqlite* db, Lang src, Lang trg, QObject* parent = NULL );
+    SHARED_POINTER( TranslationByIdQuery )
+    TranslationByIdQuery( Database* db, LangPair langs, QObject* parent = NULL );
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -61,7 +60,8 @@ protected: // from Query
 class TranslationsBySidQuery : public TranslationsQuery
 {
 public:
-    TranslationsBySidQuery( sqlite* db, Lang src, Lang trg, QObject* parent = NULL );
+    SHARED_POINTER( TranslationsBySidQuery )
+    TranslationsBySidQuery( Database* db, LangPair langs, QObject* parent = NULL );
 
     void setSourceEntry( qint64 id );
 
@@ -75,12 +75,31 @@ private:
 
 // ----------------------------------------------------------------------------
 
+class TranslationsByPatternQuery : public TranslationsQuery
+{
+public:
+    SHARED_POINTER( TranslationsByPatternQuery )
+    TranslationsByPatternQuery( Database* db, LangPair langs, QObject* parent = NULL )
+        : TranslationsQuery( db, langs, parent ) {}
+
+    void setPattern( const QString& pattern, TextMatch match );
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual int bind();
+
+private:
+    QString m_pattern;
+    TextMatch m_match;
+};
+
+// ----------------------------------------------------------------------------
+
 class TranslationUpdateQuery : public TranslationsQuery
 {
 public:
-    TranslationUpdateQuery( sqlite* db, Lang src, Lang trg, QObject* parent = NULL );
-
-    virtual int execute();
+    SHARED_POINTER( TranslationUpdateQuery )
+    TranslationUpdateQuery( Database* db, LangPair langs, QObject* parent = NULL );
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -89,16 +108,16 @@ protected: // from Query
 
 // ----------------------------------------------------------------------------
 
-class TranslationInsertQuery : public TranslationsUpdateQuery
+class TranslationInsertQuery : public TranslationUpdateQuery
 {
 public:
-    TranslationInsertQuery( sqlite* db, Lang src, Lang trg, QObject* parent = NULL );
+    SHARED_POINTER( TranslationInsertQuery )
+    TranslationInsertQuery( Database* db, LangPair langs, QObject* parent = NULL );
 
-    virtual int execute();
+    virtual bool execute();
 
 protected: // from Query
     virtual QString buildSql() const;
-    virtual bool execute();
 };
 
 // ----------------------------------------------------------------------------
@@ -106,9 +125,9 @@ protected: // from Query
 class UpdateMarksQuery : public TranslationsQuery
 {
 public:
-    typedef QSharedPointer<UpdateMarkQuery> Ptr;
+    SHARED_POINTER( UpdateMarksQuery );
 
-    UpdateMarksQuery( sqlite3* db, Lang src, Lang trg, QObject* parent = NULL );
+    UpdateMarksQuery( Database* db, LangPair langs, QObject* parent = NULL );
 
     Mark::MarkValue m_fMarkValue;
     Mark::MarkValue m_rMarkValue;
