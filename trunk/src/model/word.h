@@ -2,6 +2,8 @@
 #define WORD_H
 
 #include <QList>
+#include <QMap>
+#include <QString>
 #include <QSharedPointer>
 
 #include "model.h"
@@ -31,6 +33,8 @@ public:
     const QString& getText() const { return m_text; }
     void setText( const QString& text );
 
+    bool match( const QString& pattern, TextMatch match );
+
     Translation::List translations( Lang trg );
     bool addTranslation( const Translation& trans );
     bool addTranslation( const QString& text, Lang trg );
@@ -40,7 +44,11 @@ private:
     Word( Lang lang );
     Q_DISABLE_COPY( Word );
 
+    virtual bool doInsert();
+    virtual bool doUpdate();
+    virtual bool doDelete();
     virtual bool doSaveAssociates();
+    virtual bool doDeleteAssociates();
 
 private slots:
     void handleTransactionFinish( bool success );

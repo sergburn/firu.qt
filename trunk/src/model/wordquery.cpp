@@ -1,4 +1,6 @@
 #include "wordquery.h"
+#include "database.h"
+#include "sqlgenerator.h"
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -6,7 +8,7 @@
 WordsQuery::WordsQuery( Database* db, Lang src, QObject* parent = NULL )
     : Query( db, src, parent )
 {
-    m_tableName = DbSchema::getWordTableName( src );
+    m_tableName = Database::getWordTableName( src );
 }
 
 // ----------------------------------------------------------------------------
@@ -27,8 +29,8 @@ const WordsQuery::Record& WordsQuery::record() const
 
 void WordsQuery::read()
 {
-    record.id = sqlite3_column_int64( m_stmt, 0 );
-    record.text = QString::fromUtf8( (const char*) sqlite3_column_text( m_stmt, 1 ) );
+    m_record.id = sqlite3_column_int64( m_stmt, 0 );
+    m_record.text = QString::fromUtf8( (const char*) sqlite3_column_text( m_stmt, 1 ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -43,16 +45,17 @@ QString WordsQuery::buildSql() const
 
 QString WordsCountQuery::buildSql() const
 {
-    QString sql = countBaseSql();
-    }
+    return countBaseSql();
+}
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
 QString WordByIdQuery::buildSql() const
 {
-    QString sql = selectBaseSql();
-    addPrimaryKeyCondition( sql );
+    SqlGenerator builder( selectBaseSql() );
+    builder.addPrimaryKeyCondition();
+    return builder.sql();
 }
 
 // ----------------------------------------------------------------------------
@@ -75,15 +78,16 @@ void WordsByPatternQuery::setPattern( const QString& pattern, TextMatch match )
 
 QString WordsByPatternQuery::buildSql() const
 {
-    QString sql = selectBaseSql();
-    addCondition( sql, "text LIKE :pattern" );
+    SqlGenerator builder( selectBaseSql() );
+    builder.addCondition( "text LIKE :pattern" );
+    return builder.sql();
 }
 
 // ----------------------------------------------------------------------------
 
 int WordsByPatternQuery::bind()
 {
-    QString pattern = createPattern( m_pattern, m_match );
+    QString pattern = SqlGenerator::createPattern( m_pattern, m_match );
     return bindString( ":pattern", pattern );
 }
 
@@ -92,16 +96,19 @@ int WordsByPatternQuery::bind()
 
 QString WordUpdateQuery::buildSql() const
 {
-    QString sql = updateBaseSql();
-    addSet( sql, "text = :text");
-    return sql;
+    SqlGenerator builder( updateBaseSql() );
+    builder.addPrimaryKeyCondition();
+    builder.addSet( "text = :text");
+    return builder.sql();
 }
 
 // ----------------------------------------------------------------------------
 
 int WordUpdateQuery::bind()
 {
-    return bindString( ":text", m_record.text );
+    int err = bindPrimaryKey();
+    if ( !err ) err = bindString( ":text", m_record.text );
+    return err;
 }
 
 // ----------------------------------------------------------------------------

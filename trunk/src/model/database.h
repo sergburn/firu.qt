@@ -1,23 +1,13 @@
-/*
- * dbschema.h
- *
- *  Created on: Apr 28, 2009
- *      Author: burnevsk
- */
-
 #ifndef DATABASE_H_
 #define DATABASE_H_
 
 #include <QObject>
 #include <QString>
-#include <QList>
-#include <QLocale>
+#include <QHash>
 #include "sqlite3.h"
 
 #include "model.h"
 #include "query.h"
-#include "wordquery.h"
-#include "translationquery.h"
 
 class Database : public QObject
 {
@@ -32,10 +22,13 @@ public:
     sqlite3* db();
 
     bool langTableExists( Lang lang );
-    bool transTableExists( Lang source, Lang target );
+    bool transTableExists( LangPair langs );
   
     int createLangTable( Lang lang );
-    int createTransTable( Lang src, Lang trg );
+    int createTransTable( LangPair langs );
+
+    static QString getEntryTableName( Lang lang );
+    static QString getTransTableName( LangPair langs );
 
     bool begin();
     bool commit();
@@ -50,9 +43,11 @@ signals:
     void onTransactionFinish( bool success );
 
 private:
-    Database();
+    Database( QObject* parent );
     Database( const Database& );
     
+    bool doOpen( const QString& dbPath );
+
     static int sqlCallback( void*, int, char**, char** );
     int onSqlCallback( int, char**, char** );
 
@@ -61,13 +56,12 @@ private:
 
     bool tableExists( const QString& table );
 
-    void LogSqliteError( const char * );
-
 private:
     sqlite3* m_db;
 
     typedef QHash<LangPair, Query::Ptr> QueryLangPairHash;
     typedef QHash<QString, QueryLangPairHash> QuerySuperHash;
+
     QuerySuperHash m_queries;
 
     int m_transactionLevel;

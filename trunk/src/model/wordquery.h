@@ -7,11 +7,11 @@
 class WordsQuery : public Query
 {
 public:
-    typedef QSharedPointer<WordsQuery> Ptr;
+    SHARED_POINTER( WordsQuery );
 
     WordsQuery( Database* db, Lang src, QObject* parent = NULL );
 
-    class Record
+    struct Record
     {
         qint64 id;
         QString text;
@@ -37,6 +37,7 @@ protected:
 class WordsCountQuery : public WordsQuery
 {
 public:
+    SHARED_POINTER( WordsCountQuery )
     WordsCountQuery( Database* db, Lang src, QObject* parent = NULL )
         : WordsQuery( db, src, parent ) {}
 
@@ -49,6 +50,7 @@ protected: // from Query
 class WordByIdQuery : public WordsQuery
 {
 public:
+    SHARED_POINTER( WordByIdQuery )
     WordByIdQuery( Database* db, Lang src, QObject* parent = NULL )
         : WordsQuery( db, src, parent ) {}
 
@@ -62,6 +64,7 @@ protected: // from Query
 class WordsByPatternQuery : public WordsQuery
 {
 public:
+    SHARED_POINTER( WordsByPatternQuery )
     WordsByPatternQuery( Database* db, Lang src, QObject* parent = NULL )
         : WordsQuery( db, src, parent ) {}
 
@@ -81,10 +84,9 @@ private:
 class WordUpdateQuery : public WordsQuery
 {
 public:
+    SHARED_POINTER( WordUpdateQuery )
     WordUpdateQuery( Database* db, Lang src, QObject* parent = NULL )
         : WordsQuery( db, src, parent ) {}
-
-    virtual bool execute();
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -96,14 +98,14 @@ protected: // from Query
 class WordInsertQuery : public WordUpdateQuery
 {
 public:
+    SHARED_POINTER( WordInsertQuery )
     WordInsertQuery( Database* db, Lang src, QObject* parent = NULL )
         : WordUpdateQuery( db, src, parent ) {}
 
-    virtual int execute();
+    virtual bool execute();
 
 protected: // from Query
     virtual QString buildSql() const;
-    virtual bool execute();
 };
 
 #endif // WORDQUERY_H

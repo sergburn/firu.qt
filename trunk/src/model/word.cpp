@@ -96,7 +96,7 @@ Word::Ptr Word::find( qint64 id, Lang src )
 Word::List Word::find( const QString& pattern, Lang lang, TextMatch match, int limit )
 {
     List words;
-    WordsByPatternQuery::Ptr qry = WordExtension::getSelectByPatternQuery( m_srcLang );
+    WordsByPatternQuery::Ptr qry = WordExtension::getSelectByPatternQuery( lang );
     if ( qry )
     {
         qry->setPattern( pattern, match );
@@ -128,23 +128,23 @@ bool Word::exists( const QString& pattern, Lang lang )
 
 Word::List Word::filter( const List& list, const QString& pattern, TextMatch match )
 {
-    List list;
+    List newList;
     foreach( Word::Ptr p, list )
     {
         if ( p && p->match( pattern, match ) )
         {
-            list.append( p );
+            newList.append( p );
         }
     }
-    return list;
+    return newList;
 }
 
 // ----------------------------------------------------------------------------
 
 bool Word::doUpdate()
 {
-    Query::Ptr query = WordExtension::getUpdateQuery( m_src );
-    query->setToQuery( *this );
+    WordUpdateQuery::Ptr query = WordExtension::getUpdateQuery( getSource() );
+    WordExtension::setToQuery( query.data(), *this );
     return query->execute();
 }
 
@@ -152,13 +152,14 @@ bool Word::doUpdate()
 
 bool Word::doInsert()
 {
-    Query::Ptr query = WordExtension::getInsertQuery( m_src );
-    query->setToQuery( *this );
-    ok = query->execute();
-    if ( ok )
+    WordInsertQuery::Ptr query = WordExtension::getInsertQuery( getSource() );
+    WordExtension::setToQuery( query.data(), *this );
+    if ( query->execute() )
     {
         m_id = query->record().id;
+        return true;
     }
+    return false;
 }
 
 // ----------------------------------------------------------------------------
@@ -179,9 +180,17 @@ bool Word::doSaveAssociates()
 
 // ----------------------------------------------------------------------------
 
+bool Word::doDelete()
+{
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+
 bool Word::doDeleteAssociates()
 {
-    return Translation::destroyBySourceEntry( m_id, m_srcLang, m_trgLang );
+    // TODO: ??
+    return false; //Translation::destroyBySourceEntry( m_id, getSource(), getSource() );
 }
 
 // ----------------------------------------------------------------------------
@@ -191,7 +200,7 @@ bool Word::match( const QString& pattern, TextMatch match )
     switch ( match )
     {
         case FullMatch:
-            return m_text == text;
+            return m_text == pattern;
         case StartsWith:
             return m_text.startsWith( pattern );
         case Contains:
@@ -211,7 +220,7 @@ Translation::List Word::translations( Lang trg )
     if ( list.count() == 0 )
     {
         // try to load translations
-        list = Translation::findBySourceEntry( m_id, m_srcLang, trg );
+        list = Translation::findBySourceEntry( m_id, LangPair( m_srcLang, trg ) );
         m_translations[ trg ] = list;
     }
     return list;
@@ -224,12 +233,12 @@ bool Word::addTranslation( const QString& text, Lang trg )
     Translation::List list = translations( trg );
 
     // avoid duplicates
-    foreach( Translation t, list )
+    foreach( Translation::Ptr t, list )
     {
-        if ( t.getText() == text ) return false;
+        if ( t->getText() == text ) return false;
     }
 
-    Translation::Ptr t = new Translation( this, text, trg );
+    Translation::Ptr t( new Translation( QSharedPointer<Word>( this ), text, trg ) );
     list.append( t );
     m_translations[ trg ] = list;
     return true;

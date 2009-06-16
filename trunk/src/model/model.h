@@ -2,6 +2,9 @@
 #define MODEL_H
 
 #include <QLocale>
+#include <QPair>
+
+#define SHARED_POINTER(_class) typedef QSharedPointer<_class> Ptr;
 
 typedef QLocale::Language Lang;
 typedef QPair<Lang, Lang> LangPair;
@@ -31,6 +34,7 @@ public:
     Mark() : m_value( Undefined ) {}
     explicit Mark( MarkValue val ) : m_value( val ) {}
     MarkValue operator()() const { return m_value; }
+//    Mark& operator=( MarkValue value ) { m_value = value; return *this; }
 
     MarkValue reset() { return m_value = Undefined; }
     MarkValue clear() { return m_value = Unknown; }
