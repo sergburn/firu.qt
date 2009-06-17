@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QSharedPointer>
+#include <QString>
 
 #include "model.h"
 #include "word.h"
@@ -23,7 +24,7 @@ public:
     Lang source() { return m_langs.first; }
     Lang target() { return m_langs.second; }
 
-    bool addWord( const QString& word, const QStringList& translations );
+    int addWord( const QString& word, const QStringList& translations );
     static Dictionary::Ptr import( const QString& file );
 
     Word::List findWords( const QString& pattern, TextMatch match = StartsWith, int limit = 0 );
@@ -44,6 +45,9 @@ public:
     }
 
     bool addToUserDict( qint64 sid );
+
+signals:
+    void progress( double value );
 
 private:
     Dictionary();

@@ -1,5 +1,10 @@
+#include <QFile>
+#include <QStringList>
+#include <QCoreApplication>
+
 #include "dictionary.h"
 #include "database.h"
+#include "../firudebug.h"
 
 // ----------------------------------------------------------------------------
 
@@ -12,15 +17,16 @@ Dictionary::Dictionary( LangPair langs )
 
 bool Dictionary::open()
 {
+    Database* db = Database::instance();
     // Create needed tables
-    if ( !Database::langTableExists( source() ) )
+    if ( !db->langTableExists( source() ) )
     {
-        int err = Database::createLangTable( source() );
+        int err = db->createLangTable( source() );
         if ( err ) return false;
     }
-    if ( !Database::transTableExists( source(), target() ) )
+    if ( !db->transTableExists( m_langs ) )
     {
-        int err = Database::createTransTable( source(), target() );
+        int err = db->createTransTable( m_langs );
         if ( err ) return false;
     }
     return true;
@@ -34,7 +40,7 @@ Dictionary::Ptr Dictionary::import( const QString& fileName )
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
     {
         qDebug() << "Can't open " << fileName << ", err: " << file.errorString();
-        return false;
+        return Dictionary::Ptr();
     }
 
     qint64 total = file.size();
@@ -71,7 +77,7 @@ Dictionary::Ptr Dictionary::import( const QString& fileName )
 
             if ( src != QLocale::C && trg != QLocale::C )
             {
-                dict = new Dictionary( LangPair( src, trg ) );
+                dict = Dictionary::Ptr( new Dictionary( LangPair( src, trg ) ) );
                 ok = dict->open();
                 if ( !ok ) break;
             }
@@ -91,14 +97,15 @@ Dictionary::Ptr Dictionary::import( const QString& fileName )
         }
         else if ( line.trimmed().isEmpty() && dict )
         {
-            int res = dp->addWord( source, targets );
+            int res = dict->addWord( source, targets );
             if ( res < 0 )
             {
                 db->rollback();
                 ok = false;
                 break;
             }
-            numAdded += res;
+            numWords++;
+            numTranslations += res - 1;
             ops++;
             if ( ops % 100 == 0 )
             {
@@ -109,7 +116,7 @@ Dictionary::Ptr Dictionary::import( const QString& fileName )
                 }
 
                 double prog = in.pos() * 100.0 / total;
-                emit progress( prog );
+                emit dict->progress( prog );
                 QCoreApplication::processEvents();
             }
 
@@ -117,43 +124,44 @@ Dictionary::Ptr Dictionary::import( const QString& fileName )
             targets.clear();
         }
     }
-    m_schema->commit();
-    qDebug() << "Added" << numAdded << "new translations";
-    return ok;
+    db->commit();
+    qDebug() << "Added" << numWords << "new words and" << numTranslations << "new translations";
+    return dict;
 }
 
 // ----------------------------------------------------------------------------
 
-int Dictionary::addWord( const QString& source, const QStringList& targets )
+int Dictionary::addWord( const QString& text, const QStringList& translations )
 {
-    if ( source.length() == 0 || targets.count() == 0 )
+    if ( text.length() == 0 || translations.count() == 0 )
     {
         return 0;
     }
-    int err = 0;
+
+    int numAdded = 0;
 
     // Add source
-    Word::Ptr word = findWord( source, FullMatch );
-    if ( !word )
+    Word::Ptr word;
+    if ( !Word::exists( text, source() ) )
     {
-        qDebug() << "newWord: " << source;
-        word = new Word( source, source() );
-        word->save();
+        qDebug() << "newWord: " << text;
+        word = Word::Ptr( new Word( text, source() ) );
+        numAdded++;
     }
 
-    int numAddedTranslations = 0;
-    foreach( QString target, targets )
+    foreach( QString t, translations )
     {
-        if ( word->addTranslation( target, target() ) )
+        if ( word->addTranslation( t, target() ) )
         {
-            qDebug() << "newTranslation: " << target;
-            numAddedTranslations++;
+            qDebug() << "newTranslation: " << t;
+            numAdded++;
         }
     }
 
-    word->save();
-
-    return numAdded;
+    if ( word->save() )
+        return numAdded;
+    else
+        return 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -165,14 +173,14 @@ Translation::List Dictionary::findTranslations( qint64 sid )
 
 // ----------------------------------------------------------------------------
 
-Word::List findWords( const QString& pattern, TextMatch match, int limit )
+Word::List Dictionary::findWords( const QString& pattern, TextMatch match, int limit )
 {
     return Word::find( pattern, source(), match, limit );
 }
 
 // ----------------------------------------------------------------------------
 
-Translation::List findTranslations( const QString& pattern, TextMatch match, int limit )
+Translation::List Dictionary::findTranslations( const QString& pattern, TextMatch match, int limit )
 {
     return Translation::find( pattern, m_langs, match, limit );
 }

@@ -1,6 +1,9 @@
 #ifndef SQLGENERATOR_H
 #define SQLGENERATOR_H
 
+#include <QString>
+#include "model.h"
+
 class SqlGenerator
 {
 public:
@@ -15,13 +18,13 @@ public:
 
     static QString createPattern( const QString& text, TextMatch match );
 
-    static QString selectBaseSql( const QString& table ) const;
-    static QString countBaseSql( const QString& table ) const;
-    static QString updateBaseSql( const QString& table ) const;
-    static QString deleteBaseSql( const QString& table ) const;
+    static QString selectBaseSql( const QString& table );
+    static QString countBaseSql( const QString& table );
+    static QString updateBaseSql( const QString& table );
+    static QString deleteBaseSql( const QString& table );
 
 private:
-    QString sql;
+    QString m_sql;
 
     int m_conditions;
     int m_sets;

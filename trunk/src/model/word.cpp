@@ -152,12 +152,15 @@ bool Word::doUpdate()
 
 bool Word::doInsert()
 {
-    WordInsertQuery::Ptr query = WordExtension::getInsertQuery( getSource() );
-    WordExtension::setToQuery( query.data(), *this );
-    if ( query->execute() )
+    if ( !exists( m_text, getSource() ) )
     {
-        m_id = query->record().id;
-        return true;
+        WordInsertQuery::Ptr query = WordExtension::getInsertQuery( getSource() );
+        WordExtension::setToQuery( query.data(), *this );
+        if ( query->execute() )
+        {
+            m_id = query->record().id;
+            return true;
+        }
     }
     return false;
 }

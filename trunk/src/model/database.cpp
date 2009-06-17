@@ -8,7 +8,7 @@ Database* g_schema = NULL;
 
 // ----------------------------------------------------------------------------
 
-QString Database::getEntryTableName( Lang lang )
+QString Database::getWordTableName( Lang lang )
 {
     return QString( "entries_" ) + QLocale::languageToString( lang );
 }
@@ -120,7 +120,7 @@ int Database::onSqlCallback( int, char**, char** )
 
 bool Database::langTableExists( Lang lang )
 {
-    return tableExists( getEntryTableName( lang ) );
+    return tableExists( getWordTableName( lang ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -181,7 +181,7 @@ int Database::createLangTable( Lang lang )
 {
     const char* KSqlCreateEntriesTable = 
         "CREATE TABLE IF NOT EXISTS %1 ( id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT );";
-    QString langTableName = getEntryTableName( lang );
+    QString langTableName = getWordTableName( lang );
     
     // Table
     QString sql = QString( KSqlCreateEntriesTable ).arg ( langTableName );
@@ -223,7 +223,7 @@ int Database::createTransTable( LangPair langs )
     
     // Create the table
     QString sql = QString( KSqlCreateTransTable ).arg(
-            transTableName, getEntryTableName( langs.first ) );
+            transTableName, getWordTableName( langs.first ) );
     
     int err = sqlExecute( sql );
     if ( !err )

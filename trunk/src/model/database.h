@@ -27,7 +27,7 @@ public:
     int createLangTable( Lang lang );
     int createTransTable( LangPair langs );
 
-    static QString getEntryTableName( Lang lang );
+    static QString getWordTableName( Lang lang );
     static QString getTransTableName( LangPair langs );
 
     bool begin();

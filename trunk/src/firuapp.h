@@ -33,8 +33,8 @@ public:
     Lang getSourceLanguage() const;
     Lang getTargetLanguage() const;
 
-    void setSourceLanguage( Lang src ) const;
-    void setTargetLanguage( Lang trg ) const;
+    void setSourceLanguage( Lang src );
+    void setTargetLanguage( Lang trg );
 
 private:
 //    QSettings m_settings;

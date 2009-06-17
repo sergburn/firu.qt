@@ -9,7 +9,7 @@ Query::Query( Database* db, Lang src, QObject* parent )
     :
     QObject( parent ),
     m_db( db->db() ),
-    m_stmt( NULL ), m_sortAscending( true ),
+    m_stmt( NULL ),
     m_srcLang( src ), m_trgLang( QLocale::C )
 {
 }
@@ -20,7 +20,7 @@ Query::Query( Database* db, LangPair langs, QObject* parent )
     :
     QObject( parent ), 
     m_db( db->db() ),
-    m_stmt( NULL ), m_sortAscending( true ),
+    m_stmt( NULL ),
     m_srcLang( langs.first ), m_trgLang( langs.second )
 {
 }
@@ -125,9 +125,6 @@ void Query::setPrimaryKey( qint64 id )
 
 void Query::reset()
 {
-    m_conditions = 0;
-    m_sets = 0;
-    m_sortAscending = true;
     sqlite3_clear_bindings( m_stmt );
     sqlite3_reset( m_stmt );
 }

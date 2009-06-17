@@ -9,10 +9,17 @@ SqlGenerator::SqlGenerator( const QString& baseSql )
 
 // ----------------------------------------------------------------------------
 
+QString SqlGenerator::sql() const
+{
+    return m_sql;
+}
+
+// ----------------------------------------------------------------------------
+
 void SqlGenerator::addCondition( const QString& condition )
 {
-    if ( m_conditions == 0 ) sql.append( "WHERE " );
-    if ( m_conditions > 0 ) sql.append( " AND " );
+    if ( m_conditions == 0 ) m_sql.append( "WHERE " );
+    if ( m_conditions > 0 ) m_sql.append( " AND " );
 
     m_sql.append( condition );
     m_conditions++;
@@ -40,7 +47,7 @@ void SqlGenerator::addSorting( const QString& field, bool ascending )
 {
     QString sort( " ORDER BY %1" );
     sort.arg( field );
-    if ( !ascending ) m_sort.append( " DESC" );
+    if ( !ascending ) sort.append( " DESC" );
     m_sql.append( sort );
 }
 
@@ -69,28 +76,28 @@ QString SqlGenerator::createPattern( const QString& text, TextMatch match )
 
 // ----------------------------------------------------------------------------
 
-QString SqlGenerator::selectBaseSql( const QString& table ) const
+QString SqlGenerator::selectBaseSql( const QString& table )
 {
     return QString( "SELECT * FROM %1" ).arg( table );
 }
 
 // ----------------------------------------------------------------------------
 
-QString SqlGenerator::countBaseSql( const QString& table ) const
+QString SqlGenerator::countBaseSql( const QString& table )
 {
     return QString( "SELECT count(*) FROM %1" ).arg( table );
 }
 
 // ----------------------------------------------------------------------------
 
-QString SqlGenerator::updateBaseSql( const QString& table ) const
+QString SqlGenerator::updateBaseSql( const QString& table )
 {
     return QString( "UPDATE %1 SET" ).arg( table );
 }
 
 // ----------------------------------------------------------------------------
 
-QString SqlGenerator::deleteBaseSql( const QString& table ) const
+QString SqlGenerator::deleteBaseSql( const QString& table )
 {
     return QString( "DELETE FROM %1" ).arg( table );
 }

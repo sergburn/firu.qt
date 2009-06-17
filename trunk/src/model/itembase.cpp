@@ -1,4 +1,5 @@
 #include "itembase.h"
+#include "database.h"
 
 // ----------------------------------------------------------------------------
 
@@ -16,82 +17,69 @@ ItemBase::ItemBase( LangPair langs )
 
 // ----------------------------------------------------------------------------
 
-Word::Ptr ItemBase::load( qint64 id )
-{
-    Word::Ptr p;
-    WordQuery::Ptr qry = m_extension->getSelectQuery( id, m_srcLang, m_trgLang );
-    if ( qry && qry->start() && qry->next() )
-    {
-        p = m_extension->createFromQuery( qry );
-    }
-    return p;
-}
-
-// ----------------------------------------------------------------------------
-
 bool ItemBase::save( bool withAssociates )
 {
     Database* db = Database::instance();
-    db->begin();
-
-    bool ok = false;
-    if ( m_changed )
+    if ( db->begin() )
     {
-        if ( m_id )
+        bool ok = false;
+        if ( m_changed )
         {
-            ok = doUpdate();
+            if ( m_id )
+            {
+                ok = doUpdate();
+            }
+            else
+            {
+                ok = doInsert();
+            }
         }
-        else if ( !exists( m_text ) )
-        {
-            ok = doInsert();
-        }
-        else // duplicate
-        {
-            ok = false;
-        }
-    }
 
-    if ( withAssociates && ok )
-    {
-        ok = doSaveAssociates();
-    }
+        if ( withAssociates && ok )
+        {
+            ok = doSaveAssociates();
+        }
 
-    if ( ok )
-    {
-        connect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
-        return db->commit();
+        if ( ok )
+        {
+            connect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
+            return db->commit();
+        }
+        else
+        {
+            db->rollback();
+            return false;
+        }
     }
-    else
-    {
-        db->rollback();
-        return false;
-    }
+    return false;
 }
 
 // ----------------------------------------------------------------------------
 
-void ItemBase::destroy( qint64 id )
+bool ItemBase::destroy()
 {
     Database* db = Database::instance();
-    db->begin();
-
-    doDelete();
-
-    if ( ok )
+    if ( db->begin() )
     {
-        ok = doDeleteAssociates();
-    }
+        bool ok = doDelete();
 
-    if ( ok )
-    {
-        connect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
-        return db->commit();
+        if ( ok )
+        {
+            ok = doDeleteAssociates();
+        }
+
+        if ( ok )
+        {
+            connect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
+            return db->commit();
+        }
+        else
+        {
+            db->rollback();
+            return false;
+        }
     }
-    else
-    {
-        db->rollback();
-        return false;
-    }
+    return false;
 }
 
 // ----------------------------------------------------------------------------
@@ -99,6 +87,7 @@ void ItemBase::destroy( qint64 id )
 void ItemBase::handleTransactionFinish( bool success )
 {
     m_changed = success ? 0 : m_changed;
-    disconnect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
+    Database* db = Database::instance();
+    disconnect( db, SIGNAL( onTransactionFinish(bool) ), this, SLOT( handleTransactionFinish(bool) ) );
 }
 
