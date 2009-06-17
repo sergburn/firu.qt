@@ -1,11 +1,12 @@
 #include "wordquery.h"
 #include "database.h"
 #include "sqlgenerator.h"
+#include "../firudebug.h"
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-WordsQuery::WordsQuery( Database* db, Lang src, QObject* parent = NULL )
+WordsQuery::WordsQuery( Database* db, Lang src, QObject* parent )
     : Query( db, src, parent )
 {
     m_tableName = Database::getWordTableName( src );

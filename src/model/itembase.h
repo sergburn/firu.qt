@@ -3,8 +3,9 @@
 
 #include "model.h"
 
-class ItemBase
+class ItemBase : public QObject
 {
+    Q_OBJECT
 public:
     LangPair getLangs() const { return LangPair( m_srcLang, m_trgLang ); }
     Lang getSource() const { return m_srcLang; }
@@ -12,12 +13,9 @@ public:
 
     qint64 getId() const { return m_id; }
 
-    bool load( qint64 id );
-
     bool save( bool withAssociates = true );
 
-    void destroy() { destroy( m_id ); }
-    static void destroy( qint64 id );
+    bool destroy();
 
 protected:
     virtual bool doInsert() = 0;

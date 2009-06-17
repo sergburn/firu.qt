@@ -11,12 +11,6 @@ public:
     SHARED_POINTER( TranslationsQuery );
     TranslationsQuery( Database* db, LangPair langs, QObject* parent = NULL );
 
-    enum Sort
-    {
-        NONE, FMARK, RMARK
-    };
-    void setSort( Sort sort, bool ascending = true );
-
     struct Record
     {
         qint64 id;
@@ -39,7 +33,6 @@ private:
 
 protected:
     Record m_record;
-    Sort m_sort;
 };
 
 // ----------------------------------------------------------------------------
@@ -61,7 +54,8 @@ class TranslationsBySidQuery : public TranslationsQuery
 {
 public:
     SHARED_POINTER( TranslationsBySidQuery )
-    TranslationsBySidQuery( Database* db, LangPair langs, QObject* parent = NULL );
+    TranslationsBySidQuery( Database* db, LangPair langs, QObject* parent = NULL )
+        : TranslationsQuery( db, langs, parent ) {}
 
     void setSourceEntry( qint64 id );
 
@@ -99,7 +93,8 @@ class TranslationUpdateQuery : public TranslationsQuery
 {
 public:
     SHARED_POINTER( TranslationUpdateQuery )
-    TranslationUpdateQuery( Database* db, LangPair langs, QObject* parent = NULL );
+    TranslationUpdateQuery( Database* db, LangPair langs, QObject* parent = NULL )
+        : TranslationsQuery( db, langs, parent ) {}
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -112,7 +107,8 @@ class TranslationInsertQuery : public TranslationUpdateQuery
 {
 public:
     SHARED_POINTER( TranslationInsertQuery )
-    TranslationInsertQuery( Database* db, LangPair langs, QObject* parent = NULL );
+    TranslationInsertQuery( Database* db, LangPair langs, QObject* parent = NULL )
+        : TranslationUpdateQuery( db, langs, parent ) {}
 
     virtual bool execute();
 
@@ -135,6 +131,7 @@ public:
 
 protected: // from Query
     virtual QString buildSql() const;
+    virtual int bind();
     virtual bool execute();
 };
 

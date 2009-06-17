@@ -1,3 +1,6 @@
+#include <QDir>
+#include <QString>
+
 #include "firuapp.h"
 
 // ----------------------------------------------------------------------------
@@ -29,7 +32,7 @@ bool FiruApp::openDatabase()
 #else
     QString dbPath;
 #endif
-    m_database = Database::open( dbPath + "firu.db" );
+    m_database = Database::open( dbPath + "firu.db", this );
     return ( m_database != NULL );
 }
 
@@ -72,14 +75,14 @@ Lang Settings::getTargetLanguage() const
 
 // ----------------------------------------------------------------------------
 
-void Settings::setSourceLanguage( Lang src ) const
+void Settings::setSourceLanguage( Lang src )
 {
     m_src = src;
 }
 
 // ----------------------------------------------------------------------------
 
-void Settings::setTargetLanguage( Lang trg ) const
+void Settings::setTargetLanguage( Lang trg )
 {
     m_trg = trg;
 }
