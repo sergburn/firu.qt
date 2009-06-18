@@ -1,16 +1,15 @@
 #include "word.h"
-#include "itemextensionbase.h"
 #include "wordquery.h"
 #include "database.h"
 
 // ----------------------------------------------------------------------------
 
-class WordExtension : public ItemExtensionBase
+class WordQueryAdapter
 {
 public:
-    static Word::Ptr createFromQuery( const WordsQuery& query )
+    static Word::Ptr createFromQuery( const WordsQuery& query, Lang src )
     {
-        Word* t = new Word( query.source() );
+        Word* t = new Word( src );
         if ( t )
         {
             t->m_id = query.record().id;
@@ -24,31 +23,6 @@ public:
     {
         query->record().id = word.getId();
         query->record().text = word.getText();
-    }
-
-    static WordsQuery::Ptr getSelectQuery( Lang src )
-    {
-        return getQuery<WordsQuery>( src );
-    }
-
-    static WordByIdQuery::Ptr getSelectByIdQuery( Lang src )
-    {
-        return getQuery<WordByIdQuery>( src );
-    }
-
-    static WordsByPatternQuery::Ptr getSelectByPatternQuery( Lang src )
-    {
-        return getQuery<WordsByPatternQuery>( src );
-    }
-
-    static WordInsertQuery::Ptr getInsertQuery( Lang src )
-    {
-        return getQuery<WordInsertQuery>( src );
-    }
-
-    static WordUpdateQuery::Ptr getUpdateQuery( Lang src )
-    {
-        return getQuery<WordUpdateQuery>( src );
     }
 };
 
@@ -79,13 +53,13 @@ void Word::setText( const QString& text )
 Word::Ptr Word::find( qint64 id, Lang src )
 {
     Word::Ptr p;
-    WordByIdQuery::Ptr qry = WordExtension::getSelectByIdQuery( src );
+    WordByIdQuery::Ptr qry = Database::getQuery<WordByIdQuery>( src );
     if ( qry )
     {
         qry->setPrimaryKey( id );
         if ( qry->start() && qry->next() )
         {
-            p = WordExtension::createFromQuery( *qry );
+            p = WordQueryAdapter::createFromQuery( *qry, src );
         }
     }
     return p;
@@ -96,7 +70,7 @@ Word::Ptr Word::find( qint64 id, Lang src )
 Word::List Word::find( const QString& pattern, Lang lang, TextMatch match, int limit )
 {
     List words;
-    WordsByPatternQuery::Ptr qry = WordExtension::getSelectByPatternQuery( lang );
+    WordsByPatternQuery::Ptr qry = Database::getQuery<WordsByPatternQuery>( lang );
     if ( qry )
     {
         qry->setPattern( pattern, match );
@@ -104,7 +78,7 @@ Word::List Word::find( const QString& pattern, Lang lang, TextMatch match, int l
         {
             while( qry->next() )
             {
-                Ptr w = WordExtension::createFromQuery( *qry );
+                Ptr w = WordQueryAdapter::createFromQuery( *qry, lang );
                 words.append( w );
                 if ( limit > 0 && words.count() >= limit )
                 {
@@ -143,8 +117,8 @@ Word::List Word::filter( const List& list, const QString& pattern, TextMatch mat
 
 bool Word::doUpdate()
 {
-    WordUpdateQuery::Ptr query = WordExtension::getUpdateQuery( getSource() );
-    WordExtension::setToQuery( query.data(), *this );
+    WordUpdateQuery::Ptr query = Database::getQuery<WordUpdateQuery>( m_srcLang );
+    WordQueryAdapter::setToQuery( query.data(), *this );
     return query->execute();
 }
 
@@ -154,8 +128,8 @@ bool Word::doInsert()
 {
     if ( !exists( m_text, getSource() ) )
     {
-        WordInsertQuery::Ptr query = WordExtension::getInsertQuery( getSource() );
-        WordExtension::setToQuery( query.data(), *this );
+        WordInsertQuery::Ptr query = Database::getQuery<WordInsertQuery>( m_srcLang );
+        WordQueryAdapter::setToQuery( query.data(), *this );
         if ( query->execute() )
         {
             m_id = query->record().id;

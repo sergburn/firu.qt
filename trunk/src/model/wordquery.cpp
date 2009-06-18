@@ -6,10 +6,10 @@
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-WordsQuery::WordsQuery( Database* db, Lang src, QObject* parent )
-    : Query( db, src, parent )
+WordsQuery::WordsQuery( Database* db, LangPair langs )
+    : Query( db )
 {
-    m_tableName = Database::getWordTableName( src );
+    m_tableName = Database::getWordTableName( langs.first );
 }
 
 // ----------------------------------------------------------------------------

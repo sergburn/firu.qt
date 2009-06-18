@@ -17,7 +17,6 @@ HEADERS += src/AppUi.h \
     src/model/wordquery.h \
     src/model/dictionary.h \
     src/model/itembase.h \
-    src/model/itemextensionbase.h \
     src/firudebug.h \
     src/model/sqlgenerator.h
 SOURCES += src/AppUi.cpp \
@@ -35,7 +34,6 @@ SOURCES += src/AppUi.cpp \
     src/model/wordquery.cpp \
     src/model/dictionary.cpp \
     src/model/itembase.cpp \
-    src/model/itemextensionbase.cpp \
     src/firudebug.cpp \
     src/model/sqlgenerator.cpp
 FORMS += src/firumainwindow.ui \

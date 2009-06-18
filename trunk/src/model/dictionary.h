@@ -4,6 +4,7 @@
 #include <QList>
 #include <QSharedPointer>
 #include <QString>
+#include <QObject>
 
 #include "model.h"
 #include "word.h"
@@ -11,14 +12,16 @@
 
 // ----------------------------------------------------------------------------
 
-class Dictionary
+class Dictionary : public QObject
 {
+    Q_OBJECT
+
 public:
     typedef QSharedPointer<Dictionary> Ptr;
     typedef QList<Ptr> List;
 
 public:
-    Dictionary( LangPair langs );
+    Dictionary( LangPair langs, QObject* parent = NULL );
     bool open();
 
     Lang source() { return m_langs.first; }
@@ -32,17 +35,7 @@ public:
     Translation::List findTranslations( const QString& pattern, TextMatch match = StartsWith, int limit = 0 );
 
     /** Adds all word's translations to learning set, i.e. marks them as ToLearn */
-    bool setWordToLearn( qint64 /*id*/ )
-    {
-//        // drop marks for these translations
-//        foreach( Translation t, m_translations )
-//        {
-//            t.fmark().restart();
-//            t.rmark().restart();
-//        }
-//        Translation::saveMarks( m_translations, m_id );
-        return false;
-    }
+    bool setWordToLearn( qint64 id );
 
     bool addToUserDict( qint64 sid );
 

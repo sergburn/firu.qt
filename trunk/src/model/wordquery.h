@@ -9,7 +9,7 @@ class WordsQuery : public Query
 public:
     SHARED_POINTER( WordsQuery );
 
-    WordsQuery( Database* db, Lang src, QObject* parent = NULL );
+    WordsQuery( Database* db, LangPair langs );
 
     struct Record
     {
@@ -21,7 +21,6 @@ public:
 
 protected: // from Query
     virtual QString buildSql() const;
-    virtual int bind();
     virtual void read();
 
 private:
@@ -38,8 +37,7 @@ class WordsCountQuery : public WordsQuery
 {
 public:
     SHARED_POINTER( WordsCountQuery )
-    WordsCountQuery( Database* db, Lang src, QObject* parent = NULL )
-        : WordsQuery( db, src, parent ) {}
+    WordsCountQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -51,8 +49,7 @@ class WordByIdQuery : public WordsQuery
 {
 public:
     SHARED_POINTER( WordByIdQuery )
-    WordByIdQuery( Database* db, Lang src, QObject* parent = NULL )
-        : WordsQuery( db, src, parent ) {}
+    WordByIdQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -65,8 +62,7 @@ class WordsByPatternQuery : public WordsQuery
 {
 public:
     SHARED_POINTER( WordsByPatternQuery )
-    WordsByPatternQuery( Database* db, Lang src, QObject* parent = NULL )
-        : WordsQuery( db, src, parent ) {}
+    WordsByPatternQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
 
     void setPattern( const QString& pattern, TextMatch match );
 
@@ -85,8 +81,7 @@ class WordUpdateQuery : public WordsQuery
 {
 public:
     SHARED_POINTER( WordUpdateQuery )
-    WordUpdateQuery( Database* db, Lang src, QObject* parent = NULL )
-        : WordsQuery( db, src, parent ) {}
+    WordUpdateQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -99,8 +94,7 @@ class WordInsertQuery : public WordUpdateQuery
 {
 public:
     SHARED_POINTER( WordInsertQuery )
-    WordInsertQuery( Database* db, Lang src, QObject* parent = NULL )
-        : WordUpdateQuery( db, src, parent ) {}
+    WordInsertQuery( Database* db, LangPair langs ) : WordUpdateQuery( db, langs ) {}
 
     virtual bool execute();
 

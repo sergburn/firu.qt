@@ -1,16 +1,17 @@
 #include "translation.h"
-#include "itemextensionbase.h"
 #include "translationquery.h"
 #include "word.h"
+#include "database.h"
+#include "../firudebug.h"
 
 // ----------------------------------------------------------------------------
 
-class TranslationExtension : public ItemExtensionBase
+class TranslationQueryAdapter
 {
 public:
-    static Translation::Ptr createFromQuery( const TranslationsQuery& query )
+    static Translation::Ptr createFromQuery( const TranslationsQuery& query, LangPair langs )
     {
-        Translation* t = new Translation( LangPair( query.source(), query.target() ) );
+        Translation* t = new Translation( langs );
         if ( t )
         {
             t->m_id = query.record().id;
@@ -30,36 +31,6 @@ public:
         query->record().text = t.m_text;
         query->record().fmark = t.m_fmark();
         query->record().rmark = t.m_rmark();
-    }
-
-    static TranslationsQuery::Ptr getSelectQuery( LangPair langs )
-    {
-        return getQuery<TranslationsQuery>( langs );
-    }
-
-    static TranslationByIdQuery::Ptr getSelectByIdQuery( LangPair langs )
-    {
-        return getQuery<TranslationByIdQuery>( langs );
-    }
-
-    static TranslationsBySidQuery::Ptr getSelectBySidQuery( LangPair langs )
-    {
-        return getQuery<TranslationsBySidQuery>( langs );
-    }
-
-    static TranslationsByPatternQuery::Ptr getSelectByPatternQuery( LangPair langs )
-    {
-        return getQuery<TranslationsByPatternQuery>( langs );
-    }
-
-    static TranslationInsertQuery::Ptr getInsertQuery( LangPair langs )
-    {
-        return getQuery<TranslationInsertQuery>( langs );
-    }
-
-    static TranslationUpdateQuery::Ptr getUpdateQuery( LangPair langs )
-    {
-        return getQuery<TranslationUpdateQuery>( langs );
     }
 };
 
@@ -89,14 +60,14 @@ Translation::Translation( const Word::Ptr word,  const QString& text, Lang trg )
 Translation::Ptr Translation::find( qint64 id, LangPair langs )
 {
     Translation::Ptr p;
-    TranslationByIdQuery::Ptr qry = TranslationExtension::getSelectByIdQuery( langs );
+    TranslationByIdQuery::Ptr qry = Database::getQuery<TranslationByIdQuery>( langs );
     if ( qry )
     {
         qry->setPrimaryKey( id );
         qry->start();
         if ( qry->next() )
         {
-            p = TranslationExtension::createFromQuery( *qry );
+            p = TranslationQueryAdapter::createFromQuery( *qry, langs );
         }
     }
     return p;
@@ -111,7 +82,7 @@ Translation::List Translation::find(
     int limit )
 {
     List list;
-    TranslationsByPatternQuery::Ptr qry = TranslationExtension::getSelectByPatternQuery( langs );
+    TranslationsByPatternQuery::Ptr qry = Database::getQuery<TranslationsByPatternQuery>( langs );
     if ( qry )
     {
         qry->setPattern( pattern, match );
@@ -119,7 +90,7 @@ Translation::List Translation::find(
         {
             while( qry->next() )
             {
-                Ptr t = TranslationExtension::createFromQuery( *qry );
+                Ptr t = TranslationQueryAdapter::createFromQuery( *qry, langs );
                 list.append( t );
                 if ( limit > 0 && list.count() >= limit )
                 {
@@ -136,14 +107,14 @@ Translation::List Translation::find(
 Translation::List Translation::findBySourceEntry( qint64 sid, LangPair langs )
 {
     Translation::List list;
-    TranslationsBySidQuery::Ptr qry = TranslationExtension::getSelectBySidQuery( langs );
+    TranslationsBySidQuery::Ptr qry = Database::getQuery<TranslationsBySidQuery>( langs );
     if ( qry )
     {
         qry->setSourceEntry( sid );
         qry->start();
         while ( qry->next() )
         {
-            Translation::Ptr t = TranslationExtension::createFromQuery( *qry );
+            Translation::Ptr t = TranslationQueryAdapter::createFromQuery( *qry, langs );
             list.append( t );
         }
     }
@@ -157,8 +128,8 @@ bool Translation::doUpdate()
     if ( m_parent ) m_sid = m_parent.toStrongRef()->getId();
     if ( !m_sid ) return false;
 
-    TranslationUpdateQuery::Ptr query = TranslationExtension::getUpdateQuery( getLangs() );
-    TranslationExtension::setToQuery( query.data(), *this );
+    TranslationUpdateQuery::Ptr query = Database::getQuery<TranslationUpdateQuery>( getLangs() );
+    TranslationQueryAdapter::setToQuery( query.data(), *this );
     return query->execute();
 }
 
@@ -169,8 +140,8 @@ bool Translation::doInsert()
     if ( m_parent ) m_sid = m_parent.toStrongRef()->getId();
     if ( !m_sid ) return false;
 
-    TranslationInsertQuery::Ptr query = TranslationExtension::getInsertQuery( getLangs() );
-    TranslationExtension::setToQuery( query.data(), *this );
+    TranslationInsertQuery::Ptr query = Database::getQuery<TranslationInsertQuery>( getLangs() );
+    TranslationQueryAdapter::setToQuery( query.data(), *this );
     if ( query->execute() )
     {
         m_id = query->record().id;
@@ -184,4 +155,26 @@ bool Translation::doInsert()
 bool Translation::doDelete()
 {
     return false;
+}
+
+// ----------------------------------------------------------------------------
+
+bool Translation::addToUserDict( qint64 sid, LangPair langs )
+{
+    UpdateMarksQuery::Ptr query = Database::getQuery<UpdateMarksQuery>( langs );
+
+    if ( query )
+    {
+        Mark mark;
+        mark.restart();
+        query->record().fmark = mark();
+        query->record().rmark  = mark();
+        query->record().sid = sid;
+        return query->execute();
+    }
+    else
+    {
+        qDebug() << "Couldn't get UpdateMarksQuery";
+        return false;
+    }
 }

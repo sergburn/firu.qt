@@ -9,7 +9,7 @@ class TranslationsQuery : public Query
 {
 public:
     SHARED_POINTER( TranslationsQuery );
-    TranslationsQuery( Database* db, LangPair langs, QObject* parent = NULL );
+    TranslationsQuery( Database* db, LangPair langs );
 
     struct Record
     {
@@ -24,7 +24,6 @@ public:
 
 protected: // from Query
     virtual QString buildSql() const;
-    virtual int bind();
     virtual void read();
 
 private:
@@ -41,7 +40,7 @@ class TranslationByIdQuery : public TranslationsQuery
 {
 public:
     SHARED_POINTER( TranslationByIdQuery )
-    TranslationByIdQuery( Database* db, LangPair langs, QObject* parent = NULL );
+    TranslationByIdQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -54,8 +53,7 @@ class TranslationsBySidQuery : public TranslationsQuery
 {
 public:
     SHARED_POINTER( TranslationsBySidQuery )
-    TranslationsBySidQuery( Database* db, LangPair langs, QObject* parent = NULL )
-        : TranslationsQuery( db, langs, parent ) {}
+    TranslationsBySidQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
 
     void setSourceEntry( qint64 id );
 
@@ -73,8 +71,7 @@ class TranslationsByPatternQuery : public TranslationsQuery
 {
 public:
     SHARED_POINTER( TranslationsByPatternQuery )
-    TranslationsByPatternQuery( Database* db, LangPair langs, QObject* parent = NULL )
-        : TranslationsQuery( db, langs, parent ) {}
+    TranslationsByPatternQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
 
     void setPattern( const QString& pattern, TextMatch match );
 
@@ -93,8 +90,7 @@ class TranslationUpdateQuery : public TranslationsQuery
 {
 public:
     SHARED_POINTER( TranslationUpdateQuery )
-    TranslationUpdateQuery( Database* db, LangPair langs, QObject* parent = NULL )
-        : TranslationsQuery( db, langs, parent ) {}
+    TranslationUpdateQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
 
 protected: // from Query
     virtual QString buildSql() const;
@@ -107,8 +103,7 @@ class TranslationInsertQuery : public TranslationUpdateQuery
 {
 public:
     SHARED_POINTER( TranslationInsertQuery )
-    TranslationInsertQuery( Database* db, LangPair langs, QObject* parent = NULL )
-        : TranslationUpdateQuery( db, langs, parent ) {}
+    TranslationInsertQuery( Database* db, LangPair langs ) : TranslationUpdateQuery( db, langs ) {}
 
     virtual bool execute();
 
@@ -123,16 +118,11 @@ class UpdateMarksQuery : public TranslationsQuery
 public:
     SHARED_POINTER( UpdateMarksQuery );
 
-    UpdateMarksQuery( Database* db, LangPair langs, QObject* parent = NULL );
-
-    Mark::MarkValue m_fMarkValue;
-    Mark::MarkValue m_rMarkValue;
-    void resetMarks();
+    UpdateMarksQuery( Database* db, LangPair langs );
 
 protected: // from Query
     virtual QString buildSql() const;
     virtual int bind();
-    virtual bool execute();
 };
 
 #endif // TRANSLATIONQUERY_H
