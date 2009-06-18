@@ -28,6 +28,7 @@ private:
 
     int m_conditions;
     int m_sets;
+    bool m_sort;
 };
 
 #endif // SQLGENERATOR_H

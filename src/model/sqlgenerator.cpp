@@ -3,7 +3,7 @@
 // ----------------------------------------------------------------------------
 
 SqlGenerator::SqlGenerator( const QString& baseSql )
-    : m_sql( baseSql )
+    : m_sql( baseSql ), m_conditions( 0 ), m_sets( 0 ), m_sort( false )
 {
 }
 
@@ -18,7 +18,7 @@ QString SqlGenerator::sql() const
 
 void SqlGenerator::addCondition( const QString& condition )
 {
-    if ( m_conditions == 0 ) m_sql.append( "WHERE " );
+    if ( m_conditions == 0 ) m_sql.append( " WHERE " );
     if ( m_conditions > 0 ) m_sql.append( " AND " );
 
     m_sql.append( condition );
@@ -45,10 +45,14 @@ void SqlGenerator::addSet( const QString& expr )
 
 void SqlGenerator::addSorting( const QString& field, bool ascending )
 {
-    QString sort( " ORDER BY %1" );
-    sort.arg( field );
-    if ( !ascending ) sort.append( " DESC" );
-    m_sql.append( sort );
+    if ( !m_sort )
+    {
+        QString sort( " ORDER BY %1" );
+        sort.arg( field );
+        if ( !ascending ) sort.append( " DESC" );
+        m_sql.append( sort );
+        m_sort = true;
+    }
 }
 
 // ----------------------------------------------------------------------------

@@ -102,6 +102,13 @@ bool Database::doOpen( const QString& dbPath )
 
 // ----------------------------------------------------------------------------
 
+sqlite3* Database::db()
+{
+    return m_db;
+}
+
+// ----------------------------------------------------------------------------
+
 int Database::sqlCallback( void* pSelf, int nCol, char** argv, char** colv )
 {
     Database* self = reinterpret_cast<Database*>( pSelf );
@@ -359,10 +366,10 @@ bool Database::inTransaction() const
 
 // ----------------------------------------------------------------------------
 
-void Database::addQuery( Query::Ptr query )
+void Database::addQuery( Query::Ptr query, Lang src, Lang trg )
 {
     QueryLangPairHash& allForClass = m_queries[ query->metaObject()->className() ];
-    allForClass.insert( query->getLangs(), query );
+    allForClass.insert( LangPair( src, trg ), query );
 }
 
 // ----------------------------------------------------------------------------

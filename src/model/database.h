@@ -35,8 +35,25 @@ public:
     void rollback();
     bool inTransaction() const;
 
-    Query::Ptr findQuery( const char* className, Lang src = QLocale::C, Lang trg = QLocale::C );
-    void addQuery( Query::Ptr query );
+    template <class T>
+    static QSharedPointer<T> getQuery( Lang src = QLocale::C )
+    {
+        return getQuery<T>( LangPair( src, QLocale::C ) );
+    }
+
+    template <class T>
+    static QSharedPointer<T> getQuery( LangPair langs )
+    {
+        Database* db = Database::instance();
+        Query::Ptr q = db->findQuery( T::staticMetaObject.className(), langs.first, langs.second );
+        if ( !q )
+        {
+            Query::Ptr tq( new T( db, langs ) );
+            db->addQuery( tq, langs.first, langs.second );
+            q = tq;
+        }
+        return q.dynamicCast<T>();
+    }
 
 signals:
     void onSqlProgress();
@@ -55,6 +72,9 @@ private:
     int sqlGetTable( const QString& sql );
 
     bool tableExists( const QString& table );
+
+    Query::Ptr findQuery( const char* className, Lang src, Lang trg );
+    void addQuery( Query::Ptr query, Lang src, Lang trg );
 
 private:
     sqlite3* m_db;

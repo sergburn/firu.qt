@@ -5,8 +5,8 @@
 
 // ----------------------------------------------------------------------------
 
-TranslationsQuery::TranslationsQuery( Database* db, LangPair langs, QObject* parent )
-    : Query( db, langs, parent )
+TranslationsQuery::TranslationsQuery( Database* db, LangPair langs )
+    : Query( db )
 {
     m_tableName = Database::getTransTableName( langs );
 }
@@ -161,19 +161,9 @@ bool TranslationInsertQuery::execute()
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-UpdateMarksQuery::UpdateMarksQuery( Database* db, LangPair langs, QObject* parent )
-:   TranslationsQuery( db, langs, parent ),
-    m_fMarkValue( Mark::Undefined ),
-    m_rMarkValue( Mark::Undefined )
+UpdateMarksQuery::UpdateMarksQuery( Database* db, LangPair langs )
+:   TranslationsQuery( db, langs )
 {
-}
-
-// ----------------------------------------------------------------------------
-
-void UpdateMarksQuery::resetMarks()
-{
-    m_fMarkValue = Mark::Undefined;
-    m_rMarkValue = Mark::Undefined;
 }
 
 // ----------------------------------------------------------------------------

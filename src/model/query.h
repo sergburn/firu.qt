@@ -11,12 +11,13 @@ class Database;
 
 class Query : public QObject
 {
+    Q_OBJECT
+
 public:
     typedef QSharedPointer<Query> Ptr;
 
-    Query( Database* db, Lang src, QObject* parent = NULL );
-    Query( Database* db, LangPair langs, QObject* parent = NULL );
-    ~Query();
+    Query( Database* db );
+    virtual ~Query();
 
     enum Status
     {
@@ -31,10 +32,6 @@ public:
 
     int error() const;
     void reset();
-
-    Lang source() const { return m_srcLang; }
-    Lang target() const { return m_trgLang; }
-    LangPair getLangs() const { return LangPair( m_srcLang, m_trgLang ); }
 
 signals:
     void onQueryProgress();
@@ -60,18 +57,14 @@ private:
     Query();
     Query( const Query& );
 
-private slots:
-    void queryProgress();
-
 protected:
     sqlite3* m_db;
     sqlite3_stmt* m_stmt;
 
-    Lang m_srcLang;
-    Lang m_trgLang;
-
     QString m_tableName;
     qint64 m_pk;
+
+    QString m_finalSql;
 };
 
 #endif // QUERY_H

@@ -10,7 +10,7 @@
 #include "itembase.h"
 #include "translation.h"
 
-class WordExtension;
+class WordQueryAdapter;
 
 class Word : public ItemBase
 {
@@ -26,8 +26,6 @@ public:
     static bool exists( const QString& pattern, Lang lang );
 
     static List filter( const List& list, const QString& pattern, TextMatch match = StartsWith );
-
-    bool save( bool withTranslations = true );
 
 public:
     const QString& getText() const { return m_text; }
@@ -57,7 +55,7 @@ private:
     QString m_text;
     QMap<Lang, Translation::List> m_translations;
 
-    friend class WordExtension;
+    friend class WordQueryAdapter;
 };
 
 #endif // WORD_H

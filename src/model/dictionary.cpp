@@ -8,8 +8,8 @@
 
 // ----------------------------------------------------------------------------
 
-Dictionary::Dictionary( LangPair langs )
-    : m_langs( langs )
+Dictionary::Dictionary( LangPair langs, QObject* parent )
+    : QObject( parent ), m_langs( langs )
 {
 }
 
@@ -183,4 +183,25 @@ Word::List Dictionary::findWords( const QString& pattern, TextMatch match, int l
 Translation::List Dictionary::findTranslations( const QString& pattern, TextMatch match, int limit )
 {
     return Translation::find( pattern, m_langs, match, limit );
+}
+
+// ----------------------------------------------------------------------------
+
+bool Dictionary::setWordToLearn( qint64 /*id*/ )
+{
+//        // drop marks for these translations
+//        foreach( Translation t, m_translations )
+//        {
+//            t.fmark().restart();
+//            t.rmark().restart();
+//        }
+//        Translation::saveMarks( m_translations, m_id );
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+
+bool Dictionary::addToUserDict( qint64 sid )
+{
+    return Translation::addToUserDict( sid, m_langs );
 }

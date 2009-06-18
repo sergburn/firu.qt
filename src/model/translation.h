@@ -9,7 +9,7 @@
 #include "itembase.h"
 
 class Word;
-class TranslationExtension;
+class TranslationQueryAdapter;
 
 class Translation : public ItemBase
 {
@@ -58,7 +58,7 @@ private:
     Mark m_rmark;
     QWeakPointer<Word> m_parent;
 
-    friend class TranslationExtension;
+    friend class TranslationQueryAdapter;
 };
 
 #endif // TRANSLATION_H

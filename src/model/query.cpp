@@ -5,23 +5,11 @@
 
 // ----------------------------------------------------------------------------
 
-Query::Query( Database* db, Lang src, QObject* parent )
+Query::Query( Database* db )
     :
-    QObject( parent ),
+    QObject( db ),
     m_db( db->db() ),
-    m_stmt( NULL ),
-    m_srcLang( src ), m_trgLang( QLocale::C )
-{
-}
-
-// ----------------------------------------------------------------------------
-
-Query::Query( Database* db, LangPair langs, QObject* parent )
-    :
-    QObject( parent ), 
-    m_db( db->db() ),
-    m_stmt( NULL ),
-    m_srcLang( langs.first ), m_trgLang( langs.second )
+    m_stmt( NULL )
 {
 }
 
@@ -39,6 +27,7 @@ bool Query::start()
     if ( !m_stmt )
     {
         QString sql = buildSql();
+        qDebug() << "Preparing SQL:" << sql;
         int err = sqlite3_prepare16_v2( m_db, sql.utf16(), -1, &m_stmt, NULL );
         if ( err )
         {
@@ -52,7 +41,9 @@ bool Query::start()
         sqlite3_reset( m_stmt );
     }
 
+    m_finalSql = sqlite3_sql( m_stmt );
     int err = bind();
+    qDebug() << "Executing SQL:" << m_finalSql;
     if ( err )
     {
         LogSqliteError( m_db, "Query::start(), bind" );
@@ -136,6 +127,7 @@ int Query::bindInt( const char* parameter, int value )
     int pos = sqlite3_bind_parameter_index( m_stmt, parameter );
     int err = sqlite3_bind_int( m_stmt, pos, value );
     if ( err ) LogSqliteError( m_db, "Query::bindInt()" );
+    m_finalSql.replace( parameter, QString::number( value ) );
     return err;
 }
 
@@ -146,6 +138,7 @@ int Query::bindInt64( const char* parameter, qint64 value )
     int pos = sqlite3_bind_parameter_index( m_stmt, parameter );
     int err = sqlite3_bind_int64( m_stmt, pos, value );
     if ( err ) LogSqliteError( m_db, "Query::bindInt64()" );
+    m_finalSql.replace( parameter, QString::number( value ) );
     return err;
 }
 
@@ -156,6 +149,7 @@ int Query::bindString( const char* parameter, const QString& value )
     int pos = sqlite3_bind_parameter_index( m_stmt, parameter );
     int err = sqlite3_bind_text16( m_stmt, pos, value.utf16(), (value.size() + 1) * 2, SQLITE_STATIC );
     if ( err ) LogSqliteError( m_db, "Query::bindString()" );
+    m_finalSql.replace( parameter, QString( value ).append('\'').prepend('\'') );
     return err;
 }
 
