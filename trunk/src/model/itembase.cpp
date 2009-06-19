@@ -18,6 +18,20 @@ ItemBase::ItemBase( LangPair langs )
 
 // ----------------------------------------------------------------------------
 
+ItemBase::ItemBase( const QString& text, Lang src )
+    : m_id( 0 ), m_text( text ), m_srcLang( src ), m_trgLang( QLocale::C ), m_changed( 0 )
+{
+}
+
+// ----------------------------------------------------------------------------
+
+ItemBase::ItemBase( const QString& text, LangPair langs )
+    : m_id( 0 ), m_text( text ), m_srcLang( langs.first ), m_trgLang( langs.second ), m_changed( 0 )
+{
+}
+
+// ----------------------------------------------------------------------------
+
 bool ItemBase::save( bool withAssociates )
 {
     Database* db = Database::instance();

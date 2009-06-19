@@ -26,7 +26,6 @@ public:
 
     static void setToQuery( TranslationsQuery* query, const Translation& t )
     {
-        query->record().id = t.m_id;
         query->record().sid = t.m_sid;
         query->record().text = t.m_text;
         query->record().fmark = t.m_fmark();
@@ -46,13 +45,19 @@ Translation::Translation( LangPair langs )
 // ----------------------------------------------------------------------------
 
 Translation::Translation( const Word::Ptr word,  const QString& text, Lang trg )
-:   ItemBase( LangPair( word->getSource(), trg ) ),
-    m_sid( word->getId() ),
-    m_text( text )
+:   ItemBase( text,  LangPair( word->getSource(), trg ) ),
+    m_sid( word->id() )
 {
 //    assert( m_srcLang != QLocale::C );
 //    assert( m_trgLang != QLocale::C );
     m_parent = word.toWeakRef();
+}
+
+// ----------------------------------------------------------------------------
+
+Translation::~Translation()
+{
+    m_parent.clear();
 }
 
 // ----------------------------------------------------------------------------
@@ -123,9 +128,20 @@ Translation::List Translation::findBySourceEntry( qint64 sid, LangPair langs )
 
 // ----------------------------------------------------------------------------
 
+Word::Ptr Translation::getWord()
+{
+    if ( !m_parent )
+    {
+        m_parent = Word::find( m_sid, m_srcLang );
+    }
+    return m_parent;
+}
+
+// ----------------------------------------------------------------------------
+
 bool Translation::doUpdate()
 {
-    if ( m_parent ) m_sid = m_parent.toStrongRef()->getId();
+    if ( m_parent ) m_sid = m_parent->id();
     if ( !m_sid ) return false;
 
     TranslationUpdateQuery::Ptr query = Database::getQuery<TranslationUpdateQuery>( getLangs() );
@@ -137,7 +153,7 @@ bool Translation::doUpdate()
 
 bool Translation::doInsert()
 {
-    if ( m_parent ) m_sid = m_parent.toStrongRef()->getId();
+    if ( m_parent ) m_sid = m_parent->id();
     if ( !m_sid ) return false;
 
     TranslationInsertQuery::Ptr query = Database::getQuery<TranslationInsertQuery>( getLangs() );

@@ -18,10 +18,10 @@ public:
 
 public:
     Translation( const QSharedPointer<Word> word, const QString& text, Lang trg );
+    ~Translation();
 
     qint64 getSid() const { return m_sid; }
 
-    QString getText() const { return m_text; }
     void setText( const QString& text );
 
     Mark& fmark() { return m_fmark; }
@@ -29,6 +29,8 @@ public:
 
     const Mark& fmark() const { return m_fmark; }
     const Mark& rmark() const { return m_rmark; }
+
+    QSharedPointer<Word> getWord();
 
     static Ptr find( qint64 id, LangPair langs );
     static List find( const QString& pattern, LangPair langs, TextMatch match = StartsWith, int limit = 0 );
@@ -52,10 +54,9 @@ private:
 
 private:
     qint64 m_sid;
-    QString m_text;
     Mark m_fmark;
     Mark m_rmark;
-    QWeakPointer<Word> m_parent;
+    QSharedPointer<Word> m_parent;
 
     friend class TranslationQueryAdapter;
 };
