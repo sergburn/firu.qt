@@ -7,6 +7,7 @@
 /** Selects all translations */
 class TranslationsQuery : public Query
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( TranslationsQuery );
     TranslationsQuery( Database* db, LangPair langs );
@@ -38,6 +39,7 @@ protected:
 
 class TranslationByIdQuery : public TranslationsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( TranslationByIdQuery )
     TranslationByIdQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
@@ -51,6 +53,7 @@ protected: // from Query
 
 class TranslationsBySidQuery : public TranslationsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( TranslationsBySidQuery )
     TranslationsBySidQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
@@ -69,6 +72,7 @@ private:
 
 class TranslationsByPatternQuery : public TranslationsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( TranslationsByPatternQuery )
     TranslationsByPatternQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
@@ -88,6 +92,7 @@ private:
 
 class TranslationUpdateQuery : public TranslationsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( TranslationUpdateQuery )
     TranslationUpdateQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
@@ -101,6 +106,7 @@ protected: // from Query
 
 class TranslationInsertQuery : public TranslationUpdateQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( TranslationInsertQuery )
     TranslationInsertQuery( Database* db, LangPair langs ) : TranslationUpdateQuery( db, langs ) {}
@@ -115,6 +121,7 @@ protected: // from Query
 
 class UpdateMarksQuery : public TranslationsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( UpdateMarksQuery );
 

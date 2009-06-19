@@ -17,6 +17,8 @@ public:
     static Settings& settings();
     static Database& database();
 
+    static QStringList getKeypadGroups( Lang lang );
+
     bool openDatabase();
 
 private:

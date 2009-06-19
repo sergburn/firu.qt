@@ -35,6 +35,7 @@ public:
     explicit Mark( MarkValue val ) : m_value( val ) {}
     MarkValue operator()() const { return m_value; }
 //    Mark& operator=( MarkValue value ) { m_value = value; return *this; }
+    operator MarkValue() { return m_value; }
 
     MarkValue reset() { return m_value = Undefined; }
     MarkValue clear() { return m_value = Unknown; }

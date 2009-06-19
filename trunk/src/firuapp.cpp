@@ -61,6 +61,42 @@ Database& FiruApp::database()
 
 // ----------------------------------------------------------------------------
 
+QStringList FiruApp::getKeypadGroups( Lang lang )
+{
+    QStringList groups;
+    switch ( lang )
+    {
+        case QLocale::Finnish:
+            groups.append( QString( "abc" ) );
+            groups.append( QString( "def" ) );
+            groups.append( QString( "ghi" ) );
+            groups.append( QString( "jkl" ) );
+            groups.append( QString( "mno" ) );
+            groups.append( QString( "pqrs" ) );
+            groups.append( QString( "tuv" ) );
+            groups.append( QString( "wxyz" ) );
+//            groups.append( QString( "äö" ) );
+            break;
+
+        case QLocale::Russian:
+            groups.append( "абвг" );
+            groups.append( "дежз" );
+            groups.append( "ийкл" );
+            groups.append( "мноп" );
+            groups.append( "рсту" );
+            groups.append( "фхцч" );
+            groups.append( "шщъы" );
+            groups.append( "ьэюя" );
+            groups.append( "ё" );
+            break;
+        default:
+            break;
+    }
+    return groups;
+}
+
+// ----------------------------------------------------------------------------
+
 Settings::Settings()
 {
 }

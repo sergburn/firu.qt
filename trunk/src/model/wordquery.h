@@ -6,6 +6,7 @@
 
 class WordsQuery : public Query
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( WordsQuery );
 
@@ -35,6 +36,7 @@ protected:
 
 class WordsCountQuery : public WordsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( WordsCountQuery )
     WordsCountQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
@@ -47,6 +49,7 @@ protected: // from Query
 
 class WordByIdQuery : public WordsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( WordByIdQuery )
     WordByIdQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
@@ -60,6 +63,7 @@ protected: // from Query
 
 class WordsByPatternQuery : public WordsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( WordsByPatternQuery )
     WordsByPatternQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
@@ -79,6 +83,7 @@ private:
 
 class WordUpdateQuery : public WordsQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( WordUpdateQuery )
     WordUpdateQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
@@ -92,6 +97,7 @@ protected: // from Query
 
 class WordInsertQuery : public WordUpdateQuery
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( WordInsertQuery )
     WordInsertQuery( Database* db, LangPair langs ) : WordUpdateQuery( db, langs ) {}

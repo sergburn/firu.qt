@@ -5,7 +5,6 @@
 #include <QSharedPointer>
 
 #include "model.h"
-//#include "word.h"
 #include "itembase.h"
 
 class Word;

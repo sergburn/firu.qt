@@ -82,8 +82,7 @@ bool Query::next()
 
 bool Query::execute()
 {
-    int err = start();
-    if ( !err )
+    if ( start() )
     {
         int steps = 0;
         while ( next() )
@@ -93,9 +92,10 @@ bool Query::execute()
                 emit onQueryProgress();
             }
         }
-        err = sqlite3_errcode( m_db );
+        int err = sqlite3_errcode( m_db );
+        return SQLOK( err ) == SQLITE_OK;
     }
-    return SQLOK( err ) == SQLITE_OK;
+    return false;
 }
 
 // ----------------------------------------------------------------------------
