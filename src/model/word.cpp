@@ -21,8 +21,7 @@ public:
 
     static void setToQuery( WordsQuery* query, const Word& word )
     {
-        query->record().id = word.getId();
-        query->record().text = word.getText();
+        query->record().text = word.text();
     }
 };
 
@@ -36,7 +35,7 @@ Word::Word( Lang lang )
 // ----------------------------------------------------------------------------
 
 Word::Word( const QString& text, Lang lang )
-    : ItemBase( lang ), m_text( text )
+    : ItemBase( text, lang )
 {
 }
 
@@ -212,7 +211,7 @@ bool Word::addTranslation( const QString& text, Lang trg )
     // avoid duplicates
     foreach( Translation::Ptr t, list )
     {
-        if ( t->getText() == text ) return false;
+        if ( t->text() == text ) return false;
     }
 
     Translation::Ptr t( new Translation( QSharedPointer<Word>( this ), text, trg ) );

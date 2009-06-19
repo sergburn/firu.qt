@@ -99,8 +99,8 @@ void FiruMainWindow::updateList()
         }
         foreach( Word::Ptr wp, words )
         {
-            QListWidgetItem* item = new QListWidgetItem( wp->getText() );
-            item->setData( Qt::UserRole, wp->getId() );
+            QListWidgetItem* item = new QListWidgetItem( wp->text() );
+            item->setData( Qt::UserRole, wp->id() );
             m_ui.listSources->addItem( item );
         }
     }
@@ -154,7 +154,7 @@ void FiruMainWindow::showTranslation( QListWidgetItem* item )
         Translation::List trans = m_dictionary->findTranslations( sid );
         foreach ( Translation::Ptr tp, trans )
         {
-            translations.append( tp->getText() );
+            translations.append( tp->text() );
         }
         m_dictionary->addToUserDict( sid );
     }

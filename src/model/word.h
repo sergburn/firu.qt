@@ -28,7 +28,6 @@ public:
     static List filter( const List& list, const QString& pattern, TextMatch match = StartsWith );
 
 public:
-    const QString& getText() const { return m_text; }
     void setText( const QString& text );
 
     bool match( const QString& pattern, TextMatch match );
@@ -52,7 +51,6 @@ private slots:
     void handleTransactionFinish( bool success );
 
 private:
-    QString m_text;
     QMap<Lang, Translation::List> m_translations;
 
     friend class WordQueryAdapter;
