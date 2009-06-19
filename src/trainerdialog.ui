@@ -47,7 +47,7 @@
          <enum>QFrame::Box</enum>
         </property>
         <property name="text">
-         <string>question word in source language to be translated to target lang</string>
+         <string>translation to find source word for</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -76,7 +76,7 @@
        <number>3</number>
       </property>
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="laAnswer">
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
@@ -95,8 +95,11 @@
        <layout class="QGridLayout" name="gridLayout">
         <item row="1" column="0">
          <widget class="QLabel" name="la4">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>клм</string>
+           <string>jkl</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -105,8 +108,11 @@
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="la7">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>уфх</string>
+           <string>stu</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -114,9 +120,12 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="la11">
+         <widget class="QLabel" name="la10">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>List</string>
+           <string>?</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -125,8 +134,11 @@
         </item>
         <item row="1" column="1">
          <widget class="QLabel" name="la5">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>ноп</string>
+           <string>mno</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -135,8 +147,11 @@
         </item>
         <item row="0" column="1">
          <widget class="QLabel" name="la2">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>гдеё</string>
+           <string>def</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -145,8 +160,11 @@
         </item>
         <item row="1" column="2">
          <widget class="QLabel" name="la6">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>рст</string>
+           <string>pqr</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -155,8 +173,11 @@
         </item>
         <item row="2" column="1">
          <widget class="QLabel" name="la8">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>цчш</string>
+           <string>vw</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -164,9 +185,12 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLabel" name="la0">
+         <widget class="QLabel" name="la11">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>эюя</string>
+           <string>äö</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -175,8 +199,11 @@
         </item>
         <item row="3" column="2">
          <widget class="QLabel" name="la12">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>Tell</string>
+           <string>!</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -185,8 +212,11 @@
         </item>
         <item row="2" column="2">
          <widget class="QLabel" name="la9">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>щъыъ</string>
+           <string>xyz</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -195,8 +225,11 @@
         </item>
         <item row="0" column="2">
          <widget class="QLabel" name="la3">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>жзий</string>
+           <string>ghi</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -205,8 +238,11 @@
         </item>
         <item row="0" column="0">
          <widget class="QLabel" name="la1">
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
           <property name="text">
-           <string>абв</string>
+           <string>. ,</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -215,11 +251,11 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="QListWidget" name="listAnswers"/>
+      </item>
      </layout>
     </widget>
-   </item>
-   <item>
-    <widget class="QListWidget" name="listAnswers"/>
    </item>
   </layout>
  </widget>

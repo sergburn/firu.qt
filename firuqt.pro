@@ -18,7 +18,8 @@ HEADERS += src/AppUi.h \
     src/model/dictionary.h \
     src/model/itembase.h \
     src/firudebug.h \
-    src/model/sqlgenerator.h
+    src/model/sqlgenerator.h \
+    src/model/reversetest.h
 SOURCES += src/AppUi.cpp \
     src/firumainwindow.cpp \
     src/main.cpp \
@@ -35,7 +36,8 @@ SOURCES += src/AppUi.cpp \
     src/model/dictionary.cpp \
     src/model/itembase.cpp \
     src/firudebug.cpp \
-    src/model/sqlgenerator.cpp
+    src/model/sqlgenerator.cpp \
+    src/model/reversetest.cpp
 FORMS += src/firumainwindow.ui \
     src/firuqt.ui \
     src/trainerdialog.ui \

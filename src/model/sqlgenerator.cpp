@@ -96,7 +96,7 @@ QString SqlGenerator::countBaseSql( const QString& table )
 
 QString SqlGenerator::updateBaseSql( const QString& table )
 {
-    return QString( "UPDATE %1 SET" ).arg( table );
+    return QString( "UPDATE %1 SET " ).arg( table );
 }
 
 // ----------------------------------------------------------------------------

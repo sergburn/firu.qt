@@ -1,5 +1,6 @@
 #include "itembase.h"
 #include "database.h"
+#include "../firudebug.h"
 
 // ----------------------------------------------------------------------------
 
@@ -20,9 +21,9 @@ ItemBase::ItemBase( LangPair langs )
 bool ItemBase::save( bool withAssociates )
 {
     Database* db = Database::instance();
+    bool ok = false;
     if ( db->begin() )
     {
-        bool ok = false;
         if ( m_changed )
         {
             if ( m_id )
@@ -43,15 +44,14 @@ bool ItemBase::save( bool withAssociates )
         if ( ok )
         {
             connect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
-            return db->commit();
+            ok = db->commit();
         }
         else
         {
             db->rollback();
-            return false;
         }
     }
-    return false;
+    return ok;
 }
 
 // ----------------------------------------------------------------------------
@@ -59,9 +59,10 @@ bool ItemBase::save( bool withAssociates )
 bool ItemBase::destroy()
 {
     Database* db = Database::instance();
+    bool ok = false;
     if ( db->begin() )
     {
-        bool ok = doDelete();
+        ok = doDelete();
 
         if ( ok )
         {
@@ -71,21 +72,25 @@ bool ItemBase::destroy()
         if ( ok )
         {
             connect( db, SIGNAL( onTransactionFinish(bool) ), SLOT( handleTransactionFinish(bool) ) );
-            return db->commit();
+            ok = db->commit();
         }
         else
         {
             db->rollback();
-            return false;
         }
     }
-    return false;
+    return ok;
 }
 
 // ----------------------------------------------------------------------------
 
 void ItemBase::handleTransactionFinish( bool success )
 {
+    if ( success )
+        qDebug() << "Transaction completed";
+    else
+        qDebug() << "Transaction failed";
+
     m_changed = success ? 0 : m_changed;
     Database* db = Database::instance();
     disconnect( db, SIGNAL( onTransactionFinish(bool) ), this, SLOT( handleTransactionFinish(bool) ) );

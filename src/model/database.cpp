@@ -325,14 +325,14 @@ bool Database::commit()
         {
             LogSqliteError( m_db, "commit" );
             rollback();
-            return false;
         }
         else
         {
             emit onTransactionFinish( true );
-            m_transactionLevel = 0;
-            return true;
         }
+
+        m_transactionLevel = 0;
+        return m_transactionError == 0;
     }
 }
 
