@@ -205,3 +205,10 @@ bool Dictionary::addToUserDict( qint64 sid )
 {
     return Translation::addToUserDict( sid, m_langs );
 }
+
+// ----------------------------------------------------------------------------
+
+Exercise::Ptr Dictionary::createReverseExercise()
+{
+    return Exercise::generate( m_langs );
+}

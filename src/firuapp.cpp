@@ -97,6 +97,27 @@ QStringList FiruApp::getKeypadGroups( Lang lang )
 
 // ----------------------------------------------------------------------------
 
+void FiruApp::startTrainer( Dictionary::Ptr dictionary )
+{
+    Trainer* trainer = new Trainer( dictionary, get() );
+    trainer->start();
+}
+
+// ----------------------------------------------------------------------------
+
+TrainerDialog* FiruApp::getTrainerDialog()
+{
+    FiruApp* self = get();
+    if ( !self->m_dlgTrainer )
+    {
+        self->m_dlgTrainer = new TrainerDialog();
+    }
+    return self->m_dlgTrainer;
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 Settings::Settings()
 {
 }

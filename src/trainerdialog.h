@@ -22,17 +22,19 @@ public:
 
     void showTest( ReverseTest::Ptr test );
 
+signals:
+    void onTestDone();
+
 protected:
     virtual void changeEvent(QEvent *e);
     virtual void keyPressEvent(QKeyEvent *keyEvent);
     virtual void mousePressEvent( QMouseEvent *mouseEvent );
 
 private:
-    void showAnswersList();
-    void showKeypad();
+    void setAnswersListMode();
+    void setKeypadMode();
     void checkNextLetter( QString letter );
     void showNextLetters();
-    void hideNextLetters();
 
 private:
     Ui::TrainerDialog *m_ui;

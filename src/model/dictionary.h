@@ -9,6 +9,7 @@
 #include "model.h"
 #include "word.h"
 #include "translation.h"
+#include "exercise.h"
 
 // ----------------------------------------------------------------------------
 
@@ -38,6 +39,8 @@ public:
     bool setWordToLearn( qint64 id );
 
     bool addToUserDict( qint64 sid );
+
+    Exercise::Ptr createReverseExercise();
 
 signals:
     void progress( double value );
