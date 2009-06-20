@@ -4,8 +4,13 @@
 #include <QApplication>
 #include <QSettings>
 
+#include "trainerdialog.h"
+
+#include "trainer.h"
+
 #include "model/model.h"
 #include "model/database.h"
+#include "model/dictionary.h"
 
 class Settings;
 
@@ -21,10 +26,14 @@ public:
 
     bool openDatabase();
 
+    static void startTrainer( Dictionary::Ptr dictionary );
+    static TrainerDialog* getTrainerDialog();
+
 private:
     FiruApp();
     Settings* m_settings;
     Database* m_database;
+    TrainerDialog* m_dlgTrainer;
 };
 
 class Settings

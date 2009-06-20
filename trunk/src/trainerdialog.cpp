@@ -1,4 +1,6 @@
 #include <QKeyEvent>
+#include <QDialogButtonBox>
+#include <QPushButton>
 
 #include "trainerdialog.h"
 #include "ui_trainerdialog.h"
@@ -12,7 +14,7 @@ TrainerDialog::TrainerDialog(QWidget *parent) :
     m_ui(new Ui::TrainerDialog)
 {
     m_ui->setupUi(this);
-    showKeypad();
+    setKeypadMode();
 
     m_keyLabels.append( m_ui->la1 );
     m_keyLabels.append( m_ui->la2 );
@@ -26,6 +28,8 @@ TrainerDialog::TrainerDialog(QWidget *parent) :
     m_keyLabels.append( m_ui->la10 );
     m_keyLabels.append( m_ui->la11 );
     m_keyLabels.append( m_ui->la12 );
+
+    connect( m_ui->buttonBox, SIGNAL( accepted() ), SIGNAL( onTestDone() ) );
 
 #ifdef __SYMBIAN32__
     showMaximized();
@@ -57,16 +61,16 @@ void TrainerDialog::changeEvent(QEvent *e)
 
 // ----------------------------------------------------------------------------
 
-void TrainerDialog::keyPressEvent(QKeyEvent *keyEvent)
+void TrainerDialog::keyPressEvent( QKeyEvent *keyEvent )
 {
 	qDebug("Key %d, scan %d", keyEvent->key(), keyEvent->nativeScanCode());	
     switch( keyEvent->key() )
     {
         case '0':
-            showAnswersList();
+            setAnswersListMode();
             break;
         case '#':
-            showKeypad();
+            setKeypadMode();
             break;
         default:
             checkNextLetter( keyEvent->text() );
@@ -93,7 +97,7 @@ void TrainerDialog::mousePressEvent( QMouseEvent *mouseEvent )
 
 // ----------------------------------------------------------------------------
 
-void TrainerDialog::showAnswersList()
+void TrainerDialog::setAnswersListMode()
 {
     m_ui->frmKeypad->setVisible( false );
     m_ui->listAnswers->setVisible( true );
@@ -101,7 +105,7 @@ void TrainerDialog::showAnswersList()
 
 // ----------------------------------------------------------------------------
 
-void TrainerDialog::showKeypad()
+void TrainerDialog::setKeypadMode()
 {
     m_ui->frmKeypad->setVisible( true );
     m_ui->listAnswers->setVisible( false );
@@ -111,6 +115,9 @@ void TrainerDialog::showKeypad()
 
 void TrainerDialog::showTest( ReverseTest::Ptr test )
 {
+    m_answerText.clear();
+    m_keyGroups.clear();
+
     m_test = test;
     m_ui->laQuestion->setText( m_test->getQuestion() );
     m_ui->laAnswer->setText("");
@@ -118,6 +125,12 @@ void TrainerDialog::showTest( ReverseTest::Ptr test )
     m_keyGroups = FiruApp::getKeypadGroups( m_test->getAnswerLang() );
 
     showNextLetters();
+    setKeypadMode();
+
+    m_ui->buttonBox->button( QDialogButtonBox::Ok )->setEnabled( false );
+    m_ui->buttonBox->button( QDialogButtonBox::Help )->setEnabled( true );
+
+    exec();
 }
 
 // ----------------------------------------------------------------------------
@@ -136,8 +149,11 @@ void TrainerDialog::checkNextLetter( QString letter )
     {
         m_answerText = answer;
         m_ui->laAnswer->setText( m_answerText );
-        hideNextLetters();
-        // emit done();
+        m_ui->frmKeypad->hide();
+        m_ui->buttonBox->button( QDialogButtonBox::Ok )->setEnabled( true );
+        m_ui->buttonBox->button( QDialogButtonBox::Ok )->setDefault( true );
+        m_ui->buttonBox->button( QDialogButtonBox::Ok )->setFocus();
+        m_ui->buttonBox->button( QDialogButtonBox::Help )->setEnabled( false );
     }
 }
 
@@ -150,14 +166,5 @@ void TrainerDialog::showNextLetters()
     {
         m_keyLabels[ i+1 ]->setText( QString( letters[i] ) );
     }
-}
-
-// ----------------------------------------------------------------------------
-
-void TrainerDialog::hideNextLetters()
-{
-    foreach(QLabel* l, m_keyLabels)
-    {
-        l->hide();
-    }
+    m_ui->frmKeypad->show();
 }

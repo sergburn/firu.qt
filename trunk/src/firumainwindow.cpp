@@ -2,6 +2,7 @@
 #include <QAction>
 #include <QKeyEvent>
 
+#include "firuapp.h"
 #include "firumainwindow.h"
 #include "trainerdialog.h"
 #include "entryviewdialog.h"
@@ -110,14 +111,7 @@ void FiruMainWindow::updateList()
 
 void FiruMainWindow::on_actionOpenTrainer_triggered()
 {
-    TrainerDialog t(this);
-
-    Word::Ptr word( new Word( "word", QLocale::Finnish ) );
-    Translation::Ptr translation( new Translation( word, "translation", QLocale::Russian ) );
-    ReverseTest::Ptr test( new ReverseTest( translation, word ) );
-
-    t.showTest( test );
-    t.exec();
+    FiruApp::startTrainer( m_dictionary );
 }
 
 // ----------------------------------------------------------------------------

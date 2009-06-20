@@ -2,7 +2,6 @@
 #define ENTRYVIEWDIALOG_H
 
 #include <QtGui/QDialog>
-#include "data.h"
 
 namespace Ui {
     class EntryViewDialog;
