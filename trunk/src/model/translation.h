@@ -35,6 +35,7 @@ public:
     static Ptr find( qint64 id, LangPair langs );
     static List find( const QString& pattern, LangPair langs, TextMatch match = StartsWith, int limit = 0 );
     static List findBySourceEntry( qint64 sid, LangPair langs );
+    static List getAllWithRMark( Mark::MarkValue level, LangPair langs );
 
     /** Marks this translation as ToLearn */
     bool addToUserDict();

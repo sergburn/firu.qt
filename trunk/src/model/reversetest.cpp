@@ -60,6 +60,20 @@ QString ReverseTest::getNextLetterHint( const QString& current, const QStringLis
 
 // ----------------------------------------------------------------------------
 
+QString ReverseTest::getNextLetter( const QString& current ) const
+{
+    QString hint;
+    QString answer = m_answer->text();
+    if ( answer.length() > current.length() &&
+         answer.startsWith( current ) )
+    {
+        hint.append( answer[ current.length() ] );
+    }
+    return hint;
+}
+
+// ----------------------------------------------------------------------------
+
 QString ReverseTest::getQuestion() const
 {
     return m_challenge->text();
@@ -87,7 +101,7 @@ ReverseTest::AnswerValue ReverseTest::checkAnswer( const QString& answer )
     {
         return Correct;
     }
-    else if ( m_answer->text().contains( answer ) )
+    else if ( m_answer->text().startsWith( answer ) )
     {
         return PartiallyCorrect;
     }

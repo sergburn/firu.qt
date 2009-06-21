@@ -29,6 +29,8 @@ public:
      *  to allow for easier input */
     QString getNextLetterHint( const QString& current, const QStringList& groups ) const;
 
+    QString getNextLetter( const QString& current ) const;
+
     /** Using this hint will drop current mark from 3 to 2. */
     QStringList getFullWordHints();
 
