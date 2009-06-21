@@ -22,6 +22,9 @@ public:
 
     void showTest( ReverseTest::Ptr test );
 
+public slots:
+    void showHints();
+
 signals:
     void onTestDone();
 

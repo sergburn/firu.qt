@@ -87,6 +87,30 @@ int TranslationsBySidQuery::bind()
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
+QString TranslationsByRMarkQuery::buildSql() const
+{
+    SqlGenerator builder( selectBaseSql() );
+    builder.addCondition( "rmark = :rmark" );
+    return builder.sql();
+}
+
+// ----------------------------------------------------------------------------
+
+void TranslationsByRMarkQuery::setRequiredMark( Mark::MarkValue rmark )
+{
+    m_rmark = rmark;
+}
+
+// ----------------------------------------------------------------------------
+
+int TranslationsByRMarkQuery::bind()
+{
+    return bindInt( ":rmark", m_rmark );
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 void TranslationsByPatternQuery::setPattern( const QString& pattern, TextMatch match )
 {
     m_pattern = pattern;

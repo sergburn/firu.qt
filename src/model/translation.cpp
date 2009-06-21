@@ -128,6 +128,25 @@ Translation::List Translation::findBySourceEntry( qint64 sid, LangPair langs )
 
 // ----------------------------------------------------------------------------
 
+Translation::List Translation::getAllWithRMark( Mark::MarkValue level, LangPair langs )
+{
+    Translation::List list;
+    TranslationsByRMarkQuery::Ptr qry = Database::getQuery<TranslationsByRMarkQuery>( langs );
+    if ( qry )
+    {
+        qry->setRequiredMark( level );
+        qry->start();
+        while ( qry->next() )
+        {
+            Translation::Ptr t = TranslationQueryAdapter::createFromQuery( *qry, langs );
+            list.append( t );
+        }
+    }
+    return list;
+}
+
+// ----------------------------------------------------------------------------
+
 Word::Ptr Translation::getWord()
 {
     if ( !m_parent )

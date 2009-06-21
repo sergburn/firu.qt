@@ -70,6 +70,25 @@ private:
 
 // ----------------------------------------------------------------------------
 
+class TranslationsByRMarkQuery : public TranslationsQuery
+{
+    Q_OBJECT
+public:
+    SHARED_POINTER( TranslationsByRMarkQuery )
+    TranslationsByRMarkQuery( Database* db, LangPair langs ) : TranslationsQuery( db, langs ) {}
+
+    void setRequiredMark( Mark::MarkValue mark );
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual int bind();
+
+private:
+    int m_rmark;
+};
+
+// ----------------------------------------------------------------------------
+
 class TranslationsByPatternQuery : public TranslationsQuery
 {
     Q_OBJECT

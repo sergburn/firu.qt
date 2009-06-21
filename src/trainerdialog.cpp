@@ -137,6 +137,8 @@ void TrainerDialog::showTest( ReverseTest::Ptr test )
 
 void TrainerDialog::checkNextLetter( QString letter )
 {
+    if ( letter.length() < 1 ) return;
+
     QString answer = m_answerText + letter;
     ReverseTest::AnswerValue av = m_test->checkAnswer( answer );
     if ( av == ReverseTest::PartiallyCorrect )
@@ -167,4 +169,12 @@ void TrainerDialog::showNextLetters()
         m_keyLabels[ i+1 ]->setText( QString( letters[i] ) );
     }
     m_ui->frmKeypad->show();
+}
+
+// ----------------------------------------------------------------------------
+
+void TrainerDialog::showHints()
+{
+    QString letter = m_test->getNextLetter( m_answerText );
+    checkNextLetter( letter );
 }
