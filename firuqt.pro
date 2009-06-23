@@ -59,7 +59,7 @@ symbian {
         firuqt_reg.rss \
         firuqt_reg.rss \
         src/AppUi_S60.cpp \
-        external/sqlite/sqlite3.c
+        external/sqlite/sqlite3_part2.c
     DEFINES += SQLITE_OS_UNIX=1
     DEPENDPATH += external/sqlite
 }

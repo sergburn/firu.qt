@@ -23,14 +23,30 @@ FiruApp::FiruApp( int argc, char *argv[] )
 
 // ----------------------------------------------------------------------------
 
+FiruApp::~FiruApp()
+{
+#ifdef __SYMBIAN32__
+    iFs.Close();
+#endif
+}
+
+// ----------------------------------------------------------------------------
+
 bool FiruApp::openDatabase()
 {
-#ifndef SYMBIAN
-    QString dbPath = QDir::homePath() + "/.firu/";
+    QString dbPath;
+#ifndef __SYMBIAN32__
+    dbPath = QDir::homePath() + "/.firu/";
     QDir path;
     path.mkpath( dbPath );
 #else
-    QString dbPath;
+    int err = iFs.Connect(); 
+    if ( err != KErrNone )
+    {
+        qDebug() << "Can't connect RFs, err " << err;
+        return false;
+    }
+    register_symbian_vfs( iFs );
 #endif
     m_database = Database::open( dbPath + "firu.db", this );
     return ( m_database != NULL );
@@ -75,19 +91,10 @@ QStringList FiruApp::getKeypadGroups( Lang lang )
             groups.append( QString( "pqrs" ) );
             groups.append( QString( "tuv" ) );
             groups.append( QString( "wxyz" ) );
-//            groups.append( QString( "äö" ) );
+            groups.append( QString( "\xE4\xF6" ) );
             break;
 
         case QLocale::Russian:
-            groups.append( "абвг" );
-            groups.append( "дежз" );
-            groups.append( "ийкл" );
-            groups.append( "мноп" );
-            groups.append( "рсту" );
-            groups.append( "фхцч" );
-            groups.append( "шщъы" );
-            groups.append( "ьэюя" );
-            groups.append( "ё" );
             break;
         default:
             break;
