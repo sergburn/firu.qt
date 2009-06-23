@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     a.setKeypadNavigationEnabled( false );
 #endif
 
-    bool isOpen = a.openDatabase();
+    bool isOpen = a.openDatabase();    
     qDebug() << "db open? " << isOpen; 
     qDebug() << "I'm at " << QDir::currentPath();
     

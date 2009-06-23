@@ -22214,7 +22214,12 @@ static int unixUnlock(sqlite3_file *id, int locktype){
     if( pLock->cnt==0 ){
       lock.l_type = F_UNLCK;
       lock.l_whence = SEEK_SET;
+#ifdef SYMBIAN      
+      lock.l_start = SHARED_FIRST;
+      lock.l_len = SHARED_SIZE;
+#else
       lock.l_start = lock.l_len = 0L;
+#endif
       SimulateIOErrorBenign(1);
       SimulateIOError( h=(-1) )
       SimulateIOErrorBenign(0);

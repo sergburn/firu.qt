@@ -18,6 +18,8 @@ class FiruApp : public QApplication
 {
 public:
     FiruApp( int argc, char *argv[] );
+    ~FiruApp();
+
     static FiruApp* get();
     static Settings& settings();
     static Database& database();
@@ -34,6 +36,10 @@ private:
     Settings* m_settings;
     Database* m_database;
     TrainerDialog* m_dlgTrainer;
+
+#ifdef __SYMBIAN32__    
+    RFs iFs;
+#endif
 };
 
 class Settings
