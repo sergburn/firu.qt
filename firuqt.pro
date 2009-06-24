@@ -52,18 +52,22 @@ DEFINES += SQLITE_THREADSAFE=0 \
     SQLITE_OMIT_DEPRECATED
 symbian { 
     TARGET.UID3 = 0xE92D4440
-    HEADERS += firuqt.loc \
+    HEADERS += src/sqlite_symbian.h \
+        firuqt.loc \
         src/AppUi_S60.h \
         external/sqlite/sqlite3.h
-    SOURCES += firuqt.rss \
+    SOURCES += src/sqlite_symbian.cpp \
+        firuqt.rss \
         firuqt_reg.rss \
         firuqt_reg.rss \
         src/AppUi_S60.cpp \
         external/sqlite/sqlite3_part2.c
     DEFINES += SQLITE_OS_UNIX=1
     DEPENDPATH += external/sqlite
+    LIBS += charconv
+    INCLUDEPATH += /epoc32/include/middleware
 }
-unix { 
+linux { 
     CONFIG += qt \
         debug
     LIBS += -lsqlite3

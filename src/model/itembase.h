@@ -1,6 +1,7 @@
 #ifndef ITEMBASE_H
 #define ITEMBASE_H
 
+#include <QObject>
 #include "model.h"
 
 class ItemBase : public QObject

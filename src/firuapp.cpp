@@ -2,6 +2,7 @@
 #include <QString>
 
 #include "firuapp.h"
+#include "firudebug.h"
 
 // ----------------------------------------------------------------------------
 
@@ -25,9 +26,6 @@ FiruApp::FiruApp( int argc, char *argv[] )
 
 FiruApp::~FiruApp()
 {
-#ifdef __SYMBIAN32__
-    iFs.Close();
-#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -39,14 +37,6 @@ bool FiruApp::openDatabase()
     dbPath = QDir::homePath() + "/.firu/";
     QDir path;
     path.mkpath( dbPath );
-#else
-    int err = iFs.Connect(); 
-    if ( err != KErrNone )
-    {
-        qDebug() << "Can't connect RFs, err " << err;
-        return false;
-    }
-    register_symbian_vfs( iFs );
 #endif
     m_database = Database::open( dbPath + "firu.db", this );
     return ( m_database != NULL );

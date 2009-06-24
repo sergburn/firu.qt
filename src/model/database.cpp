@@ -3,6 +3,7 @@
 
 #include "database.h"
 #include "../firudebug.h"
+#include "sqlite_symbian.h"
 
 Database* g_schema = NULL;
 
@@ -47,6 +48,9 @@ Database::~Database()
     }
     sqlite3_shutdown();
     g_schema = NULL;
+#ifdef __SYMBIAN32__
+    iFs.Close();
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -81,6 +85,16 @@ bool Database::doOpen( const QString& dbPath )
     QString path = QDir::toNativeSeparators( dbPath );
     qDebug() << "Db: " << path;
 
+#ifdef __SYMBIAN32__    
+    int _err = iFs.Connect(); 
+    if ( _err != KErrNone )
+    {
+        qDebug() << "Can't connect RFs, err " << _err;
+        return false;
+    }
+    register_symbian_vfs( iFs );
+#endif
+    
     int err = sqlite3_open( path.toUtf8().constData(), &m_db );
     if ( err == SQLITE_OK )
     {
