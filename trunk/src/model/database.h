@@ -1,6 +1,11 @@
 #ifndef DATABASE_H_
 #define DATABASE_H_
 
+#ifdef __SYMBIAN32__
+#include <e32std.h>
+#include <f32file.h>
+#endif
+
 #include <QObject>
 #include <QString>
 #include <QHash>
@@ -86,6 +91,10 @@ private:
 
     int m_transactionLevel;
     int m_transactionError;
+
+#ifdef __SYMBIAN32__
+    RFs iFs;
+#endif
 };
 
 #endif /* DATABASE_H_ */
