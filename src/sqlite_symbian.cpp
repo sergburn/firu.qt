@@ -33,7 +33,7 @@
 ** portability layer.
 */
 
-#define MAX_FILE_NAME (2*KMaxFileName)
+#define MAX_FILE_NAME KMaxFileName
 #define ZSTR2PTR(_zstr) TPtrC8( (const TUint8*) _zstr )
 #define RFS( _vfs ) (*((RFs*)(_vfs->pAppData)))
 
@@ -56,194 +56,6 @@ struct symFile
 	RFile file;
 };
 
-// ----------------------------------------------------------------------------
-
-int symOpen( 
-    sqlite3_vfs *pVfs,
-    const char *zName,  /* Name of the file (UTF-8) */
-    sqlite3_file *id,   /* Write the SQLite file handle here */
-    int flags,          /* Open mode flags */
-    int* /*pOutFlags*/      /* Status return flags */
-    )
-{
-    symFile *pFile = (symFile*) id;
-
-    pFile->isOpen = 0;
-//    memset( pFile, 0, sizeof( symFile ) );
-
-    TFileName filename;
-    CnvUtfConverter::ConvertToUnicodeFromUtf8( filename, ZSTR2PTR( zName ) );
-
-    int ret = 0;
-    if ( flags & SQLITE_OPEN_CREATE )
-    {
-        if ( BaflUtils::FileExists( RFS( pVfs ), filename ) == 1 )
-        {
-            ret = pFile->file.Open( RFS( pVfs ), filename, EFileStream | EFileWrite | EFileShareAny );
-        }
-        else
-        {
-            ret = pFile->file.Create( RFS( pVfs ), filename, EFileStream | EFileWrite | EFileShareAny );
-        }
-    }
-    else if ( flags & SQLITE_OPEN_READWRITE )
-    {
-        ret = pFile->file.Open( RFS( pVfs ), filename, EFileStream | EFileWrite | EFileShareAny );
-    }
-    else
-    {
-        ret = pFile->file.Open( RFS( pVfs ), filename, EFileStream | EFileRead | EFileShareAny );
-    }
-
-//    OpenCounter( +1 );
-
-    if ( ret != KErrNone )
-    {
-        return SQLITE_IOERR;
-    }
-
-    pFile->isOpen = 1;
-    return SQLITE_OK;
-}
-
-// ----------------------------------------------------------------------------
-
-int symDelete( 
-    sqlite3_vfs *pVfs,
-    const char *zFilename,  /* Name of file to delete */
-    int syncDir             /* Not used on win32 */
-    )
-{
-    TFileName filename;
-    CnvUtfConverter::ConvertToUnicodeFromUtf8( filename, ZSTR2PTR( zFilename ) );
-    
-    if ( BaflUtils::DeleteFile( RFS( pVfs ), filename ) == KErrNone )
-        return SQLITE_OK;
-    else
-        return SQLITE_IOERR_DELETE;
-}
-
-// ----------------------------------------------------------------------------
-
-int symAccess( 
-    sqlite3_vfs *pVfs, 
-    const char *zFilename,  /* Name of file to check */
-    int flags,              /* Type of test to make on this file */
-    int *pResOut            /* Write result boolean here */
-    )
-{
-    TFileName filename;
-    CnvUtfConverter::ConvertToUnicodeFromUtf8( filename, ZSTR2PTR( zFilename ) );
-
-    switch ( flags )
-    {
-        case SQLITE_ACCESS_READ:
-        case SQLITE_ACCESS_EXISTS:
-        {
-            *pResOut = BaflUtils::FileExists( RFS( pVfs ), filename );
-            break;
-        }   
-        case SQLITE_ACCESS_READWRITE:
-        {
-            TUint att( 0 );
-            RFS( pVfs ).Att( filename, att );
-            *pResOut = !( att & KEntryAttReadOnly );
-            break;
-        }
-        default:
-            break;
-    }
-    return SQLITE_OK;
-}
-
-// ----------------------------------------------------------------------------
-
-int symFullName(
-    sqlite3_vfs *pVfs,      /* Pointer to vfs object */
-    const char *zRelative,  /* Possibly relative input path */
-    int nFull,              /* Size of output buffer in bytes */
-    char *zFull             /* Output buffer */
-)
-{
-    TFileName relative;
-    CnvUtfConverter::ConvertToUnicodeFromUtf8( relative, ZSTR2PTR( zRelative ) );
-    
-    TParse parse;
-    RFS( pVfs ).Parse( relative, parse );
-    
-    TPtr8 full( (TUint8*) zFull, MAX_FILE_NAME );
-    CnvUtfConverter::ConvertFromUnicodeToUtf8( full, parse.FullName() );
-    nFull = full.Length();
-    
-    return SQLITE_OK;
-}
-
-// ----------------------------------------------------------------------------
-
-int symRandom( 
-    sqlite3_vfs* /*pVfs*/, 
-    int nBuf, 
-    char *zBuf )
-{
-    int i;
-    for (i=0; i<nBuf; ++i)
-    {
-        zBuf[i] = rand() % 255;
-    }
-    return nBuf;
-}
-
-
-// ----------------------------------------------------------------------------
-
-int symSleep(
-    sqlite3_vfs* /*pVfs*/, 
-    int microsec)
-{
-    return sleep( microsec / 1000 );
-}
-
-// ----------------------------------------------------------------------------
-
-/*
-** Find the current time (in Universal Coordinated Time).  Write the
-** current time and date as a Julian Day number into *prNow and
-** return 0.  Return 1 if the time and date cannot be found.
-*/
-int symTime(
-    sqlite3_vfs* /*pVfs*/, 
-    double* prNow )
-{
-    TTime now;
-    now.UniversalTime();
-    
-    *(TInt64*)prNow = now.Int64();
-    return 0;
-}
-
-// ----------------------------------------------------------------------------
-
-struct sqlite3_vfs symbian_vfs = 
-{
-    1,                              // int iVersion;
-    sizeof( symFile ),              // int szOsFile;
-    MAX_FILE_NAME,                  // int mxPathname; in UTF8
-    NULL,                           // sqlite3_vfs *pNext;
-    "symbian",                      // const char *zName;
-    NULL,                           // void *pAppData;
-    symOpen,                        // int (*xOpen)(sqlite3_vfs*, const char *zName, sqlite3_file*, int flags, int *pOutFlags);
-    symDelete,                      // int (*xDelete)(sqlite3_vfs*, const char *zName, int syncDir);
-    symAccess,                      // int (*xAccess)(sqlite3_vfs*, const char *zName, int flags, int *pResOut);
-    symFullName,                    // int (*xFullPathname)(sqlite3_vfs*, const char *zName, int nOut, char *zOut);
-    NULL,                           // void *(*xDlOpen)(sqlite3_vfs*, const char *zFilename);
-    NULL,                           // void (*xDlError)(sqlite3_vfs*, int nByte, char *zErrMsg);
-    NULL,                           // void (*(*xDlSym)(sqlite3_vfs*,void*, const char *zSymbol))(void);
-    NULL,                           // void (*xDlClose)(sqlite3_vfs*, void*);
-    symRandom,                      // int (*xRandomness)(sqlite3_vfs*, int nByte, char *zOut);
-    symSleep,                       // int (*xSleep)(sqlite3_vfs*, int microseconds);
-    symTime,                        // int (*xCurrentTime)(sqlite3_vfs*, double*);
-    NULL,                           // int (*xGetLastError)(sqlite3_vfs*, int, char *);
-};
 
 // ----------------------------------------------------------------------------
 
@@ -476,9 +288,197 @@ struct sqlite3_io_methods symbian_io =
 
 // ----------------------------------------------------------------------------
 
-void register_symbian_vfs( RFs& fs )
+int symOpen( 
+    sqlite3_vfs *pVfs,
+    const char *zName,  /* Name of the file (UTF-8) */
+    sqlite3_file *id,   /* Write the SQLite file handle here */
+    int flags,          /* Open mode flags */
+    int* /*pOutFlags*/      /* Status return flags */
+    )
+{
+    symFile *pFile = (symFile*) id;
+
+    pFile->isOpen = 0;
+    pFile->locktype = NO_LOCK;
+    pFile->pMethods = &symbian_io;
+    pFile->sharedLockByte = 0;
+
+    TFileName filename;
+    CnvUtfConverter::ConvertToUnicodeFromUtf8( filename, ZSTR2PTR( zName ) );
+
+    int ret = 0;
+    if ( flags & SQLITE_OPEN_CREATE )
+    {
+        if ( BaflUtils::FileExists( RFS( pVfs ), filename ) == 1 )
+        {
+            ret = pFile->file.Open( RFS( pVfs ), filename, EFileStream | EFileWrite | EFileShareAny );
+        }
+        else
+        {
+            ret = pFile->file.Create( RFS( pVfs ), filename, EFileStream | EFileWrite | EFileShareAny );
+        }
+    }
+    else if ( flags & SQLITE_OPEN_READWRITE )
+    {
+        ret = pFile->file.Open( RFS( pVfs ), filename, EFileStream | EFileWrite | EFileShareAny );
+    }
+    else
+    {
+        ret = pFile->file.Open( RFS( pVfs ), filename, EFileStream | EFileRead | EFileShareAny );
+    }
+
+    if ( ret != KErrNone )
+    {
+        return SQLITE_IOERR;
+    }
+
+    pFile->isOpen = 1;
+    return SQLITE_OK;
+}
+
+// ----------------------------------------------------------------------------
+
+int symDelete( 
+    sqlite3_vfs *pVfs,
+    const char *zFilename,  /* Name of file to delete */
+    int syncDir             /* Not used on win32 */
+    )
+{
+    TFileName filename;
+    CnvUtfConverter::ConvertToUnicodeFromUtf8( filename, ZSTR2PTR( zFilename ) );
+    
+    if ( BaflUtils::DeleteFile( RFS( pVfs ), filename ) == KErrNone )
+        return SQLITE_OK;
+    else
+        return SQLITE_IOERR_DELETE;
+}
+
+// ----------------------------------------------------------------------------
+
+int symAccess( 
+    sqlite3_vfs *pVfs, 
+    const char *zFilename,  /* Name of file to check */
+    int flags,              /* Type of test to make on this file */
+    int *pResOut            /* Write result boolean here */
+    )
+{
+    TFileName filename;
+    CnvUtfConverter::ConvertToUnicodeFromUtf8( filename, ZSTR2PTR( zFilename ) );
+
+    switch ( flags )
+    {
+        case SQLITE_ACCESS_READ:
+        case SQLITE_ACCESS_EXISTS:
+        {
+            *pResOut = BaflUtils::FileExists( RFS( pVfs ), filename );
+            break;
+        }   
+        case SQLITE_ACCESS_READWRITE:
+        {
+            TUint att( 0 );
+            RFS( pVfs ).Att( filename, att );
+            *pResOut = !( att & KEntryAttReadOnly );
+            break;
+        }
+        default:
+            break;
+    }
+    return SQLITE_OK;
+}
+
+// ----------------------------------------------------------------------------
+
+int symFullName(
+    sqlite3_vfs *pVfs,      /* Pointer to vfs object */
+    const char *zRelative,  /* Possibly relative input path */
+    int nFull,              /* Size of output buffer in bytes */
+    char *zFull             /* Output buffer */
+)
+{
+    TFileName relative;
+    CnvUtfConverter::ConvertToUnicodeFromUtf8( relative, ZSTR2PTR( zRelative ) );
+    
+    TParse parse;
+    RFS( pVfs ).Parse( relative, parse );
+    
+    TPtr8 full( (TUint8*) zFull, MAX_FILE_NAME );
+    CnvUtfConverter::ConvertFromUnicodeToUtf8( full, parse.FullName() );
+    full.ZeroTerminate();
+    
+    return SQLITE_OK;
+}
+
+// ----------------------------------------------------------------------------
+
+int symRandom( 
+    sqlite3_vfs* /*pVfs*/, 
+    int nBuf, 
+    char *zBuf )
+{
+    int i;
+    for (i=0; i<nBuf; ++i)
+    {
+        zBuf[i] = rand() % 255;
+    }
+    return nBuf;
+}
+
+
+// ----------------------------------------------------------------------------
+
+int symSleep(
+    sqlite3_vfs* /*pVfs*/, 
+    int microsec)
+{
+    return sleep( microsec / 1000 );
+}
+
+// ----------------------------------------------------------------------------
+
+/*
+** Find the current time (in Universal Coordinated Time).  Write the
+** current time and date as a Julian Day number into *prNow and
+** return 0.  Return 1 if the time and date cannot be found.
+*/
+int symTime(
+    sqlite3_vfs* /*pVfs*/, 
+    double* prNow )
+{
+    TTime now;
+    now.UniversalTime();
+    
+    *(TInt64*)prNow = now.Int64();
+    return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+struct sqlite3_vfs symbian_vfs = 
+{
+    1,                              // int iVersion;
+    sizeof( symFile ),              // int szOsFile;
+    MAX_FILE_NAME,                  // int mxPathname; in UTF8
+    NULL,                           // sqlite3_vfs *pNext;
+    "symbian",                      // const char *zName;
+    NULL,                           // void *pAppData;
+    symOpen,                        // int (*xOpen)(sqlite3_vfs*, const char *zName, sqlite3_file*, int flags, int *pOutFlags);
+    symDelete,                      // int (*xDelete)(sqlite3_vfs*, const char *zName, int syncDir);
+    symAccess,                      // int (*xAccess)(sqlite3_vfs*, const char *zName, int flags, int *pResOut);
+    symFullName,                    // int (*xFullPathname)(sqlite3_vfs*, const char *zName, int nOut, char *zOut);
+    NULL,                           // void *(*xDlOpen)(sqlite3_vfs*, const char *zFilename);
+    NULL,                           // void (*xDlError)(sqlite3_vfs*, int nByte, char *zErrMsg);
+    NULL,                           // void (*(*xDlSym)(sqlite3_vfs*,void*, const char *zSymbol))(void);
+    NULL,                           // void (*xDlClose)(sqlite3_vfs*, void*);
+    symRandom,                      // int (*xRandomness)(sqlite3_vfs*, int nByte, char *zOut);
+    symSleep,                       // int (*xSleep)(sqlite3_vfs*, int microseconds);
+    symTime,                        // int (*xCurrentTime)(sqlite3_vfs*, double*);
+    NULL,                           // int (*xGetLastError)(sqlite3_vfs*, int, char *);
+};
+
+// ----------------------------------------------------------------------------
+
+int register_symbian_vfs( RFs& fs )
 {
     symbian_vfs.pAppData = &fs;
-    sqlite3_io_methods* io = NULL;
-    sqlite3_file* file = NULL;
+    return sqlite3_vfs_register( &symbian_vfs, 1 );
 }
