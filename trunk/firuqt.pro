@@ -67,7 +67,7 @@ symbian {
     LIBS += -lcharconv
     INCLUDEPATH += /epoc32/include/middleware
 }
-linux { 
+linux-g++ {
     CONFIG += qt \
         debug
     LIBS += -lsqlite3

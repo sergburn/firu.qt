@@ -197,13 +197,44 @@ QString UpdateMarksQuery::buildSql() const
     SqlGenerator builder( updateBaseSql() );
     builder.addSet( "fmark = :fmark" );
     builder.addSet( "rmark = :rmark" );
-    builder.addCondition( "sid = :sid" );
+    builder.addSet( "changed_at = datetime('now')" );
+    builder.addCondition( "id = :id" );
     return builder.sql();
 }
 
 // ----------------------------------------------------------------------------
 
 int UpdateMarksQuery::bind()
+{
+    int err = bindInt64( ":id", m_record.id );
+    if ( !err ) err = bindInt( ":fmark", m_record.fmark );
+    if ( !err ) err = bindInt( ":rmark", m_record.rmark );
+    return err;
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+UpdateMarksBySidQuery::UpdateMarksBySidQuery( Database* db, LangPair langs )
+:   TranslationsQuery( db, langs )
+{
+}
+
+// ----------------------------------------------------------------------------
+
+QString UpdateMarksBySidQuery::buildSql() const
+{
+    SqlGenerator builder( updateBaseSql() );
+    builder.addSet( "fmark = :fmark" );
+    builder.addSet( "rmark = :rmark" );
+    builder.addSet( "changed_at = datetime('now')" );
+    builder.addCondition( "sid = :sid" );
+    return builder.sql();
+}
+
+// ----------------------------------------------------------------------------
+
+int UpdateMarksBySidQuery::bind()
 {
     int err = bindInt64( ":sid", m_record.sid );
     if ( !err ) err = bindInt( ":fmark", m_record.fmark );

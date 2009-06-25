@@ -3,7 +3,10 @@
 
 #include "database.h"
 #include "../firudebug.h"
+
+#if defined( SYMBIAN ) || defined ( __SYMBIAN32__ )
 #include "sqlite_symbian.h"
+#endif
 
 Database* g_schema = NULL;
 
@@ -48,7 +51,7 @@ Database::~Database()
     }
     sqlite3_shutdown();
     g_schema = NULL;
-#ifdef __SYMBIAN32__
+#if defined( SYMBIAN ) || defined ( __SYMBIAN32__ )
     iFs.Close();
 #endif
 }
@@ -209,7 +212,10 @@ int Database::sqlExecute( QString sql )
 int Database::createLangTable( Lang lang )
 {
     const char* KSqlCreateEntriesTable = 
-        "CREATE TABLE IF NOT EXISTS %1 ( id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT );";
+        "CREATE TABLE IF NOT EXISTS %1 ( "
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "text TEXT, "
+        "changed_at TEXT );";
     QString langTableName = getWordTableName( lang );
     
     // Table
@@ -246,7 +252,8 @@ int Database::createTransTable( LangPair langs )
             "sid INTEGER NOT NULL REFERENCES %2 (id) ON DELETE CASCADE, "
             "text TEXT, "
             "fmark INTEGER DEFAULT 0, "
-            "rmark INTEGER DEFAULT 0 );";
+            "rmark INTEGER DEFAULT 0, "
+            "changed_at TEXT );";
     
     QString transTableName = getTransTableName( langs );
     

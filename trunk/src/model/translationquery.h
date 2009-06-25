@@ -151,4 +151,19 @@ protected: // from Query
     virtual int bind();
 };
 
+// ----------------------------------------------------------------------------
+
+class UpdateMarksBySidQuery : public TranslationsQuery
+{
+    Q_OBJECT
+public:
+    SHARED_POINTER( UpdateMarksBySidQuery );
+
+    UpdateMarksBySidQuery( Database* db, LangPair langs );
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual int bind();
+};
+
 #endif // TRANSLATIONQUERY_H

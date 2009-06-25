@@ -100,6 +100,7 @@ QString WordUpdateQuery::buildSql() const
     SqlGenerator builder( updateBaseSql() );
     builder.addPrimaryKeyCondition();
     builder.addSet( "text = :text");
+    builder.addSet( "changed_at = datetime('now')" );
     return builder.sql();
 }
 

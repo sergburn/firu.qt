@@ -196,15 +196,36 @@ bool Translation::doDelete()
 
 bool Translation::addToUserDict( qint64 sid, LangPair langs )
 {
-    UpdateMarksQuery::Ptr query = Database::getQuery<UpdateMarksQuery>( langs );
+    UpdateMarksBySidQuery::Ptr query = Database::getQuery<UpdateMarksBySidQuery>( langs );
 
     if ( query )
     {
         Mark mark;
         mark.restart();
+
+        query->record().sid = sid;
         query->record().fmark = mark();
         query->record().rmark  = mark();
-        query->record().sid = sid;
+        return query->execute();
+    }
+    else
+    {
+        qDebug() << "Couldn't get UpdateMarksBySidQuery";
+        return false;
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+bool Translation::saveMarks()
+{
+    UpdateMarksQuery::Ptr query = Database::getQuery<UpdateMarksQuery>( getLangs() );
+
+    if ( query )
+    {
+        query->record().id = m_id;
+        query->record().fmark = fmark();
+        query->record().rmark  = rmark();
         return query->execute();
     }
     else
