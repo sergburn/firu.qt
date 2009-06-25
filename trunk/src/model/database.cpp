@@ -85,17 +85,25 @@ bool Database::doOpen( const QString& dbPath )
     QString path = QDir::toNativeSeparators( dbPath );
     qDebug() << "Db: " << path;
 
-#ifdef __SYMBIAN32__    
+#if defined( SYMBIAN ) || defined ( __SYMBIAN32__ )
     int _err = iFs.Connect(); 
     if ( _err != KErrNone )
     {
         qDebug() << "Can't connect RFs, err " << _err;
         return false;
     }
-    register_symbian_vfs( iFs );
+    int err = register_symbian_vfs( iFs );
+    if ( !err )
+    {
+        err = sqlite3_open_v2( 
+            path.toUtf8().constData(), &m_db, 
+            SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 
+            "symbian" );
+    }
+#else
+    int err = sqlite3_open( path.toUtf8().constData(), &m_db );
 #endif
     
-    int err = sqlite3_open( path.toUtf8().constData(), &m_db );
     if ( err == SQLITE_OK )
     {
         return true;

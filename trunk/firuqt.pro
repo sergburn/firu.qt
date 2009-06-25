@@ -64,7 +64,7 @@ symbian {
         external/sqlite/sqlite3_part2.c
     DEFINES += SQLITE_OS_UNIX=1
     DEPENDPATH += external/sqlite
-    LIBS += charconv
+    LIBS += -lcharconv
     INCLUDEPATH += /epoc32/include/middleware
 }
 linux { 

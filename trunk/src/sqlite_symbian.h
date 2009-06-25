@@ -8,6 +8,6 @@
 #ifndef SQLITE_SYMBIAN_H_
 #define SQLITE_SYMBIAN_H_
 
-void register_symbian_vfs( RFs& fs );
+int register_symbian_vfs( RFs& fs );
 
 #endif /* SQLITE_SYMBIAN_H_ */
