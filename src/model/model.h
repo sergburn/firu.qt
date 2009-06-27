@@ -3,6 +3,7 @@
 
 #include <QLocale>
 #include <QPair>
+#include <QDebug>
 
 #define SHARED_POINTER(_class) typedef QSharedPointer<_class> Ptr;
 
@@ -17,17 +18,25 @@ enum TextMatch
     EndsWith
 };
 
+enum TestResult
+{
+    Incomplete,
+    Passed,             // adds 1 to current rate
+    PassedWithHints,    // doesn't change rate if 1 or 2, demotes rate 3 to 2
+    Failed              // sets current rate 1.
+};
+
 class Mark
 {
 public:
     enum MarkValue
     {
-        Undefined   = -1,
-        Unknown     = 0,
-        ToLearn     = 1,
-        Good        = 2,
-        Better      = 3,
-        Learned     = 4
+        Undefined       = -1,
+        Unknown         = 0,
+        ToLearn         = 1,
+        OncePassed      = 2,
+        AlmostLearned   = 3,
+        Learned         = 4
     };
 
 public:
@@ -56,6 +65,35 @@ public:
         {
             m_value = (MarkValue)((int)m_value-1);
         }
+        return m_value;
+    }
+
+    MarkValue updateToTestResult( TestResult result )
+    {
+        MarkValue original = m_value;
+        switch ( result )
+        {
+            case Passed:
+                upgrade();
+                break;
+
+            case PassedWithHints:
+                if ( m_value <= ToLearn )
+                    upgrade();
+                else if ( m_value >= AlmostLearned )
+                    downgrade();
+                // else OnePassed - no changes
+                break;
+
+            case Failed:
+                restart();
+                break;
+
+            default:
+                qDebug() << "Unexpected test result" << result << "in Mark::updateToTestResult";
+                break;
+        }
+        qDebug() << "Mark changed from" << original << "to" << m_value;
         return m_value;
     }
 

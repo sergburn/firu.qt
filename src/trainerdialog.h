@@ -38,6 +38,10 @@ private:
     void setKeypadMode();
     void checkNextLetter( QString letter );
     void showNextLetters();
+    void checkAnswer( QString answer );
+
+private slots:
+    void showResult();
 
 private:
     Ui::TrainerDialog *m_ui;

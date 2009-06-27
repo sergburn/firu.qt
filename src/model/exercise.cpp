@@ -23,13 +23,13 @@ Exercise::Ptr Exercise::generate( LangPair langs )
     emit exe->onBuildProgress( 0 );
     QCoreApplication::processEvents();
 
-    Translation::List tolearn = Translation::getAllWithRMark( Mark::Good, langs );
-    exe->selectRandomly( tolearn, Mark::Good );
+    Translation::List tolearn = Translation::getAllWithRMark( Mark::OncePassed, langs );
+    exe->selectRandomly( tolearn, Mark::OncePassed );
     emit exe->onBuildProgress( 30 );
     QCoreApplication::processEvents();
 
-    tolearn = Translation::getAllWithRMark( Mark::Better, langs );
-    exe->selectRandomly( tolearn, Mark::Better );
+    tolearn = Translation::getAllWithRMark( Mark::AlmostLearned, langs );
+    exe->selectRandomly( tolearn, Mark::AlmostLearned );
     emit exe->onBuildProgress( 60 );
     QCoreApplication::processEvents();
 
@@ -98,10 +98,10 @@ void Exercise::selectRandomly( Translation::List& list, Mark::MarkValue level )
         case Mark::ToLearn:
             neededAmount = m_exeSize - m_tests.count();
             break;
-        case Mark::Better:
+        case Mark::AlmostLearned:
             neededAmount = m_exeSize * m_shareBetter;
             break;
-        case Mark::Good:
+        case Mark::OncePassed:
             neededAmount = m_exeSize * m_shareGood;
             break;
         default:

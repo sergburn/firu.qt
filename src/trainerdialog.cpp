@@ -119,10 +119,11 @@ void TrainerDialog::showTest( ReverseTest::Ptr test )
     m_keyGroups.clear();
 
     m_test = test;
-    m_ui->laQuestion->setText( m_test->getQuestion() );
+    connect( m_test.data(), SIGNAL( finished() ), SLOT( showResult() ) );
+    m_ui->laQuestion->setText( m_test->question() );
     m_ui->laAnswer->setText("");
 
-    m_keyGroups = FiruApp::getKeypadGroups( m_test->getAnswerLang() );
+    m_keyGroups = FiruApp::getKeypadGroups( m_test->answerLang() );
 
     showNextLetters();
     setKeypadMode();
@@ -137,9 +138,13 @@ void TrainerDialog::showTest( ReverseTest::Ptr test )
 
 void TrainerDialog::checkNextLetter( QString letter )
 {
-    if ( letter.length() < 1 ) return;
+    checkAnswer( m_answerText + letter );
+}
 
-    QString answer = m_answerText + letter;
+// ----------------------------------------------------------------------------
+
+void TrainerDialog::checkAnswer( QString answer )
+{
     ReverseTest::AnswerValue av = m_test->checkAnswer( answer );
     if ( av == ReverseTest::PartiallyCorrect )
     {
@@ -150,12 +155,7 @@ void TrainerDialog::checkNextLetter( QString letter )
     else if ( av == ReverseTest::Correct )
     {
         m_answerText = answer;
-        m_ui->laAnswer->setText( m_answerText );
-        m_ui->frmKeypad->hide();
-        m_ui->buttonBox->button( QDialogButtonBox::Ok )->setEnabled( true );
-        m_ui->buttonBox->button( QDialogButtonBox::Ok )->setDefault( true );
-        m_ui->buttonBox->button( QDialogButtonBox::Ok )->setFocus();
-        m_ui->buttonBox->button( QDialogButtonBox::Help )->setEnabled( false );
+        showResult();
     }
 }
 
@@ -175,6 +175,17 @@ void TrainerDialog::showNextLetters()
 
 void TrainerDialog::showHints()
 {
-    QString letter = m_test->getNextLetter( m_answerText );
-    checkNextLetter( letter );
+    checkAnswer( m_test->help( m_answerText ) );
+}
+
+// ----------------------------------------------------------------------------
+
+void TrainerDialog::showResult()
+{
+    m_ui->laAnswer->setText( m_test->answer() );
+    m_ui->frmKeypad->hide();
+    m_ui->buttonBox->button( QDialogButtonBox::Ok )->setEnabled( true );
+    m_ui->buttonBox->button( QDialogButtonBox::Ok )->setDefault( true );
+    m_ui->buttonBox->button( QDialogButtonBox::Ok )->setFocus();
+    m_ui->buttonBox->button( QDialogButtonBox::Help )->setEnabled( false );
 }
