@@ -10,45 +10,53 @@
 
 class ReverseTest : public QObject
 {
+    Q_OBJECT
 public:
     SHARED_POINTER( ReverseTest );
     ReverseTest( Translation::Ptr challenge, Word::Ptr answer );
 
-    Lang getQuestionLang() const;
-    Lang getAnswerLang() const;
+    Lang questionLang() const;
+    Lang answerLang() const;
 
-    QString getQuestion() const;
+    QString question() const;
+
+    /** Returs answer string, but only for finished test */
+    QString answer() const;
+    /** This hint is not available on level 3, it will return -1. */
+    int answerLength() const;
 
     enum AnswerValue { Incorrect, PartiallyCorrect, Correct };
     AnswerValue checkAnswer( const QString& answer );
-
-    /** This hint is not available on level 3, it will return -1. */
-    int getAnswerLength() const;
 
     /** This hint is always available on mobile devices
      *  to allow for easier input */
     QString getNextLetterHint( const QString& current, const QStringList& groups ) const;
 
-    QString getNextLetter( const QString& current ) const;
+    /** Adds one letter */
+    QString help( const QString& current );
 
-    /** Using this hint will drop current mark from 3 to 2. */
-    QStringList getFullWordHints();
+    /** @return Number of lives left */
+    int numLives() const { return m_livesLeft; }
+    int maxLives() const { return m_maxLives; }
 
-    enum TestResult {
-        NotAsked,
-        Passed,             // adds 1 to current rate
-        PassedWithHints,    // doesn't change rate if 1 or 2, demotes rate 3 to 2
-        Failed              // sets current rate 1.
-    };
+    TestResult testResult() const { return m_result; }
+    Mark::MarkValue currentMark() const { return m_challenge->rmark()(); }
 
-    TestResult getResult() const;
+signals:
+    void finished();
+
+private:
+    void handleHelpOrMistake();
+    void setTestPassed( bool passed );
 
 private:
     Translation::Ptr m_challenge;
     Word::Ptr m_answer;
+
+    int m_maxLives;
+    int m_livesLeft;
+
     TestResult m_result;
-    QStringList m_hints;
-    int m_numMistakes;
 };
 
 #endif // REVERSETEST_H

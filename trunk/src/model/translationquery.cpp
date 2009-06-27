@@ -197,7 +197,7 @@ QString UpdateMarksQuery::buildSql() const
     SqlGenerator builder( updateBaseSql() );
     builder.addSet( "fmark = :fmark" );
     builder.addSet( "rmark = :rmark" );
-    builder.addSet( "changed_at = datetime('now')" );
+    builder.addSet( "modified = julianday('now')" );
     builder.addCondition( "id = :id" );
     return builder.sql();
 }
@@ -227,7 +227,7 @@ QString UpdateMarksBySidQuery::buildSql() const
     SqlGenerator builder( updateBaseSql() );
     builder.addSet( "fmark = :fmark" );
     builder.addSet( "rmark = :rmark" );
-    builder.addSet( "changed_at = datetime('now')" );
+    builder.addSet( "modified = julianday('now')" );
     builder.addCondition( "sid = :sid" );
     return builder.sql();
 }

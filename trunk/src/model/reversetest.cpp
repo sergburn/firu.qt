@@ -4,15 +4,49 @@
 
 ReverseTest::ReverseTest( Translation::Ptr challenge, Word::Ptr answer )
 :   m_challenge( challenge ), m_answer( answer ),
-    m_result(NotAsked), m_numMistakes( 0 )
+    m_result( Incomplete )
 {
+    m_maxLives = qMin( 3, m_answer->text().length() - 1 );
+    m_livesLeft = m_maxLives;
 }
 
 // ----------------------------------------------------------------------------
 
-int ReverseTest::getAnswerLength() const
+QString ReverseTest::question() const
 {
-    if ( m_challenge->rmark() < Mark::Good )
+    return m_challenge->text();
+}
+
+// ----------------------------------------------------------------------------
+
+QString ReverseTest::answer() const
+{
+    if ( m_result > Incomplete )
+    {
+        return m_answer->text();
+    }
+    return QString();
+}
+
+// ----------------------------------------------------------------------------
+
+Lang ReverseTest::questionLang() const
+{
+    return m_challenge->getTarget();
+}
+
+// ----------------------------------------------------------------------------
+
+Lang ReverseTest::answerLang() const
+{
+    return m_answer->getSource();
+}
+
+// ----------------------------------------------------------------------------
+
+int ReverseTest::answerLength() const
+{
+    if ( m_challenge->rmark() < Mark::OncePassed )
     {
         return m_answer->text().length();
     }
@@ -24,13 +58,30 @@ int ReverseTest::getAnswerLength() const
 
 // ----------------------------------------------------------------------------
 
-QStringList ReverseTest::getFullWordHints()
+ReverseTest::AnswerValue ReverseTest::checkAnswer( const QString& answer )
 {
-    if ( m_challenge->rmark() >= Mark::Good )
+    if ( m_result == Incomplete )
     {
-        m_challenge->rmark().downgrade();
+        if ( answer == m_answer->text() )
+        {
+            setTestPassed( true );
+            return Correct;
+        }
+        else if ( m_answer->text().startsWith( answer ) )
+        {
+            return PartiallyCorrect;
+        }
+        else
+        {
+            handleHelpOrMistake();
+            return Incorrect;
+        }
     }
-    return m_hints;
+    else
+    {
+        // better raise exception
+        return Incorrect;
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -60,54 +111,57 @@ QString ReverseTest::getNextLetterHint( const QString& current, const QStringLis
 
 // ----------------------------------------------------------------------------
 
-QString ReverseTest::getNextLetter( const QString& current ) const
+QString ReverseTest::help( const QString& current )
 {
-    QString hint;
-    QString answer = m_answer->text();
-    if ( answer.length() > current.length() &&
-         answer.startsWith( current ) )
+    handleHelpOrMistake();
+
+    if ( m_result == Incomplete )
     {
-        hint.append( answer[ current.length() ] );
+        QString answer = m_answer->text();
+        if ( answer.length() > current.length() &&
+             answer.startsWith( current ) )
+        {
+            return answer.left( current.length() + 1 );
+        }
+        else
+        {
+            return current;
+        }
     }
-    return hint;
+    return QString();
 }
 
 // ----------------------------------------------------------------------------
 
-QString ReverseTest::getQuestion() const
+void ReverseTest::handleHelpOrMistake()
 {
-    return m_challenge->text();
-}
-
-// ----------------------------------------------------------------------------
-
-Lang ReverseTest::getQuestionLang() const
-{
-    return m_challenge->getTarget();
-}
-
-// ----------------------------------------------------------------------------
-
-Lang ReverseTest::getAnswerLang() const
-{
-    return m_answer->getSource();
-}
-
-// ----------------------------------------------------------------------------
-
-ReverseTest::AnswerValue ReverseTest::checkAnswer( const QString& answer )
-{
-    if ( answer == m_answer->text() )
+    if ( m_livesLeft > 0 )
     {
-        return Correct;
-    }
-    else if ( m_answer->text().startsWith( answer ) )
-    {
-        return PartiallyCorrect;
+        m_livesLeft--;
     }
     else
     {
-        m_numMistakes++;
-        return Incorrect;
+        setTestPassed( false );
     }
+}
+
+// ----------------------------------------------------------------------------
+
+void ReverseTest::setTestPassed( bool passed )
+{
+    if ( m_result != Incomplete ) return; // better - assert or exception
+
+    if ( passed )
+    {
+        m_result = ( m_livesLeft < m_maxLives ) ? PassedWithHints : Passed;
+    }
+    else
+    {
+        m_result = Failed;
+    }
+
+    m_challenge->rmark().updateToTestResult( m_result );
+    m_challenge->saveMarks();
+
+    emit finished();
 }
