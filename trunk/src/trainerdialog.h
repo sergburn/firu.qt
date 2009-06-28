@@ -5,6 +5,8 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QLabel>
+#include <QtGui/QGraphicsScene>
+#include <QtGui/QGraphicsRectItem>
 
 #include "AppUi.h"
 #include "model/reversetest.h"
@@ -26,19 +28,24 @@ public slots:
     void showHints();
 
 signals:
-    void onTestDone();
+    void testFinished();
+    void testCanceled();
 
 protected:
-    virtual void changeEvent(QEvent *e);
-    virtual void keyPressEvent(QKeyEvent *keyEvent);
+    virtual void changeEvent( QEvent *e );
+    virtual void keyPressEvent( QKeyEvent *keyEvent );
     virtual void mousePressEvent( QMouseEvent *mouseEvent );
+    virtual void resizeEvent( QResizeEvent * event );
 
 private:
-    void setAnswersListMode();
     void setKeypadMode();
     void checkNextLetter( QString letter );
     void showNextLetters();
     void checkAnswer( QString answer );
+
+    void leftCommand();
+    void rightCommand();
+    void showMark( Mark::MarkValue mark );
 
 private slots:
     void showResult();
@@ -51,6 +58,15 @@ private:
     ReverseTest::Ptr m_test;
     QStringList m_keyGroups;
     QString m_answerText;
+
+    QGraphicsScene* m_scene;
+    QGraphicsRectItem* m_itemLevel1;
+    QGraphicsRectItem* m_itemLevel2;
+    QGraphicsRectItem* m_itemLevel3;
+    QColor m_clrLevelEmpty;
+    QColor m_clrLevel1;
+    QColor m_clrLevel2;
+    QColor m_clrLevel3;
 };
 
 #endif // TRAINERDIALOG_H

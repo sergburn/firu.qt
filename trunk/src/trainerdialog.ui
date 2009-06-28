@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>240</width>
-    <height>320</height>
+    <height>321</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,7 +38,7 @@
       <item>
        <widget class="QLabel" name="laQuestion">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -54,6 +54,28 @@
         </property>
         <property name="wordWrap">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGraphicsView" name="markGraph">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16</height>
+         </size>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
        </widget>
       </item>
@@ -77,6 +99,12 @@
       </property>
       <item>
        <widget class="QLabel" name="laAnswer">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
@@ -92,10 +120,6 @@
        </widget>
       </item>
      </layout>
-     <zorder>laAnswer</zorder>
-     <zorder>laAnswer</zorder>
-     <zorder>laAnswer</zorder>
-     <zorder>laAnswer</zorder>
     </widget>
    </item>
    <item>
@@ -142,12 +166,12 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="la10">
+         <widget class="QLabel" name="laLeftCmd">
           <property name="frameShape">
            <enum>QFrame::Box</enum>
           </property>
           <property name="text">
-           <string>Help</string>
+           <string>Cancel</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -207,7 +231,7 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLabel" name="la11">
+         <widget class="QLabel" name="la0">
           <property name="frameShape">
            <enum>QFrame::Box</enum>
           </property>
@@ -220,12 +244,12 @@
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QLabel" name="la12">
+         <widget class="QLabel" name="laRightCmd">
           <property name="frameShape">
            <enum>QFrame::Box</enum>
           </property>
           <property name="text">
-           <string>!</string>
+           <string>Help</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -273,43 +297,26 @@
         </item>
        </layout>
       </item>
+      <item>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="maximum">
+         <number>3</number>
+        </property>
+        <property name="value">
+         <number>2</number>
+        </property>
+        <property name="format">
+         <string>Tries left: %v</string>
+        </property>
+       </widget>
+      </item>
      </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QListWidget" name="listAnswers"/>
-   </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
-     </property>
-     <property name="centerButtons">
-      <bool>true</bool>
-     </property>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>helpRequested()</signal>
-   <receiver>TrainerDialog</receiver>
-   <slot>showHints()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>41</x>
-     <y>296</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>2</x>
-     <y>272</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>showHints()</slot>
  </slots>

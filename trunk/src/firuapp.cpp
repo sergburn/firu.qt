@@ -75,6 +75,8 @@ QStringList FiruApp::getKeypadGroups( Lang lang )
     switch ( lang )
     {
         case QLocale::Finnish:
+            groups.append( QString( "\xE4\xF6" ) );
+            groups.append( QString( ",. '-!?" ) );
             groups.append( QString( "abc" ) );
             groups.append( QString( "def" ) );
             groups.append( QString( "ghi" ) );
@@ -83,7 +85,6 @@ QStringList FiruApp::getKeypadGroups( Lang lang )
             groups.append( QString( "pqrs" ) );
             groups.append( QString( "tuv" ) );
             groups.append( QString( "wxyz" ) );
-            groups.append( QString( "\xE4\xF6" ) );
             break;
 
         case QLocale::Russian:

@@ -25,7 +25,8 @@ void Trainer::showNextTest()
     if ( !m_dialog )
     {
         m_dialog = FiruApp::getTrainerDialog();
-        connect( m_dialog.data(), SIGNAL( onTestDone() ), SLOT( handleTestDone() ) );
+        connect( m_dialog.data(), SIGNAL( testFinished() ), SLOT( handleTestDone() ) );
+        connect( m_dialog.data(), SIGNAL( testCanceled() ), SLOT( handleTestCancel() ) );
     }
 
     ReverseTest::Ptr test = m_exe->nextTest();
@@ -33,6 +34,7 @@ void Trainer::showNextTest()
     if ( test )
     {
         m_dialog->showTest( test );
+        m_dialog->show();
         emit onExerciseProgress( m_exe->currentTestIndex(), m_exe->countTests() );
     }
     else
@@ -47,4 +49,11 @@ void Trainer::showNextTest()
 void Trainer::handleTestDone()
 {
     showNextTest();
+}
+
+// ----------------------------------------------------------------------------
+
+void Trainer::handleTestCancel()
+{
+    m_dialog->close();
 }

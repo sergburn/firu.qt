@@ -83,8 +83,23 @@ protected: // from Query
     virtual QString buildSql() const;
     virtual int bind();
 
-private:
+protected:
     int m_rmark;
+};
+
+// ----------------------------------------------------------------------------
+
+class TranslationIdsByRMarkQuery : public TranslationsByRMarkQuery
+{
+    Q_OBJECT
+public:
+    SHARED_POINTER( TranslationIdsByRMarkQuery )
+    TranslationIdsByRMarkQuery( Database* db, LangPair langs ) : TranslationsByRMarkQuery( db, langs ) {}
+
+protected: // from Query
+    virtual void read();
+    virtual QString buildSql() const;
+    virtual int bind();
 };
 
 // ----------------------------------------------------------------------------
