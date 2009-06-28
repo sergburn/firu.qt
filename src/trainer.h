@@ -33,6 +33,7 @@ private:
 
 private slots:
     void handleTestDone();
+    void handleTestCancel();
 
 private:
     Dictionary::Ptr m_dictionary;

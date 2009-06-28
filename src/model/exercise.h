@@ -29,7 +29,7 @@ private:
     Q_DISABLE_COPY( Exercise );
 
     void addTest( ReverseTest::Ptr );
-    void selectRandomly( Translation::List& list, Mark::MarkValue level );
+    void selectRandomly( QList<qint64>& ids, Mark::MarkValue level );
 
 private:
     LangPair m_langs;

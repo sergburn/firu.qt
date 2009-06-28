@@ -23,17 +23,17 @@ Exercise::Ptr Exercise::generate( LangPair langs )
     emit exe->onBuildProgress( 0 );
     QCoreApplication::processEvents();
 
-    Translation::List tolearn = Translation::getAllWithRMark( Mark::OncePassed, langs );
+    QList<qint64> tolearn = Translation::getIdsByRMark( Mark::OncePassed, langs );
     exe->selectRandomly( tolearn, Mark::OncePassed );
     emit exe->onBuildProgress( 30 );
     QCoreApplication::processEvents();
 
-    tolearn = Translation::getAllWithRMark( Mark::AlmostLearned, langs );
+    tolearn = Translation::getIdsByRMark( Mark::AlmostLearned, langs );
     exe->selectRandomly( tolearn, Mark::AlmostLearned );
     emit exe->onBuildProgress( 60 );
     QCoreApplication::processEvents();
 
-    tolearn = Translation::getAllWithRMark( Mark::ToLearn, langs );
+    tolearn = Translation::getIdsByRMark( Mark::ToLearn, langs );
     exe->selectRandomly( tolearn, Mark::ToLearn );
     emit exe->onBuildProgress( 90 );
     QCoreApplication::processEvents();
@@ -90,7 +90,7 @@ void Exercise::addTest( ReverseTest::Ptr test )
 
 // ----------------------------------------------------------------------------
 
-void Exercise::selectRandomly( Translation::List& list, Mark::MarkValue level )
+void Exercise::selectRandomly( QList<qint64>& ids, Mark::MarkValue level )
 {
     int neededAmount = 0;
     switch ( level )
@@ -108,22 +108,22 @@ void Exercise::selectRandomly( Translation::List& list, Mark::MarkValue level )
             break;
     }
 
-    Translation::List selected;
+    QList<qint64> selected;
 
-    if ( neededAmount == 0 )
+    if ( neededAmount <= 0 )
     {
         return;
     }
-    else if ( neededAmount >= list.count() )
+    else if ( neededAmount >= ids.count() )
     {
-        selected = list;
+        selected = ids;
     }
     else
     {
         QList<int> selection;
-        while ( neededAmount < list.count() )
+        while ( neededAmount < ids.count() )
         {
-            int index = qrand() / ((double) RAND_MAX) * list.count();
+            int index = qrand() / ((double) RAND_MAX) * ids.count();
             if ( selection.indexOf( index ) < 0 )
             {
                 selection.append( index );
@@ -133,15 +133,19 @@ void Exercise::selectRandomly( Translation::List& list, Mark::MarkValue level )
 
         foreach( int i, selection )
         {
-            selected.append( list[i] );
+            selected.append( ids[i] );
         }
     }
 
-    foreach( Translation::Ptr t, selected )
+    foreach( qint64 id, selected )
     {
-        Word::Ptr word = t->getWord();
-        ReverseTest::Ptr test( new ReverseTest( t, word ) );
-        addTest( test );
-        qDebug() << "Added test:" << t->fmark() << t->rmark() << "'" << word->text() << "' -> '" << t->text() << "'";
+        Translation::Ptr t = Translation::find( id, m_langs );
+        if ( t )
+        {
+            Word::Ptr word = t->getWord();
+            ReverseTest::Ptr test( new ReverseTest( t, word ) );
+            addTest( test );
+            qDebug() << "Added test:" << t->fmark() << t->rmark() << "'" << word->text() << "' -> '" << t->text() << "'";
+        }
     }
 }

@@ -147,6 +147,24 @@ Translation::List Translation::getAllWithRMark( Mark::MarkValue level, LangPair 
 
 // ----------------------------------------------------------------------------
 
+QList<qint64> Translation::getIdsByRMark( Mark::MarkValue level, LangPair langs )
+{
+    QList<qint64> list;
+    TranslationIdsByRMarkQuery::Ptr qry = Database::getQuery<TranslationIdsByRMarkQuery>( langs );
+    if ( qry )
+    {
+        qry->setRequiredMark( level );
+        qry->start();
+        while ( qry->next() )
+        {
+            list.append( qry->record().id );
+        }
+    }
+    return list;
+}
+
+// ----------------------------------------------------------------------------
+
 Word::Ptr Translation::getWord()
 {
     if ( !m_parent )

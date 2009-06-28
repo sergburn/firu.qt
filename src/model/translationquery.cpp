@@ -111,6 +111,30 @@ int TranslationsByRMarkQuery::bind()
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
+QString TranslationIdsByRMarkQuery::buildSql() const
+{
+    SqlGenerator builder( QString("SELECT id FROM %1").arg( m_tableName ) );
+    builder.addCondition( "rmark = :rmark" );
+    return builder.sql();
+}
+
+// ----------------------------------------------------------------------------
+
+void TranslationIdsByRMarkQuery::read()
+{
+    m_record.id = sqlite3_column_int64( m_stmt, 0 );
+}
+
+// ----------------------------------------------------------------------------
+
+int TranslationIdsByRMarkQuery::bind()
+{
+    return bindInt( ":rmark", m_rmark );
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
 void TranslationsByPatternQuery::setPattern( const QString& pattern, TextMatch match )
 {
     m_pattern = pattern;
