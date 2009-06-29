@@ -34,7 +34,7 @@ public:
         Undefined       = -1,
         Unknown         = 0,
         ToLearn         = 1,
-        OncePassed      = 2,
+        WithHints       = 2,
         AlmostLearned   = 3,
         Learned         = 4
     };
@@ -78,11 +78,7 @@ public:
                 break;
 
             case PassedWithHints:
-                if ( m_value <= ToLearn )
-                    upgrade();
-                else if ( m_value >= AlmostLearned )
-                    downgrade();
-                // else OnePassed - no changes
+                m_value = WithHints;
                 break;
 
             case Failed:

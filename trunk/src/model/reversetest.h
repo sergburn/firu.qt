@@ -37,13 +37,13 @@ public:
 
     /** @return Number of lives left */
     int numLives() const { return m_livesLeft; }
-    int maxLives() const { return m_maxLives; }
 
     TestResult testResult() const { return m_result; }
     Mark::MarkValue currentMark() const { return m_challenge->rmark()(); }
 
 signals:
     void finished();
+    void markChanged();
 
 private:
     void handleHelpOrMistake();
@@ -53,7 +53,6 @@ private:
     Translation::Ptr m_challenge;
     Word::Ptr m_answer;
 
-    int m_maxLives;
     int m_livesLeft;
 
     TestResult m_result;

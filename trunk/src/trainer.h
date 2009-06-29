@@ -15,9 +15,9 @@ class Trainer : public QObject
 public:
     SHARED_POINTER( Trainer );
 
-    Trainer( Dictionary::Ptr dictionary, QObject* parent = NULL );
+    Trainer( QObject* parent = NULL );
 
-    void start();
+    void start( Dictionary::Ptr dictionary );
 
 signals:
     void onExerciseBuildProgress( int progress );
@@ -36,7 +36,6 @@ private slots:
     void handleTestCancel();
 
 private:
-    Dictionary::Ptr m_dictionary;
     Exercise::Ptr m_exe;
 
     QPointer<TrainerDialog> m_dialog;
