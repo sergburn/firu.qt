@@ -4,7 +4,7 @@
 // ----------------------------------------------------------------------------
 
 Trainer::Trainer( Dictionary::Ptr dictionary, QObject* parent )
-    : QObject( parent ), m_dictionary( dictionary )
+    : QObject( parent ), m_dictionary( dictionary ), m_dialog( NULL )
 {
     // connect to Dictionary signals
 }
