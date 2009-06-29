@@ -23,8 +23,8 @@ Exercise::Ptr Exercise::generate( LangPair langs )
     emit exe->onBuildProgress( 0 );
     QCoreApplication::processEvents();
 
-    QList<qint64> tolearn = Translation::getIdsByRMark( Mark::OncePassed, langs );
-    exe->selectRandomly( tolearn, Mark::OncePassed );
+    QList<qint64> tolearn = Translation::getIdsByRMark( Mark::WithHints, langs );
+    exe->selectRandomly( tolearn, Mark::WithHints );
     emit exe->onBuildProgress( 30 );
     QCoreApplication::processEvents();
 
@@ -101,7 +101,7 @@ void Exercise::selectRandomly( QList<qint64>& ids, Mark::MarkValue level )
         case Mark::AlmostLearned:
             neededAmount = m_exeSize * m_shareBetter;
             break;
-        case Mark::OncePassed:
+        case Mark::WithHints:
             neededAmount = m_exeSize * m_shareGood;
             break;
         default:

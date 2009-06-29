@@ -35,6 +35,7 @@ private:
     FiruApp();
     Settings* m_settings;
     Database* m_database;
+    Trainer* m_trainer;
     TrainerDialog* m_dlgTrainer;
 
 #ifdef __SYMBIAN32__    

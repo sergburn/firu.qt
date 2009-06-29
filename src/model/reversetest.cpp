@@ -1,13 +1,14 @@
 #include "reversetest.h"
 
+const int MAX_LIVES = 3;
+
 // ----------------------------------------------------------------------------
 
 ReverseTest::ReverseTest( Translation::Ptr challenge, Word::Ptr answer )
 :   m_challenge( challenge ), m_answer( answer ),
+    m_livesLeft( MAX_LIVES ),
     m_result( Incomplete )
 {
-    m_maxLives = qMin( 3, m_answer->text().length() - 1 );
-    m_livesLeft = m_maxLives;
 }
 
 // ----------------------------------------------------------------------------
@@ -46,7 +47,7 @@ Lang ReverseTest::answerLang() const
 
 int ReverseTest::answerLength() const
 {
-    if ( m_challenge->rmark() < Mark::OncePassed )
+    if ( m_challenge->rmark() < Mark::AlmostLearned )
     {
         return m_answer->text().length();
     }
@@ -113,22 +114,19 @@ QString ReverseTest::getNextLetterHint( const QString& current, const QStringLis
 
 QString ReverseTest::help( const QString& current )
 {
-    handleHelpOrMistake();
+    QString empty;
+    if ( m_result != Incomplete ) return empty;
 
-    if ( m_result == Incomplete )
+    QString answer = m_answer->text();
+    if ( answer.length() > current.length() + 1 ) // help never tells last letter
     {
-        QString answer = m_answer->text();
-        if ( answer.length() > current.length() &&
-             answer.startsWith( current ) )
+        handleHelpOrMistake();
+        if ( answer.startsWith( current ) )
         {
             return answer.left( current.length() + 1 );
         }
-        else
-        {
-            return current;
-        }
     }
-    return QString();
+    return empty;
 }
 
 // ----------------------------------------------------------------------------
@@ -138,6 +136,12 @@ void ReverseTest::handleHelpOrMistake()
     if ( m_livesLeft > 0 )
     {
         m_livesLeft--;
+        if ( currentMark() == Mark::AlmostLearned )
+        {
+            m_challenge->rmark().updateToTestResult( PassedWithHints );
+            m_challenge->saveMarks();
+            emit markChanged();
+        }
     }
     else
     {
@@ -153,7 +157,7 @@ void ReverseTest::setTestPassed( bool passed )
 
     if ( passed )
     {
-        m_result = ( m_livesLeft < m_maxLives ) ? PassedWithHints : Passed;
+        m_result = ( m_livesLeft < MAX_LIVES ) ? PassedWithHints : Passed;
     }
     else
     {

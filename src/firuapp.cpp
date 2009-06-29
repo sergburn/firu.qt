@@ -100,8 +100,12 @@ QStringList FiruApp::getKeypadGroups( Lang lang )
 
 void FiruApp::startTrainer( Dictionary::Ptr dictionary )
 {
-    Trainer* trainer = new Trainer( dictionary, get() );
-    trainer->start();
+    FiruApp* self = get();
+    if ( !self->m_trainer )
+    {
+        self->m_trainer = new Trainer( self );
+    }
+    self->m_trainer->start( dictionary );
 }
 
 // ----------------------------------------------------------------------------

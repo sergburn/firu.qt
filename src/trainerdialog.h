@@ -7,6 +7,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QGraphicsScene>
 #include <QtGui/QGraphicsRectItem>
+#include <QRect>
 
 #include "AppUi.h"
 #include "model/reversetest.h"
@@ -36,6 +37,7 @@ protected:
     virtual void keyPressEvent( QKeyEvent *keyEvent );
     virtual void mousePressEvent( QMouseEvent *mouseEvent );
     virtual void resizeEvent( QResizeEvent * event );
+    virtual bool eventFilter( QObject *obj, QEvent *event );
 
 private:
     void setKeypadMode();
@@ -45,10 +47,11 @@ private:
 
     void leftCommand();
     void rightCommand();
-    void showMark( Mark::MarkValue mark );
+    void drawMark( Mark::MarkValue mark );
 
 private slots:
     void showResult();
+    void updateMark();
 
 private:
     Ui::TrainerDialog *m_ui;
@@ -60,9 +63,8 @@ private:
     QString m_answerText;
 
     QGraphicsScene* m_scene;
-    QGraphicsRectItem* m_itemLevel1;
-    QGraphicsRectItem* m_itemLevel2;
-    QGraphicsRectItem* m_itemLevel3;
+    QGraphicsRectItem* m_markBarBound;
+    QGraphicsRectItem* m_markBar;
     QColor m_clrLevelEmpty;
     QColor m_clrLevel1;
     QColor m_clrLevel2;

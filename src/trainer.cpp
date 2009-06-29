@@ -3,18 +3,16 @@
 
 // ----------------------------------------------------------------------------
 
-Trainer::Trainer( Dictionary::Ptr dictionary, QObject* parent )
-    : QObject( parent ), m_dictionary( dictionary ), m_dialog( NULL )
+Trainer::Trainer( QObject* parent )
+    : QObject( parent ), m_dialog( NULL )
 {
-    // connect to Dictionary signals
 }
 
 // ----------------------------------------------------------------------------
 
-void Trainer::start()
+void Trainer::start( Dictionary::Ptr dictionary )
 {
-    m_exe = m_dictionary->createReverseExercise();
-    // connect to Exercise signals
+    m_exe = dictionary->createReverseExercise();
     showNextTest();
 }
 
@@ -55,5 +53,5 @@ void Trainer::handleTestDone()
 
 void Trainer::handleTestCancel()
 {
-    m_dialog->close();
+    m_dialog->hide();
 }

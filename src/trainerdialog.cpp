@@ -7,6 +7,9 @@
 #include "firudebug.h"
 #include "firuapp.h"
 
+#define BAR_WIDTH 50
+#define BAR_HEIGHT 50
+
 // ----------------------------------------------------------------------------
 
 TrainerDialog::TrainerDialog(QWidget *parent) :
@@ -15,6 +18,7 @@ TrainerDialog::TrainerDialog(QWidget *parent) :
     m_scene( NULL )
 {
     m_ui->setupUi(this);
+    m_ui->markGraph->installEventFilter( this );
 
     m_keyLabels.append( m_ui->la0 );
     m_keyLabels.append( m_ui->la1 );
@@ -39,16 +43,12 @@ TrainerDialog::TrainerDialog(QWidget *parent) :
     m_clrLevel2 = QColor(255,170,0);
     m_clrLevel3 = Qt::green;
 
-    int w = m_ui->markGraph->sizeHint().width() / 3;
-    int h = m_ui->markGraph->sizeHint().height();
-
     m_scene = new QGraphicsScene( this );
+    m_scene->setSceneRect( 0, 0, BAR_WIDTH, 3 * BAR_HEIGHT );
     m_ui->markGraph->setScene( m_scene );
-    m_itemLevel1 = m_scene->addRect( QRect( 0, 0, w, h ), QPen( m_clrLevel1 ), QBrush( m_clrLevelEmpty ) );
-    m_itemLevel2 = m_scene->addRect( QRect( w+1, 0, w, h ), QPen( m_clrLevel2 ), QBrush( m_clrLevelEmpty ) );
-    m_itemLevel3 = m_scene->addRect( QRect( 2*(w+1), 0, w, h ), QPen( m_clrLevel3 ), QBrush( m_clrLevelEmpty ) );
-    m_ui->markGraph->centerOn( m_itemLevel2 );
-    m_ui->markGraph->fitInView( m_scene->sceneRect() );
+//    m_ui->markGraph->centerOn( BAR_WIDTH / 2, 3 * BAR_HEIGHT / 2 );
+    m_scene->addRect( QRect( -1, -1, BAR_WIDTH + 1, 3 * BAR_HEIGHT + 1 ), QPen( m_clrLevelEmpty ), QBrush( m_clrLevelEmpty ) );
+    m_markBar = m_scene->addRect( QRect( 0, 0, BAR_WIDTH, BAR_HEIGHT ), QPen( m_clrLevelEmpty ), QBrush( m_clrLevelEmpty ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -74,12 +74,27 @@ void TrainerDialog::changeEvent(QEvent *e)
 
 // ----------------------------------------------------------------------------
 
-void TrainerDialog::resizeEvent( QResizeEvent * event )
+void TrainerDialog::resizeEvent( QResizeEvent* event )
 {
-    if ( m_scene )
+    qDebug() << "Old size" << event->oldSize() << "new size" << event->size();
+    qDebug() << "Graph size" << m_ui->markGraph->size();
+    updateMark();
+}
+
+// ----------------------------------------------------------------------------
+
+bool TrainerDialog::eventFilter( QObject *obj, QEvent *event )
+{
+    if ( event->type() == QEvent::Resize )
     {
-        m_ui->markGraph->fitInView( m_scene->sceneRect() );
+        QResizeEvent* sizeEvent = static_cast<QResizeEvent*>(event);
+        if ( obj == m_ui->markGraph )
+        {
+            qDebug() << "Graph old size" << sizeEvent->oldSize() << "new size" << sizeEvent->size();
+            updateMark();
+        }
     }
+    return QDialog::eventFilter( obj, event );
 }
 
 // ----------------------------------------------------------------------------
@@ -168,6 +183,8 @@ void TrainerDialog::showTest( ReverseTest::Ptr test )
 
     m_test = test;
     connect( m_test.data(), SIGNAL( finished() ), SLOT( showResult() ) );
+    connect( m_test.data(), SIGNAL( markChanged() ), SLOT( updateMark() ) );
+
     m_ui->laQuestion->setText( m_test->question() );
     m_ui->laAnswer->setText("");
 
@@ -175,7 +192,7 @@ void TrainerDialog::showTest( ReverseTest::Ptr test )
 
     m_ui->progressBar->setValue( m_test->numLives() );
     showNextLetters();
-    showMark( m_test->currentMark() );
+    updateMark();
 }
 
 // ----------------------------------------------------------------------------
@@ -203,7 +220,7 @@ void TrainerDialog::checkAnswer( QString answer )
         showResult();
     }
     m_ui->progressBar->setValue( m_test->numLives() );
-    showMark( m_test->currentMark() );
+    updateMark();
 }
 
 // ----------------------------------------------------------------------------
@@ -222,7 +239,9 @@ void TrainerDialog::showNextLetters()
 
 void TrainerDialog::showHints()
 {
-    checkAnswer( m_test->help( m_answerText ) );
+    QString hint = m_test->help( m_answerText );
+    if ( hint.length() )
+        checkAnswer( hint );
 }
 
 // ----------------------------------------------------------------------------
@@ -231,7 +250,7 @@ void TrainerDialog::showResult()
 {
     m_ui->laAnswer->setText( m_test->answer() );
     m_ui->frmKeypad->hide();
-    showMark( m_test->currentMark() );
+    updateMark();
 }
 
 // ----------------------------------------------------------------------------
@@ -253,12 +272,46 @@ void TrainerDialog::rightCommand()
 
 // ----------------------------------------------------------------------------
 
-void TrainerDialog::showMark( Mark::MarkValue mark )
+void TrainerDialog::updateMark()
 {
-    m_itemLevel1->setBrush( ( mark >= Mark::ToLearn ) ? QBrush( m_clrLevel1 ) : QBrush( m_clrLevelEmpty ) );
-    m_itemLevel2->setBrush( ( mark >= Mark::OncePassed ) ? QBrush( m_clrLevel2 ) : QBrush( m_clrLevelEmpty ) );
-    m_itemLevel3->setBrush( ( mark >= Mark::AlmostLearned ) ? QBrush( m_clrLevel3 ) : QBrush( m_clrLevelEmpty ) );
-    m_ui->markGraph->fitInView( m_scene->sceneRect() );
-    qDebug() << "Scene rect" << m_scene->sceneRect();
-    qDebug() << "View rect" << m_ui->markGraph->size();
+    if ( m_test )
+    {
+        drawMark( m_test->currentMark() );
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+void TrainerDialog::drawMark( Mark::MarkValue mark )
+{
+    if ( m_scene && m_markBar )
+    {
+        double h = 0;
+
+        QColor clr;
+        switch ( mark )
+        {
+            case Mark::ToLearn:
+                clr = m_clrLevel1;
+                h = BAR_HEIGHT;
+                break;
+            case Mark::WithHints:
+                clr = m_clrLevel2;
+                h = 2 * BAR_HEIGHT;
+                break;
+            case Mark::AlmostLearned:
+            default:
+                clr = m_clrLevel3;
+                h = 3 * BAR_HEIGHT;
+                break;
+        }
+
+        m_markBar->setPen( QPen( clr ) );
+        m_markBar->setBrush( QBrush( clr ) );
+        m_markBar->setRect( 0, 3 * BAR_HEIGHT - h, BAR_WIDTH, h );
+
+        qDebug() << "View rect" << m_ui->markGraph->size();
+
+//        m_ui->markGraph->fitInView( m_scene->sceneRect() );
+    }
 }
