@@ -7,7 +7,8 @@
 // ----------------------------------------------------------------------------
 
 FiruApp::FiruApp( int argc, char *argv[] )
-    : QApplication( argc, argv )
+    : QApplication( argc, argv ),
+    m_settings( NULL ), m_database( NULL ), m_dlgTrainer( NULL )
 {
     m_settings = new Settings;
 

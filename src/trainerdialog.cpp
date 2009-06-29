@@ -76,7 +76,10 @@ void TrainerDialog::changeEvent(QEvent *e)
 
 void TrainerDialog::resizeEvent( QResizeEvent * event )
 {
-    m_ui->markGraph->fitInView( m_scene->sceneRect() );
+    if ( m_scene )
+    {
+        m_ui->markGraph->fitInView( m_scene->sceneRect() );
+    }
 }
 
 // ----------------------------------------------------------------------------
