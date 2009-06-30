@@ -110,26 +110,28 @@ void TrainerDialog::keyPressEvent( QKeyEvent *keyEvent )
         emit testFinished();
         return;
     }
-
-    switch( keyEvent->key() )
+    
+    QString cmd = keyEvent->text();
+    if ( cmd == "*" )
     {
-        case '0':
-            leftCommand();
-            break;
-        case '#':
-            rightCommand();
-            break;
-        default:
-            if ( keyEvent->key() >= '1' && keyEvent->key() <= '9' )
-            {
-                int index = keyEvent->key() - '1';
-                checkNextLetter( m_keyLabels[index]->text() );
-            }
-            else
-            {
-                checkNextLetter( keyEvent->text() );
-            }
-            break;
+        leftCommand();
+    }
+    else if ( cmd == "#")
+    {
+        rightCommand();
+    }
+    else if ( QRegExp( "[0-9]", Qt::CaseInsensitive ).exactMatch( cmd ) )
+    {
+        bool ok = false;
+        int key = cmd.toInt( &ok );
+        if ( ok && key >= 0 && key <= 9 )
+        {
+            checkNextLetter( m_keyLabels[key]->text() );
+        }
+    }
+    else if ( cmd.length() )
+    {
+        checkNextLetter( cmd );
     }
 }
 
