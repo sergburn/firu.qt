@@ -8,7 +8,8 @@
 
 FiruApp::FiruApp( int argc, char *argv[] )
     : QApplication( argc, argv ),
-    m_settings( NULL ), m_database( NULL ), m_dlgTrainer( NULL )
+    m_settings( NULL ), m_database( NULL ), 
+    m_trainer( NULL ), m_dlgTrainer( NULL )
 {
     m_settings = new Settings;
 
@@ -27,6 +28,8 @@ FiruApp::FiruApp( int argc, char *argv[] )
 
 FiruApp::~FiruApp()
 {
+    delete m_trainer;
+    delete m_dlgTrainer;
 }
 
 // ----------------------------------------------------------------------------
