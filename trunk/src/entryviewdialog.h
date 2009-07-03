@@ -3,6 +3,8 @@
 
 #include <QtGui/QDialog>
 
+#include "AppUi.h"
+
 namespace Ui {
     class EntryViewDialog;
 }
@@ -19,9 +21,12 @@ public slots:
 
 protected:
     virtual void changeEvent(QEvent *e);
+    virtual void keyPressEvent( QKeyEvent *keyEvent );
+    virtual void mousePressEvent( QMouseEvent *mouseEvent );
 
 private:
     Ui::EntryViewDialog *m_ui;
+    AppUi m_appUi;
 };
 
 #endif // ENTRYVIEWDIALOG_H

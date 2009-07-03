@@ -118,18 +118,19 @@ void FiruMainWindow::on_actionOpenTrainer_triggered()
 
 void FiruMainWindow::on_actionOpenDict_triggered()
 {
-    QMenu* menu = new QMenu();
-    menu->setTitle( "Menu Title" );
-    menu->setStyleSheet( menuBar()->styleSheet() );
-
-    menu->addAction( m_ui.actionOpenDict );
-    menu->addAction( m_ui.actionOpenTrainer );
-    menu->addSeparator();
-    QAction* cancel = new QAction("Cancel", menu);
-    menu->addAction( cancel );
-    menu->addAction( "close" );
-    menu->setDefaultAction( m_ui.actionOpenTrainer );
-    menu->exec( m_ui.listSources->mapToGlobal( QPoint(0,0)  ) );
+    show();
+//    QMenu* menu = new QMenu();
+//    menu->setTitle( "Menu Title" );
+//    menu->setStyleSheet( menuBar()->styleSheet() );
+//
+//    menu->addAction( m_ui.actionOpenDict );
+//    menu->addAction( m_ui.actionOpenTrainer );
+//    menu->addSeparator();
+//    QAction* cancel = new QAction("Cancel", menu);
+//    menu->addAction( cancel );
+//    menu->addAction( "close" );
+//    menu->setDefaultAction( m_ui.actionOpenTrainer );
+//    menu->exec( m_ui.listSources->mapToGlobal( QPoint(0,0)  ) );
 //
 //    QMenuBar* bar = new QMenuBar();
 //    bar->addMenu( menu );

@@ -4,17 +4,30 @@
 #include <QFrame>
 #include <QSpacerItem>
 
+// ----------------------------------------------------------------------------
+
 EntryViewDialog::EntryViewDialog(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::EntryViewDialog)
 {
     m_ui->setupUi(this);
+
+#ifdef __SYMBIAN32__
+    showMaximized();
+#else
+    QRect rect = m_appUi.GetClientRect();
+    setGeometry( rect );
+#endif
 }
+
+// ----------------------------------------------------------------------------
 
 EntryViewDialog::~EntryViewDialog()
 {
     delete m_ui;
 }
+
+// ----------------------------------------------------------------------------
 
 void EntryViewDialog::changeEvent(QEvent *e)
 {
@@ -26,6 +39,22 @@ void EntryViewDialog::changeEvent(QEvent *e)
         break;
     }
 }
+
+// ----------------------------------------------------------------------------
+
+void EntryViewDialog::keyPressEvent( QKeyEvent *keyEvent )
+{
+    close();
+}
+
+// ----------------------------------------------------------------------------
+
+void EntryViewDialog::mousePressEvent( QMouseEvent *mouseEvent )
+{
+    close();
+}
+
+// ----------------------------------------------------------------------------
 
 int EntryViewDialog::exec( const QString& entry, const QStringList& translations )
 {
