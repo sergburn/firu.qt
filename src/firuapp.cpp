@@ -36,15 +36,23 @@ FiruApp::~FiruApp()
 
 bool FiruApp::openDatabase()
 {
-    QString dbPath;
     qDebug() << "Home path is:" << QDir::homePath();
 
+    QDir dir;
+    QString dbPath;
+#ifdef __SYMBIAN32__
+    dbPath = "e:\\data\\.firu\\";
+    if ( !dir.mkpath( dbPath ) )
+    {
+        dbPath = "c:\\data\\.firu\\";
+        dir.mkpath( dbPath );
+    }
+#else    
     dbPath = QDir::homePath() + "/.firu/";
-    QDir path;
-    path.mkpath( dbPath );
-    dbPath += "firu.db";
-    
-    m_database = Database::open( dbPath, this );
+    dir.mkpath( dbPath );
+#endif
+
+    m_database = Database::open( dbPath + "firu.db", this );
     return ( m_database != NULL );
 }
 
