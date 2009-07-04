@@ -8,7 +8,7 @@ class WordsQuery : public Query
 {
     Q_OBJECT
 public:
-    SHARED_POINTER( WordsQuery );
+    SHARED_POINTER( WordsQuery )
 
     WordsQuery( Database* db, LangPair langs );
 
@@ -26,7 +26,7 @@ protected: // from Query
 
 private:
     WordsQuery();
-    Q_DISABLE_COPY( WordsQuery );
+    Q_DISABLE_COPY( WordsQuery )
 
 protected:
     Record m_record;

@@ -47,7 +47,7 @@ signals:
 
 private:
     Dictionary();
-    Q_DISABLE_COPY( Dictionary );
+    Q_DISABLE_COPY( Dictionary )
 
 private:
     LangPair m_langs;

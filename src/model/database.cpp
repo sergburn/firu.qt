@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QDir>
+#include <QMessageBox>
 
 #include "database.h"
 #include "../firudebug.h"
@@ -30,21 +31,26 @@ QString Database::getTransTableName( LangPair langs )
 
 Database::Database( QObject* parent )
 :   QObject( parent ),
+#ifdef FIRU_INTERNAL_SQLITE
     m_db( NULL ),
+#endif    
     m_transactionLevel( 0 ),
     m_transactionError( 0 )
 {
+#ifdef FIRU_INTERNAL_SQLITE
     int err = sqlite3_initialize();
     if ( err )
     {
         LogSqliteError( m_db, "Database" );
     }
+#endif
 }
 
 // ----------------------------------------------------------------------------
 
 Database::~Database()
 {
+#ifdef FIRU_INTERNAL_SQLITE
     if ( m_db )
     {
         sqlite3_close( m_db );
@@ -53,6 +59,7 @@ Database::~Database()
     g_schema = NULL;
 #if defined( SYMBIAN ) || defined ( __SYMBIAN32__ )
     iFs.Close();
+#endif
 #endif
 }
 
@@ -88,6 +95,7 @@ bool Database::doOpen( const QString& dbPath )
     QString path = QDir::toNativeSeparators( dbPath );
     qDebug() << "Db: " << path;
 
+#ifdef FIRU_INTERNAL_SQLITE
 #if defined( SYMBIAN ) || defined ( __SYMBIAN32__ )
     int _err = iFs.Connect(); 
     if ( _err != KErrNone )
@@ -122,15 +130,33 @@ bool Database::doOpen( const QString& dbPath )
         LogSqliteError( m_db, "open" );
         return false;
     }
+#else
+    m_db = QSqlDatabase::addDatabase("QSQLITE");
+    m_db.setDatabaseName( dbPath );
+    if ( !m_db.open() )
+    {
+        QMessageBox::critical( 0, "Cannot open database",
+            ( "Unable to establish a database connection."
+                "Click Cancel to exit." ), QMessageBox::Cancel );
+        return false;
+    }
+#endif
     return true;
 }
 
 // ----------------------------------------------------------------------------
 
+#ifdef FIRU_INTERNAL_SQLITE
 sqlite3* Database::db()
 {
     return m_db;
 }
+#else
+QSqlDatabase& Database::db()
+{
+    return m_db;
+}
+#endif    
 
 // ----------------------------------------------------------------------------
 
@@ -171,6 +197,7 @@ bool Database::tableExists( const QString& table )
     
     QString sql = QString( KSqlFindTable ).arg( table );
 
+#ifdef FIRU_INTERNAL_SQLITE
     char** azResult = NULL;
     int nRow = 0;
     int nCol = 0;
@@ -186,6 +213,11 @@ bool Database::tableExists( const QString& table )
         LogSqliteError( m_db, "tableExists" );
         return false;
     }
+#else
+    QSqlQuery query( sql, m_db );
+    query.exec();
+    return query.next();
+#endif    
 }
 
 // ----------------------------------------------------------------------------
@@ -199,12 +231,22 @@ int Database::sqlGetTable( const QString& /*sql*/ )
 
 int Database::sqlExecute( QString sql )
 {
+#ifdef FIRU_INTERNAL_SQLITE
     int err = sqlite3_exec( m_db, sql.toUtf8().constData(), NULL, NULL, NULL );
     if ( err )
     {
         LogSqliteError( m_db, "sqlExecute" );
     }
     return err;
+#else
+    QSqlQuery query( sql, m_db );
+    if ( !query.exec() )
+    {
+        LogSqlError( m_db, "sqlExecute" );
+        return -1;
+    }
+    return 0;
+#endif    
 }
 
 // ----------------------------------------------------------------------------
@@ -233,9 +275,9 @@ int Database::createLangTable( Lang lang )
         err = sqlExecute( sql );
     }
     
-    if ( err != SQLITE_OK )
+    if ( err )
     {
-        LogSqliteError( m_db, "createLangTable" );
+        LogSqlError( m_db, "createLangTable" );
         sqlExecute( QString( "DROP TABLE %1;" ).arg( langTableName ) );
     }
     
@@ -299,9 +341,9 @@ int Database::createTransTable( LangPair langs )
         }
     }
     
-    if ( err != SQLITE_OK )
+    if ( err )
     {
-        LogSqliteError( m_db, "createTransTable" );
+        LogSqlError( m_db, "createTransTable" );
         sqlExecute( QString( "DROP TABLE %1;" ).arg( transTableName ) );
     }
     
@@ -317,7 +359,7 @@ bool Database::begin()
         m_transactionError = sqlExecute( QString("BEGIN TRANSACTION;") );
         if ( m_transactionError )
         {
-            LogSqliteError( m_db, "begin" );
+            LogSqlError( m_db, "begin" );
         }
     }
 
@@ -352,7 +394,7 @@ bool Database::commit()
 
         if ( m_transactionError )
         {
-            LogSqliteError( m_db, "commit" );
+//            LogSqliteError( m_db, "commit" );
             rollback();
         }
         else
@@ -371,7 +413,7 @@ void Database::rollback()
 {
     if ( m_transactionLevel > 1 )
     {
-        m_transactionError = SQLITE_ABORT;
+        m_transactionError = -1; // SQLITE_ABORT;
         m_transactionLevel--;
         return;
     }
@@ -380,7 +422,7 @@ void Database::rollback()
         int err = sqlExecute( QString("ROLLBACK TRANSACTION;") );
         if ( err )
         {
-            LogSqliteError( m_db, "rollback" );
+//            LogSqliteError( m_db, "rollback" );
         }
         emit onTransactionFinish( false );
     }

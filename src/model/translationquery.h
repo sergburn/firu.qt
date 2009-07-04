@@ -9,7 +9,7 @@ class TranslationsQuery : public Query
 {
     Q_OBJECT
 public:
-    SHARED_POINTER( TranslationsQuery );
+    SHARED_POINTER( TranslationsQuery )
     TranslationsQuery( Database* db, LangPair langs );
 
     struct Record
@@ -29,7 +29,7 @@ protected: // from Query
 
 private:
     TranslationsQuery();
-    Q_DISABLE_COPY( TranslationsQuery );
+    Q_DISABLE_COPY( TranslationsQuery )
 
 protected:
     Record m_record;
@@ -157,7 +157,7 @@ class UpdateMarksQuery : public TranslationsQuery
 {
     Q_OBJECT
 public:
-    SHARED_POINTER( UpdateMarksQuery );
+    SHARED_POINTER( UpdateMarksQuery )
 
     UpdateMarksQuery( Database* db, LangPair langs );
 
@@ -172,7 +172,7 @@ class UpdateMarksBySidQuery : public TranslationsQuery
 {
     Q_OBJECT
 public:
-    SHARED_POINTER( UpdateMarksBySidQuery );
+    SHARED_POINTER( UpdateMarksBySidQuery )
 
     UpdateMarksBySidQuery( Database* db, LangPair langs );
 

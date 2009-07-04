@@ -2,6 +2,7 @@
 #include "database.h"
 #include "sqlgenerator.h"
 #include "../firudebug.h"
+#include <QVariant>
 
 // ----------------------------------------------------------------------------
 
@@ -29,11 +30,20 @@ TranslationsQuery::Record& TranslationsQuery::record()
 
 void TranslationsQuery::read()
 {
+#ifdef FIRU_INTERNAL_SQLITE
     m_record.id = sqlite3_column_int64( m_stmt, 0 );
     m_record.sid = sqlite3_column_int64( m_stmt, 1 );
     m_record.text = QString::fromUtf8( (const char*) sqlite3_column_text( m_stmt, 2 ) );
     m_record.fmark = sqlite3_column_int( m_stmt, 3 );
     m_record.rmark = sqlite3_column_int( m_stmt, 4 );
+#else
+    m_record.id = m_query.value(0).toLongLong();
+    m_record.sid = m_query.value(1).toLongLong();
+    m_record.text = m_query.value(2).toString();
+    m_record.text.chop(1);
+    m_record.fmark = m_query.value(3).toInt();
+    m_record.rmark = m_query.value(4).toInt();
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -122,7 +132,11 @@ QString TranslationIdsByRMarkQuery::buildSql() const
 
 void TranslationIdsByRMarkQuery::read()
 {
+#ifdef FIRU_INTERNAL_SQLITE
     m_record.id = sqlite3_column_int64( m_stmt, 0 );
+#else
+    m_record.id = m_query.value(0).toLongLong();
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -201,9 +215,14 @@ bool TranslationInsertQuery::execute()
     int err = TranslationsQuery::execute();
     if ( !err )
     {
+#ifdef FIRU_INTERNAL_SQLITE
         m_record.id = sqlite3_last_insert_rowid( m_db );
+        return SQLOK( err ) == SQLITE_OK;
+#else
+        m_record.id = m_query.lastInsertId().toLongLong();
+#endif
     }
-    return SQLOK( err ) == SQLITE_OK;
+    return false;
 }
 
 // ----------------------------------------------------------------------------

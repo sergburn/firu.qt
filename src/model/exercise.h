@@ -11,7 +11,7 @@ class Exercise : public QObject
 {
     Q_OBJECT
 public:
-    SHARED_POINTER( Exercise );
+    SHARED_POINTER( Exercise )
 
     static Ptr generate( LangPair langs );
 
@@ -26,7 +26,7 @@ signals:
 private:
     Exercise();
     Exercise( LangPair langs );
-    Q_DISABLE_COPY( Exercise );
+    Q_DISABLE_COPY( Exercise )
 
     void addTest( ReverseTest::Ptr );
     void selectRandomly( QList<qint64>& ids, Mark::MarkValue level );

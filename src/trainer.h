@@ -13,7 +13,7 @@ class Trainer : public QObject
 {
     Q_OBJECT
 public:
-    SHARED_POINTER( Trainer );
+    SHARED_POINTER( Trainer )
 
     Trainer( QObject* parent = NULL );
 
@@ -27,7 +27,7 @@ signals:
 
 private:
     Trainer();
-    Q_DISABLE_COPY( Trainer );
+    Q_DISABLE_COPY( Trainer )
 
     void showNextTest();
 
