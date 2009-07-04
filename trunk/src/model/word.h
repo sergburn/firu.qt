@@ -39,7 +39,7 @@ public:
 private:
     Word();
     Word( Lang lang );
-    Q_DISABLE_COPY( Word );
+    Q_DISABLE_COPY( Word )
 
     virtual bool doInsert();
     virtual bool doUpdate();

@@ -3,7 +3,12 @@
 
 #include <QObject>
 #include <QSharedPointer>
+#ifdef FIRU_INTERNAL_SQLITE
 #include <sqlite3.h>
+#else
+#include <QtSql/QSqlQuery>
+#include <QtSql/QSqlDatabase>
+#endif
 
 #include "model.h"
 
@@ -30,7 +35,6 @@ public:
     bool next();
     virtual bool execute();
 
-    int error() const;
     void reset();
 
 signals:
@@ -49,7 +53,7 @@ protected:
     QString deleteBaseSql() const;
 
 protected:
-    virtual int bind() { return SQLITE_OK; }
+    virtual int bind() { return 0; }
     virtual void read() {}
     virtual QString buildSql() const = 0;
 
@@ -58,8 +62,13 @@ private:
     Query( const Query& );
 
 protected:
+#ifdef FIRU_INTERNAL_SQLITE
     sqlite3* m_db;
     sqlite3_stmt* m_stmt;
+#else
+    QSqlQuery m_query;
+    QSqlDatabase& m_db;
+#endif
 
     QString m_tableName;
     qint64 m_pk;

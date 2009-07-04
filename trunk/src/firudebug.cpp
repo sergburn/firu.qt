@@ -4,6 +4,7 @@
 
 // ----------------------------------------------------------------------------
 
+#ifdef FIRU_INTERNAL_SQLITE
 void LogSqliteError( sqlite3* db, const char* where )
 {
     QString err( sqlite3_errmsg( db ) );
@@ -13,6 +14,12 @@ void LogSqliteError( sqlite3* db, const char* where )
         ", exterr "  << sqlite3_extended_errcode( db ) <<
         ", msg " << err;
 }
+#else
+void LogSqlError( QSqlDatabase& db, const char* where )
+{
+    qDebug() << "QtSql err in " << where << ":" << db.lastError().text();
+}
+#endif
 
 
 

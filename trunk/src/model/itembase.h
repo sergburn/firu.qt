@@ -33,7 +33,7 @@ protected:
 
 private:
     ItemBase();
-    Q_DISABLE_COPY( ItemBase );
+    Q_DISABLE_COPY( ItemBase )
 
 private slots:
     void handleTransactionFinish( bool success );

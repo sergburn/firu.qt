@@ -55,7 +55,7 @@ protected:
 private:
     Translation();
     Translation( LangPair langs );
-    Q_DISABLE_COPY( Translation );
+    Q_DISABLE_COPY( Translation )
 
 private:
     qint64 m_sid;

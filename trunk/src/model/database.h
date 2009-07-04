@@ -9,7 +9,13 @@
 #include <QObject>
 #include <QString>
 #include <QHash>
+#ifdef FIRU_INTERNAL_SQLITE
 #include "sqlite3.h"
+#else
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlError>
+#include <QtSql/QSqlQuery>
+#endif
 
 #include "model.h"
 #include "query.h"
@@ -24,7 +30,11 @@ public:
     static Database* instance();
     static Database* open( const QString& dbPath, QObject* parent );
     
+#ifdef FIRU_INTERNAL_SQLITE
     sqlite3* db();
+#else
+    QSqlDatabase& db();
+#endif    
 
     bool langTableExists( Lang lang );
     bool transTableExists( LangPair langs );
@@ -82,8 +92,14 @@ private:
     void addQuery( Query::Ptr query, Lang src, Lang trg );
 
 private:
+#ifdef FIRU_INTERNAL_SQLITE
     sqlite3* m_db;
-
+#ifdef __SYMBIAN32__
+    RFs iFs;
+#endif
+#else
+    QSqlDatabase m_db;
+#endif
     typedef QHash<LangPair, Query::Ptr> QueryLangPairHash;
     typedef QHash<QString, QueryLangPairHash> QuerySuperHash;
 
@@ -92,9 +108,6 @@ private:
     int m_transactionLevel;
     int m_transactionError;
 
-#ifdef __SYMBIAN32__
-    RFs iFs;
-#endif
 };
 
 #endif /* DATABASE_H_ */

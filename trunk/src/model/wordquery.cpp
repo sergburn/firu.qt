@@ -2,6 +2,7 @@
 #include "database.h"
 #include "sqlgenerator.h"
 #include "../firudebug.h"
+#include <QVariant>
 
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
@@ -30,8 +31,14 @@ const WordsQuery::Record& WordsQuery::record() const
 
 void WordsQuery::read()
 {
+#ifdef FIRU_INTERNAL_SQLITE
     m_record.id = sqlite3_column_int64( m_stmt, 0 );
     m_record.text = QString::fromUtf8( (const char*) sqlite3_column_text( m_stmt, 1 ) );
+#else
+    m_record.id = m_query.value(0).toLongLong();
+    m_record.text = m_query.value(1).toString();
+    m_record.text.chop(1);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -128,7 +135,12 @@ bool WordInsertQuery::execute()
     int err = WordsQuery::execute();
     if ( !err )
     {
+#ifdef FIRU_INTERNAL_SQLITE
         m_record.id = sqlite3_last_insert_rowid( m_db );
+        return SQLOK( err ) == SQLITE_OK;
+#else
+        m_record.id = m_query.lastInsertId().toLongLong();
+#endif
     }
-    return SQLOK( err ) == SQLITE_OK;
+    return false;
 }

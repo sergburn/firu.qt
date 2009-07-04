@@ -12,7 +12,7 @@ class ReverseTest : public QObject
 {
     Q_OBJECT
 public:
-    SHARED_POINTER( ReverseTest );
+    SHARED_POINTER( ReverseTest )
     ReverseTest( Translation::Ptr challenge, Word::Ptr answer );
 
     Lang questionLang() const;

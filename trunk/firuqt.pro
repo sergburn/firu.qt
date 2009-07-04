@@ -1,7 +1,8 @@
 TEMPLATE = app
 TARGET = firuqt
 QT += core \
-    gui
+    gui \
+    sql
 HEADERS += src/AppUi.h \
     src/firumainwindow.h \
     src/firuqt.h \
@@ -52,22 +53,27 @@ DEFINES += SQLITE_THREADSAFE=0 \
     SQLITE_OMIT_DEPRECATED
 symbian { 
     TARGET.UID3 = 0xE92D4440
-    HEADERS += src/sqlite_symbian.h \
-        firuqt.loc \
-        src/AppUi_S60.h \
-        external/sqlite/sqlite3.h
-    SOURCES += src/sqlite_symbian.cpp \
-        firuqt.rss \
+    HEADERS += firuqt.loc \
+        src/AppUi_S60.h
+    SOURCES += firuqt.rss \
         firuqt_reg.rss \
         firuqt_reg.rss \
-        src/AppUi_S60.cpp \
-        external/sqlite/sqlite3_part2.c
-    DEFINES += SQLITE_OS_UNIX=1
-    DEPENDPATH += external/sqlite
+        src/AppUi_S60.cpp
     LIBS += -lcharconv
-    INCLUDEPATH += /epoc32/include/middleware
+    INCLUDEPATH += /epoc32/include/middleware \
+        ./
+    int_sqlite { 
+        DEFINES += SQLITE_OS_UNIX=1 \
+            _HAVE_SQLITE_CONFIG_H
+        DEPENDPATH += external/sqlite
+        HEADERS += external/sqlite/config.h \
+            src/sqlite_symbian.h \
+            external/sqlite/sqlite3.h
+        SOURCES += src/sqlite_symbian.cpp \
+            external/sqlite/sqlite3_part2.c
+    }
 }
-linux-g++ {
+linux-g++ { 
     CONFIG += qt \
         debug
     LIBS += -lsqlite3
