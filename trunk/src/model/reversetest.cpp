@@ -167,5 +167,11 @@ void ReverseTest::setTestPassed( bool passed )
     m_challenge->rmark().updateToTestResult( m_result );
     m_challenge->saveMarks();
 
+    Translation::Ptr t = Translation::find( 
+            m_challenge->id(), m_challenge->getLangs() );
+    qDebug() << "TR" << t->id() 
+        << "fmark" << t->fmark() 
+        << "rmark" << t->rmark();
+    
     emit finished();
 }

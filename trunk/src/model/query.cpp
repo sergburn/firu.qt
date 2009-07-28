@@ -74,6 +74,7 @@ bool Query::start()
     qDebug() << "Executing SQL:" << m_finalSql;
     if ( !m_query.exec() )
     {
+        LogSqlError( m_db, "Query::start(), exec" );
         return false;
     }
 #endif
@@ -114,9 +115,9 @@ bool Query::next()
     }
     else if ( m_db.lastError().type() != QSqlError::NoError )
     {
+        m_query.finish();
         LogSqlError( m_db, "Query::next()" );
         emit onQueryFinish( FAILURE );
-        m_query.finish();
         return false;
     }
     else
@@ -132,6 +133,7 @@ bool Query::next()
 
 bool Query::execute()
 {
+#ifdef FIRU_INTERNAL_SQLITE
     if ( start() )
     {
         int steps = 0;
@@ -142,13 +144,12 @@ bool Query::execute()
                 emit onQueryProgress();
             }
         }
-#ifdef FIRU_INTERNAL_SQLITE
         int err = sqlite3_errcode( m_db );
         return SQLOK( err ) == SQLITE_OK;
-#else
-        return m_db.lastError().type() == QSqlError::NoError;
-#endif
     }
+#else
+    return start();
+#endif
     return false;
 }
 
