@@ -41,7 +41,7 @@ Database::Database( QObject* parent )
     int err = sqlite3_initialize();
     if ( err )
     {
-        LogSqliteError( m_db, "Database" );
+        LogSqlError( m_db, "Database" );
     }
 #endif
 }
@@ -127,7 +127,7 @@ bool Database::doOpen( const QString& dbPath )
 
     if ( err )
     {
-        LogSqliteError( m_db, "open" );
+        LogSqlError( m_db, "open" );
         return false;
     }
 #else
@@ -210,7 +210,7 @@ bool Database::tableExists( const QString& table )
     }
     else
     {
-        LogSqliteError( m_db, "tableExists" );
+        LogSqlError( m_db, "tableExists" );
         return false;
     }
 #else
@@ -235,7 +235,7 @@ int Database::sqlExecute( QString sql )
     int err = sqlite3_exec( m_db, sql.toUtf8().constData(), NULL, NULL, NULL );
     if ( err )
     {
-        LogSqliteError( m_db, "sqlExecute" );
+        LogSqlError( m_db, "sqlExecute" );
     }
     return err;
 #else

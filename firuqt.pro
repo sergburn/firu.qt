@@ -1,8 +1,8 @@
 TEMPLATE = app
 TARGET = firuqt
+#CONFIG += int_sqlite
 QT += core \
-    gui \
-    sql
+    gui
 HEADERS += src/AppUi.h \
     src/firumainwindow.h \
     src/firuqt.h \
@@ -47,12 +47,23 @@ FORMS += src/firumainwindow.ui \
     src/firuqt.ui \
     src/trainerdialog.ui \
     src/entryviewdialog.ui
-RESOURCES += 
-DEFINES += SQLITE_THREADSAFE=0 \
-    SQLITE_OMIT_LOAD_EXTENSION \
-    SQLITE_OMIT_DEPRECATED
+RESOURCES += firuqt.qrc
+int_sqlite { 
+    DEFINES += FIRU_INTERNAL_SQLITE \
+	    SQLITE_OMIT_LOAD_EXTENSION \
+	    SQLITE_OMIT_DEPRECATED
+    DEPENDPATH += external/sqlite
+    HEADERS += external/sqlite/sqlite3.h \
+    	src/sqlite_symbian.h
+    SOURCES += external/sqlite/sqlite3_part2.cpp \
+        src/sqlite_symbian.cpp
+}
+else {
+	QT += sql
+}
 symbian { 
     TARGET.UID3 = 0xE92D4440
+    TARGET.CAPABILITY = ReadUserData WriteUserData
     HEADERS += firuqt.loc \
         src/AppUi_S60.h
     SOURCES += firuqt.rss \
@@ -64,13 +75,7 @@ symbian {
         ./
     int_sqlite { 
         DEFINES += SQLITE_OS_UNIX=1 \
-            _HAVE_SQLITE_CONFIG_H
-        DEPENDPATH += external/sqlite
-        HEADERS += external/sqlite/config.h \
-            src/sqlite_symbian.h \
-            external/sqlite/sqlite3.h
-        SOURCES += src/sqlite_symbian.cpp \
-            external/sqlite/sqlite3_part2.c
+        	SQLITE_THREADSAFE=0 # _HAVE_SQLITE_CONFIG_H \
     }
 }
 linux-g++ { 
@@ -82,7 +87,4 @@ linux-g++ {
 win32 { 
     CONFIG += qt \
         debug
-    DEPENDPATH += external/sqlite
-    INCLUDEPATH += external/sqlite
-    SOURCES += external/sqlite/sqlite3.c
 }

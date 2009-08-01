@@ -1,7 +1,12 @@
 #ifndef FIRUMAINWINDOW_H
 #define FIRUMAINWINDOW_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
+#include <QTimer>
+#include <QList>
+#include <QListWidgetItem>
+#include <QString>
+
 #include "ui_firumainwindow.h"
 #include "AppUi.h"
 #include "model/dictionary.h"
@@ -15,26 +20,27 @@ public:
     ~FiruMainWindow();
 
 public slots:
-    void setInputWord( QString );
     void importDict( const QString& file );
     bool setDirection( Lang src, Lang trg, bool reverse = false );
-    
-signals:
-    void inputWordChanged( QString );
     
 protected:
 //    virtual void changeEvent(QEvent *e);
 //    virtual void keyPressEvent(QKeyEvent *keyEvent);
-    virtual bool eventFilter(QObject *obj, QEvent *ev);
+    virtual bool eventFilter( QObject *obj, QEvent *ev );
+//    virtual void timerEvent( QTimerEvent* event );
     
 private:
-    void updateList();
     void updateDirectionLabels();
+    void scheduleListUpdate();
+    void fillList( const Word::List& words );
+    void updateList();
     
 private slots:
+    void loadList();
     void on_actionSearch_reverse_toggled( bool );
     void on_actionOpenDict_triggered();
     void on_actionOpenTrainer_triggered();
+    void onPatternChanged( const QString& );
     void showTranslation( QListWidgetItem* );
 
 private:
@@ -45,6 +51,7 @@ private:
     bool m_reverse;
     Word::List m_words;
     QList<QListWidgetItem> m_listItems;
+    QTimer m_loadTimer;
 };
 
 #endif // FIRUMAINWINDOW_H

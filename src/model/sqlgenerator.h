@@ -13,7 +13,8 @@ public:
     void addPrimaryKeyCondition();
     void addSorting( const QString& field, bool ascending = true );
     void addSet( const QString& expr );
-
+    void addLimit( long maxResults );
+    
     QString sql() const;
 
     static QString createPattern( const QString& text, TextMatch match );
@@ -29,6 +30,7 @@ private:
     int m_conditions;
     int m_sets;
     bool m_sort;
+    bool m_limit;
 };
 
 #endif // SQLGENERATOR_H

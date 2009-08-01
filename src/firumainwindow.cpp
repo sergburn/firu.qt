@@ -12,8 +12,8 @@
 
 // ----------------------------------------------------------------------------
 
-FiruMainWindow::FiruMainWindow( QWidget *parent)
-    : QMainWindow( parent ), m_reverse( false )
+FiruMainWindow::FiruMainWindow( QWidget *parent )
+    : QMainWindow( parent ), m_reverse( false ), m_loadTimer( this )
 {
 	m_ui.setupUi(this);
 
@@ -32,9 +32,20 @@ FiruMainWindow::FiruMainWindow( QWidget *parent)
     m_ui.editInput->installEventFilter( this );
     m_ui.prgTask->hide();
     
+    m_loadTimer.setSingleShot( true );
+    m_loadTimer.setInterval( 1000 );
+    
     setDirection( QLocale::Finnish, QLocale::Russian );
 //    connect( &m_data, SIGNAL( progress( int ) ), m_ui.prgTask, SLOT( setValue( int ) ) );
 //    connect( m_data, SIGNAL( searchComplete ), this, SLOT( onSearchComplete ) );
+
+    connect( 
+        m_ui.editInput, SIGNAL( textChanged( const QString& ) ), 
+        this, SLOT( onPatternChanged( const QString& ) ) );
+
+    connect( 
+        &m_loadTimer, SIGNAL( timeout() ), 
+        this, SLOT( loadList() ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -61,19 +72,6 @@ bool FiruMainWindow::setDirection( Lang src, Lang trg, bool reverse )
 
 // ----------------------------------------------------------------------------
 
-void FiruMainWindow::setInputWord( QString word )
-{
-    if ( word != m_pattern )
-    {
-        m_pattern = word;
-        emit inputWordChanged( m_pattern );
-        
-        updateList();
-    }
-}
-
-// ----------------------------------------------------------------------------
-
 void FiruMainWindow::importDict( const QString& file )
 {
     m_ui.prgTask->show();
@@ -84,26 +82,62 @@ void FiruMainWindow::importDict( const QString& file )
 
 // ----------------------------------------------------------------------------
 
+void FiruMainWindow::onPatternChanged( const QString& /*pattern*/ )
+{
+    updateList();
+}
+
+// ----------------------------------------------------------------------------
+
 void FiruMainWindow::updateList()
 {
-    m_ui.listSources->clear();
-    if ( m_pattern.length() > 2 )
+    m_loadTimer.stop();
+
+    QString pattern = m_ui.editInput->text();
+    if ( pattern.length() < 3 )
     {
-        Word::List words;
-        if ( !m_reverse )
-        {
-            words = m_dictionary->findWords( m_pattern, StartsWith );
-        }
-        else
-        {
-//            words = Translation::find( m_pattern, Contains );
-        }
-        foreach( Word::Ptr wp, words )
-        {
-            QListWidgetItem* item = new QListWidgetItem( wp->text() );
-            item->setData( Qt::UserRole, wp->id() );
-            m_ui.listSources->addItem( item );
-        }
+        m_ui.listSources->clear();
+    }
+    else if ( pattern == m_pattern )
+    {
+        fillList( m_words );
+    }
+    else if ( m_pattern.length() >= 3 && 
+        pattern.startsWith( m_pattern ) && 
+        m_words.count() )
+    {
+        Word::List words = Word::filter( m_words, pattern, StartsWith );
+        fillList( words );
+    }
+    else // new pattern
+    {
+        m_ui.listSources->clear();
+        m_loadTimer.start();
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+void FiruMainWindow::loadList()
+{
+    if ( m_pattern != m_ui.editInput->text() )
+    {
+        m_pattern = m_ui.editInput->text();
+        m_words = m_dictionary->findWords( m_pattern, StartsWith );
+        fillList( m_words );
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+void FiruMainWindow::fillList( const Word::List& words )
+{
+    m_ui.listSources->clear();
+    foreach( const Word::Ptr wp, words )
+    {
+        QListWidgetItem* item = new QListWidgetItem( wp->text() );
+        item->setData( Qt::UserRole, wp->id() );
+        m_ui.listSources->addItem( item );
     }
 }
 
@@ -241,6 +275,13 @@ bool FiruMainWindow::eventFilter(QObject *obj, QEvent *event)
     // pass the event on to the parent class
     return QMainWindow::eventFilter(obj, event);
 }
+
+// ----------------------------------------------------------------------------
+
+//void FiruMainWindow::timerEvent( QTimerEvent* event )
+//{
+//    setInputWord( m_ui.editInput->text() );
+//}
 
 // ----------------------------------------------------------------------------
 

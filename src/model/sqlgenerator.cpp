@@ -3,7 +3,11 @@
 // ----------------------------------------------------------------------------
 
 SqlGenerator::SqlGenerator( const QString& baseSql )
-    : m_sql( baseSql ), m_conditions( 0 ), m_sets( 0 ), m_sort( false )
+    : m_sql( baseSql ), 
+    m_conditions( 0 ), 
+    m_sets( 0 ), 
+    m_sort( false ),
+    m_limit( false )
 {
 }
 
@@ -48,10 +52,20 @@ void SqlGenerator::addSorting( const QString& field, bool ascending )
     if ( !m_sort )
     {
         QString sort( " ORDER BY %1" );
-        sort.arg( field );
         if ( !ascending ) sort.append( " DESC" );
-        m_sql.append( sort );
+        m_sql.append( sort.arg( field ) );
         m_sort = true;
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+void SqlGenerator::addLimit( long maxResults )
+{
+    if ( !m_limit )
+    {
+        QString limit( " LIMIT %1" );
+        m_sql.append( limit.arg( maxResults ) );
     }
 }
 

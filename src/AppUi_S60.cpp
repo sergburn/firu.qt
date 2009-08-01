@@ -58,6 +58,17 @@ QRect AppUiS60::GetClientRect() const
     return rect;
 }
 
+QRect AppUiS60::GetAppRect() const
+{
+    QRect rect;
+    if ( m_appui )
+    {
+        TRect r = m_appui->ApplicationRect();
+        rect.setCoords( r.iTl.iX, r.iTl.iY, r.iBr.iX, r.iBr.iY );
+    }
+    return rect;
+}
+
 // --------------------------------------------------------
 
 AppUiS60::~AppUiS60()

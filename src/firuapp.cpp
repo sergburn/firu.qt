@@ -1,4 +1,5 @@
 #include <QDir>
+#include <QFile>
 #include <QString>
 
 #include "firuapp.h"
@@ -22,6 +23,14 @@ FiruApp::FiruApp( int argc, char *argv[] )
     {
         m_settings->setTargetLanguage( QLocale::Russian );
     }
+    
+    QFile styleSheet( ":/files/khaki.qss" );
+    if ( !styleSheet.open( QIODevice::ReadOnly ) ) 
+    {
+        qWarning("Unable to open :/files/khaki.qss");
+        return;
+    }
+    setStyleSheet( styleSheet.readAll() );
 }
 
 // ----------------------------------------------------------------------------

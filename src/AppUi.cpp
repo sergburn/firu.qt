@@ -17,7 +17,7 @@
 
 AppUi::AppUi()
 {
-#if 0 //def __SYMBIAN32__
+#ifdef __SYMBIAN32__
     m_impl = new AppUiS60();
 #else
     m_impl = NULL;
@@ -33,10 +33,10 @@ void AppUi::SetAppTitle( QString title )
 
 QRect AppUi::GetClientRect() const
 {
-//    if ( m_impl )
-//        return m_impl->GetClientRect();
-//    else
-//    {
+    if ( m_impl )
+        return m_impl->GetClientRect();
+    else
+    {
         QDesktopWidget* desk = QApplication::desktop();
         QRect client = desk->availableGeometry();
         QRect qvga( 0, 0, 240, 320 );
@@ -49,7 +49,15 @@ QRect AppUi::GetClientRect() const
         {
             return client;
         }
-//    }
+    }
+}
+
+QRect AppUi::GetAppRect() const
+{
+    if ( m_impl )
+        return m_impl->GetAppRect();
+    else
+        return QRect();
 }
 
 // --------------------------------------------------------

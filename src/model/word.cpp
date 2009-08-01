@@ -84,6 +84,7 @@ Word::List Word::find( const QString& pattern, Lang lang, TextMatch match, int l
                     break;
                 }
             }
+            qDebug() << "Word::find(), found " << words.count() << " results";
         }
     }
     return words;

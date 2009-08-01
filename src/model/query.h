@@ -6,8 +6,8 @@
 #ifdef FIRU_INTERNAL_SQLITE
 #include <sqlite3.h>
 #else
-#include <QtSql/QSqlQuery>
-#include <QtSql/QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlDatabase>
 #endif
 
 #include "model.h"

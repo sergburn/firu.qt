@@ -11,7 +11,15 @@
 #include <QtCore/QString>
 #include <QtCore/QRect>
 
-class AppUi
+class AppUiBase
+{
+public:
+    virtual void SetAppTitle( QString title ) = 0;
+    virtual QRect GetClientRect() const = 0;
+    virtual QRect GetAppRect() const = 0;
+};
+
+class AppUi : public AppUiBase
 {
 public:
     AppUi();
@@ -19,9 +27,10 @@ public:
     
     void SetAppTitle( QString title );
     QRect GetClientRect() const;
+    QRect GetAppRect() const;
 
 private:
-    AppUi* m_impl;
+    AppUiBase* m_impl;
 };
 
 #endif /* APPUI_H_ */
