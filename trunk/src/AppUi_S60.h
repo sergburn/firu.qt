@@ -14,7 +14,7 @@
 #include <QtCore/QRect>
 #include "AppUI.h"
 
-class AppUiS60 : public AppUi
+class AppUiS60 : public AppUiBase
 {
 public:
     AppUiS60();
@@ -22,6 +22,7 @@ public:
     
     void SetAppTitle( QString title );
     QRect GetClientRect() const;
+    QRect GetAppRect() const;
     
 private:
     CEikonEnv* m_eikon;

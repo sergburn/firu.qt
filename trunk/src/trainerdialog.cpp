@@ -14,11 +14,9 @@
 
 TrainerDialog::TrainerDialog(QWidget *parent) :
     QDialog(parent),
-    m_ui(new Ui::TrainerDialog),
-    m_scene( NULL )
+    m_ui(new Ui::TrainerDialog)
 {
     m_ui->setupUi(this);
-    m_ui->markGraph->installEventFilter( this );
 
     m_keyLabels.append( m_ui->la0 );
     m_keyLabels.append( m_ui->la1 );
@@ -32,23 +30,13 @@ TrainerDialog::TrainerDialog(QWidget *parent) :
     m_keyLabels.append( m_ui->la9 );
 
 #ifdef __SYMBIAN32__
-    showMaximized();
+//    showMaximized();
+    QRect rect = m_appUi.GetAppRect();
+    setGeometry( rect );
 #else
     QRect rect = m_appUi.GetClientRect();
     setGeometry( rect );
 #endif
-
-    m_clrLevelEmpty = Qt::white;
-    m_clrLevel1 = Qt::red;
-    m_clrLevel2 = QColor(255,170,0);
-    m_clrLevel3 = Qt::green;
-
-    m_scene = new QGraphicsScene( this );
-    m_scene->setSceneRect( 0, 0, BAR_WIDTH, 3 * BAR_HEIGHT );
-    m_ui->markGraph->setScene( m_scene );
-//    m_ui->markGraph->centerOn( BAR_WIDTH / 2, 3 * BAR_HEIGHT / 2 );
-    m_scene->addRect( QRect( -1, -1, BAR_WIDTH + 1, 3 * BAR_HEIGHT + 1 ), QPen( m_clrLevelEmpty ), QBrush( m_clrLevelEmpty ) );
-    m_markBar = m_scene->addRect( QRect( 0, 0, BAR_WIDTH, BAR_HEIGHT ), QPen( m_clrLevelEmpty ), QBrush( m_clrLevelEmpty ) );
 }
 
 // ----------------------------------------------------------------------------
@@ -56,7 +44,6 @@ TrainerDialog::TrainerDialog(QWidget *parent) :
 TrainerDialog::~TrainerDialog()
 {
     delete m_ui;
-    delete m_scene;
 }
 
 // ----------------------------------------------------------------------------
@@ -70,31 +57,6 @@ void TrainerDialog::changeEvent(QEvent *e)
     default:
         break;
     }
-}
-
-// ----------------------------------------------------------------------------
-
-void TrainerDialog::resizeEvent( QResizeEvent* event )
-{
-    qDebug() << "Old size" << event->oldSize() << "new size" << event->size();
-    qDebug() << "Graph size" << m_ui->markGraph->size();
-    updateMark();
-}
-
-// ----------------------------------------------------------------------------
-
-bool TrainerDialog::eventFilter( QObject *obj, QEvent *event )
-{
-    if ( event->type() == QEvent::Resize )
-    {
-        QResizeEvent* sizeEvent = static_cast<QResizeEvent*>(event);
-        if ( obj == m_ui->markGraph )
-        {
-            qDebug() << "Graph old size" << sizeEvent->oldSize() << "new size" << sizeEvent->size();
-            updateMark();
-        }
-    }
-    return QDialog::eventFilter( obj, event );
 }
 
 // ----------------------------------------------------------------------------
@@ -286,34 +248,6 @@ void TrainerDialog::updateMark()
 
 void TrainerDialog::drawMark( Mark::MarkValue mark )
 {
-    if ( m_scene && m_markBar )
-    {
-        double h = 0;
-
-        QColor clr;
-        switch ( mark )
-        {
-            case Mark::ToLearn:
-                clr = m_clrLevel1;
-                h = BAR_HEIGHT;
-                break;
-            case Mark::WithHints:
-                clr = m_clrLevel2;
-                h = 2 * BAR_HEIGHT;
-                break;
-            case Mark::AlmostLearned:
-            default:
-                clr = m_clrLevel3;
-                h = 3 * BAR_HEIGHT;
-                break;
-        }
-
-        m_markBar->setPen( QPen( clr ) );
-        m_markBar->setBrush( QBrush( clr ) );
-        m_markBar->setRect( 0, 3 * BAR_HEIGHT - h, BAR_WIDTH, h );
-
-        qDebug() << "View rect" << m_ui->markGraph->size();
-
-//        m_ui->markGraph->fitInView( m_scene->sceneRect() );
-    }
+    m_ui->mark->setFormat( Mark::toString( mark ) );
+    m_ui->mark->setValue( mark );
 }

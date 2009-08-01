@@ -88,6 +88,7 @@ QString WordsByPatternQuery::buildSql() const
 {
     SqlGenerator builder( selectBaseSql() );
     builder.addCondition( "text LIKE :pattern" );
+//    builder.addLimit( 10 );
     return builder.sql();
 }
 

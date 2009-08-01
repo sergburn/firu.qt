@@ -36,8 +36,6 @@ protected:
     virtual void changeEvent( QEvent *e );
     virtual void keyPressEvent( QKeyEvent *keyEvent );
     virtual void mousePressEvent( QMouseEvent *mouseEvent );
-    virtual void resizeEvent( QResizeEvent * event );
-    virtual bool eventFilter( QObject *obj, QEvent *event );
 
 private:
     void setKeypadMode();
@@ -61,14 +59,6 @@ private:
     ReverseTest::Ptr m_test;
     QStringList m_keyGroups;
     QString m_answerText;
-
-    QGraphicsScene* m_scene;
-    QGraphicsRectItem* m_markBarBound;
-    QGraphicsRectItem* m_markBar;
-    QColor m_clrLevelEmpty;
-    QColor m_clrLevel1;
-    QColor m_clrLevel2;
-    QColor m_clrLevel3;
 };
 
 #endif // TRAINERDIALOG_H

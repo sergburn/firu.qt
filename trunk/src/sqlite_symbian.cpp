@@ -61,7 +61,6 @@ struct symFile
 
 int symClose( sqlite3_file *id )
 {
-    int rc, cnt = 0;
     symFile *pFile = (symFile*) id;
     pFile->file.Close();
     return SQLITE_OK;
@@ -160,7 +159,7 @@ int symTruncate( sqlite3_file *id, sqlite3_int64 nByte )
 
 // ----------------------------------------------------------------------------
 
-int symSync( sqlite3_file *id, int flags )
+int symSync( sqlite3_file *id, int /*flags*/ )
 {
     symFile *pFile = (symFile*) id;
     if ( pFile->file.Flush() != KErrNone )
@@ -190,10 +189,6 @@ int symFileSize( sqlite3_file *id, sqlite3_int64 *pSize )
 
 int symLock( sqlite3_file *id, int locktype )
 {
-    int rc = SQLITE_OK; /* Return code from subroutines */
-    int res = 1; /* Result of a windows lock call */
-    int newLocktype; /* Set pFile->locktype to this value before exiting */
-    int gotPendingLock = 0;/* True if we acquired a PENDING lock this time */
     symFile *pFile = (symFile*) id;
 
     qDebug( "LOCK %d %d was %d(%d)\n", pFile->file.SubSessionHandle(), locktype, pFile->locktype,
@@ -208,7 +203,7 @@ int symLock( sqlite3_file *id, int locktype )
 
 // ----------------------------------------------------------------------------
 
-int symUnlock( sqlite3_file *id, int locktype )
+int symUnlock( sqlite3_file* /*id*/, int /*locktype*/ )
 {
 //    symFile *pFile = (symFile*) id;
     return SQLITE_OK;
@@ -341,7 +336,7 @@ int symOpen(
 int symDelete( 
     sqlite3_vfs *pVfs,
     const char *zFilename,  /* Name of file to delete */
-    int syncDir             /* Not used on win32 */
+    int /*syncDir*/
     )
 {
     TFileName filename;

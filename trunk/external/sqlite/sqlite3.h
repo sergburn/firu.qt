@@ -1716,7 +1716,7 @@ char *sqlite3_snprintf(int,char*,const char*, ...);
 ** a block of memory after it has been released using
 ** [sqlite3_free()] or [sqlite3_realloc()].
 */
-void *sqlite3_malloc(int);
+unsigned char *sqlite3_malloc(int);
 void *sqlite3_realloc(void*, int);
 void sqlite3_free(void*);
 

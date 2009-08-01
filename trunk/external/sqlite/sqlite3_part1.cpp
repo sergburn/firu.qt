@@ -11334,7 +11334,7 @@ static void strftimeFunc(
     sqlite3_result_error_toobig(context);
     return;
   }else{
-    z = sqlite3DbMallocRaw(db, (int)n);
+    z = (char*)sqlite3DbMallocRaw(db, (int)n);
     if( z==0 ){
       sqlite3_result_error_nomem(context);
       return;
@@ -15606,7 +15606,7 @@ SQLITE_PRIVATE char *sqlite3DbStrDup(sqlite3 *db, const char *z){
   }
   n = (db ? sqlite3Strlen(db, z) : sqlite3Strlen30(z))+1;
   assert( (n&0x7fffffff)==n );
-  zNew = sqlite3DbMallocRaw(db, (int)n);
+  zNew = (char*)sqlite3DbMallocRaw(db, (int)n);
   if( zNew ){
     memcpy(zNew, z, n);
   }
@@ -15618,7 +15618,7 @@ SQLITE_PRIVATE char *sqlite3DbStrNDup(sqlite3 *db, const char *z, int n){
     return 0;
   }
   assert( (n&0x7fffffff)==n );
-  zNew = sqlite3DbMallocRaw(db, n+1);
+  zNew = (char*)sqlite3DbMallocRaw(db, n+1);
   if( zNew ){
     memcpy(zNew, z, n);
     zNew[n] = 0;
@@ -16313,7 +16313,7 @@ SQLITE_PRIVATE void sqlite3VXPrintf(
         int needQuote;
         char ch;
         char q = ((xtype==etSQLESCAPE3)?'"':'\'');   /* Quote character */
-        char *escarg = va_arg(ap,char*);
+        const char *escarg = va_arg(ap,char*);
         isnull = escarg==0;
         if( isnull ) escarg = (xtype==etSQLESCAPE2 ? "NULL" : "(NULL)");
         for(i=n=0; (ch=escarg[i])!=0; i++){
@@ -16322,7 +16322,7 @@ SQLITE_PRIVATE void sqlite3VXPrintf(
         needQuote = !isnull && xtype==etSQLESCAPE2;
         n += i + 1 + needQuote*2;
         if( n>etBUFSIZE ){
-          bufpt = zExtra = sqlite3Malloc( n );
+          bufpt = zExtra = (char*)sqlite3Malloc( n );
           if( bufpt==0 ){
             pAccum->mallocFailed = 1;
             return;
@@ -16431,7 +16431,7 @@ SQLITE_PRIVATE void sqlite3StrAccumAppend(StrAccum *p, const char *z, int N){
       }else{
         p->nAlloc = (int)szNew;
       }
-      zNew = sqlite3DbMallocRaw(p->db, p->nAlloc );
+      zNew = (char*)sqlite3DbMallocRaw(p->db, p->nAlloc );
       if( zNew ){
         memcpy(zNew, p->zText, p->nChar);
         sqlite3StrAccumReset(p);
@@ -16456,7 +16456,7 @@ SQLITE_PRIVATE char *sqlite3StrAccumFinish(StrAccum *p){
   if( p->zText ){
     p->zText[p->nChar] = 0;
     if( p->useMalloc && p->zText==p->zBase ){
-      p->zText = sqlite3DbMallocRaw(p->db, p->nChar+1 );
+      p->zText = (char*)sqlite3DbMallocRaw(p->db, p->nChar+1 );
       if( p->zText ){
         memcpy(p->zText, p->zBase, p->nChar+1);
       }else{
@@ -17636,7 +17636,7 @@ SQLITE_PRIVATE char *sqlite3Utf16to8(sqlite3 *db, const void *z, int nByte){
 */
 SQLITE_PRIVATE int sqlite3Utf16ByteLen(const void *zIn, int nChar){
   int c;
-  unsigned char const *z = zIn;
+  unsigned char const *z = (const unsigned char*)zIn;
   int n = 0;
   if( SQLITE_UTF16NATIVE==SQLITE_UTF16BE ){
     /* Using an "if (SQLITE_UTF16NATIVE==SQLITE_UTF16BE)" construct here
@@ -18861,7 +18861,7 @@ static HashElem *findElementGivenHash(
   int count;                     /* Number of elements left to test */
 
   if( pH->ht ){
-    struct _ht *pEntry = &pH->ht[h];
+    struct Hash::_ht *pEntry = &pH->ht[h];
     elem = pEntry->chain;
     count = pEntry->count;
     while( count-- && elem ){
@@ -18882,7 +18882,7 @@ static void removeElementGivenHash(
   HashElem* elem,   /* The element to be removed from the pH */
   int h             /* Hash value for the element */
 ){
-  struct _ht *pEntry;
+  struct Hash::_ht *pEntry;
   if( elem->prev ){
     elem->prev->next = elem->next; 
   }else{
@@ -28111,7 +28111,7 @@ struct Bitvec {
 SQLITE_PRIVATE Bitvec *sqlite3BitvecCreate(u32 iSize){
   Bitvec *p;
   assert( sizeof(*p)==BITVEC_SZ );
-  p = sqlite3MallocZero( sizeof(*p) );
+  p = (Bitvec*)sqlite3MallocZero( sizeof(*p) );
   if( p ){
     p->iSize = iSize;
   }
@@ -33099,7 +33099,7 @@ SQLITE_PRIVATE int sqlite3PagerOpen(
   */
   if( zFilename && zFilename[0] ){
     nPathname = pVfs->mxPathname+1;
-    zPathname = sqlite3Malloc(nPathname*2);
+    zPathname = (char*)sqlite3Malloc(nPathname*2);
     if( zPathname==0 ){
       return SQLITE_NOMEM;
     }
@@ -36864,7 +36864,7 @@ static u8 *findOverflowCell(MemPage *pPage, int iCell){
   assert( sqlite3_mutex_held(pPage->pBt->mutex) );
   for(i=pPage->nOverflow-1; i>=0; i--){
     int k;
-    struct _OvflCell *pOvfl;
+    struct MemPage::_OvflCell *pOvfl;
     pOvfl = &pPage->aOvfl[i];
     k = pOvfl->idx;
     if( k<=iCell ){
@@ -37600,7 +37600,7 @@ SQLITE_PRIVATE int sqlite3BtreeOpen(
   assert( sqlite3_mutex_held(db->mutex) );
 
   pVfs = db->pVfs;
-  p = sqlite3MallocZero(sizeof(Btree));
+  p = (Btree*)sqlite3MallocZero(sizeof(Btree));
   if( !p ){
     return SQLITE_NOMEM;
   }
@@ -37615,7 +37615,7 @@ SQLITE_PRIVATE int sqlite3BtreeOpen(
   if( isMemdb==0 && zFilename && zFilename[0] ){
     if( sqlite3GlobalConfig.sharedCacheEnabled ){
       int nFullPathname = pVfs->mxPathname+1;
-      char *zFullPathname = sqlite3Malloc(nFullPathname);
+      char *zFullPathname = (char*)sqlite3Malloc(nFullPathname);
       sqlite3_mutex *mutexShared;
       p->sharable = 1;
       db->flags |= SQLITE_SharedCache;
@@ -37664,7 +37664,7 @@ SQLITE_PRIVATE int sqlite3BtreeOpen(
     assert( sizeof(u16)==2 );
     assert( sizeof(Pgno)==4 );
   
-    pBt = sqlite3MallocZero( sizeof(*pBt) );
+    pBt = (BtShared*) sqlite3MallocZero( sizeof(*pBt) );
     if( pBt==0 ){
       rc = SQLITE_NOMEM;
       goto btree_open_out;
@@ -39771,7 +39771,7 @@ SQLITE_PRIVATE int sqlite3BtreeData(BtCursor *pCur, u32 offset, u32 amt, void *p
     assert( pCur->eState==CURSOR_VALID );
     assert( pCur->iPage>=0 && pCur->apPage[pCur->iPage] );
     assert( pCur->aiIdx[pCur->iPage]<pCur->apPage[pCur->iPage]->nCell );
-    rc = accessPayload(pCur, offset, amt, pBuf, 1, 0);
+    rc = accessPayload(pCur, offset, amt, (unsigned char*) pBuf, 1, 0);
   }
   return rc;
 }
@@ -40958,7 +40958,7 @@ static int fillInCell(
   /* Fill in the payload */
   nPayload = nData + nZero;
   if( pPage->intKey ){
-    pSrc = pData;
+    pSrc = (const u8 *)pData;
     nSrc = nData;
     nData = 0;
   }else{ 
@@ -40966,7 +40966,7 @@ static int fillInCell(
       return SQLITE_CORRUPT;
     }
     nPayload += (int)nKey;
-    pSrc = pKey;
+    pSrc = (const u8*)pKey;
     nSrc = (int)nKey;
   }
   *pnSize = info.nSize;
@@ -41054,7 +41054,7 @@ static int fillInCell(
     spaceLeft -= n;
     if( nSrc==0 ){
       nSrc = nData;
-      pSrc = pData;
+      pSrc = (const u8*)pData;
     }
   }
   releasePage(pToRelease);
@@ -43408,7 +43408,7 @@ static int checkTreePage(
   */
   data = pPage->aData;
   hdr = pPage->hdrOffset;
-  hit = sqlite3PageMalloc( pBt->pageSize );
+  hit = (char*)sqlite3PageMalloc( pBt->pageSize );
   if( hit==0 ){
     pCheck->mallocFailed = 1;
   }else{
@@ -44476,11 +44476,11 @@ SQLITE_PRIVATE int sqlite3VdbeMemGrow(Mem *pMem, int n, int preserve){
   if( n<32 ) n = 32;
   if( sqlite3DbMallocSize(pMem->db, pMem->zMalloc)<n ){
     if( preserve && pMem->z==pMem->zMalloc ){
-      pMem->z = pMem->zMalloc = sqlite3DbReallocOrFree(pMem->db, pMem->z, n);
+      pMem->z = pMem->zMalloc = (char*)sqlite3DbReallocOrFree(pMem->db, pMem->z, n);
       preserve = 0;
     }else{
       sqlite3DbFree(pMem->db, pMem->zMalloc);
-      pMem->zMalloc = sqlite3DbMallocRaw(pMem->db, n);
+      pMem->zMalloc = (char*)sqlite3DbMallocRaw(pMem->db, n);
     }
   }
 
@@ -44912,7 +44912,7 @@ SQLITE_PRIVATE void sqlite3VdbeMemSetRowSet(Mem *pMem){
     sqlite3RowSetClear(pMem->u.pRowSet);
   }else{
     sqlite3VdbeMemRelease(pMem);
-    pMem->zMalloc = sqlite3DbMallocRaw(db, 64);
+    pMem->zMalloc = (char*)sqlite3DbMallocRaw(db, 64);
   }
   if( db->mallocFailed ){
     pMem->flags = MEM_Null;
@@ -47383,7 +47383,7 @@ SQLITE_PRIVATE int sqlite3VdbeFinalize(Vdbe *p){
 SQLITE_PRIVATE void sqlite3VdbeDeleteAuxData(VdbeFunc *pVdbeFunc, int mask){
   int i;
   for(i=0; i<pVdbeFunc->nAux; i++){
-    struct AuxData *pAux = &pVdbeFunc->apAux[i];
+    struct VbeFunc::AuxData *pAux = &pVdbeFunc->apAux[i];
     if( (i>31 || !(mask&(1<<i))) && pAux->pAux ){
       if( pAux->xDelete ){
         pAux->xDelete(pAux->pAux);
@@ -48802,7 +48802,7 @@ SQLITE_API void sqlite3_set_auxdata(
   void *pAux, 
   void (*xDelete)(void*)
 ){
-  struct AuxData *pAuxData;
+  struct VbeFunc::AuxData *pAuxData;
   VdbeFunc *pVdbeFunc;
   if( iArg<0 ) goto failed;
 
@@ -49055,7 +49055,7 @@ static const void *columnName(
 ** statement pStmt.
 */
 SQLITE_API const char *sqlite3_column_name(sqlite3_stmt *pStmt, int N){
-  return columnName(
+  return (const char*)columnName(
       pStmt, N, (const void*(*)(Mem*))sqlite3_value_text, COLNAME_NAME);
 }
 #ifndef SQLITE_OMIT_UTF16
@@ -49080,7 +49080,7 @@ SQLITE_API const void *sqlite3_column_name16(sqlite3_stmt *pStmt, int N){
 ** of the result set of SQL statement pStmt.
 */
 SQLITE_API const char *sqlite3_column_decltype(sqlite3_stmt *pStmt, int N){
-  return columnName(
+  return (const char*)columnName(
       pStmt, N, (const void*(*)(Mem*))sqlite3_value_text, COLNAME_DECLTYPE);
 }
 #ifndef SQLITE_OMIT_UTF16
@@ -53256,7 +53256,7 @@ case OP_Insert: {
         pData->zMalloc = 0;
       }
     }else{
-      pC->pData = sqlite3Malloc( pC->nData+2 );
+      pC->pData = (char*)sqlite3Malloc( pC->nData+2 );
       if( !pC->pData ) goto no_mem;
       memcpy(pC->pData, pData->z, pC->nData);
       pC->pData[pC->nData] = 0;

@@ -1,4 +1,4 @@
-#include "sqlite3_part1.c"
+#include "sqlite3_part1.cpp"
 
 /************** Begin file build.c *******************************************/
 /*

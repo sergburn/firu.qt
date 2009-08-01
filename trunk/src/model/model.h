@@ -74,7 +74,10 @@ public:
         switch ( result )
         {
             case Passed:
-                upgrade();
+                if ( m_value == ToLearn )
+                    m_value = AlmostLearned;
+                else
+                    upgrade();
                 break;
 
             case PassedWithHints:
@@ -82,7 +85,7 @@ public:
                 break;
 
             case Failed:
-                restart();
+                m_value = ToLearn;
                 break;
 
             default:
@@ -91,6 +94,31 @@ public:
         }
         qDebug() << "Mark changed from" << original << "to" << m_value;
         return m_value;
+    }
+    
+    static QString toString( MarkValue mark )
+    {
+        switch ( mark )
+        {
+            case Unknown:
+                return "New";
+            case ToLearn:
+                return "Need to learn";
+            case WithHints:
+                return "With hints";
+            case AlmostLearned:
+                return "Well known";
+            case Learned:
+                return "Learned";
+            case Undefined:
+            default:
+                return "<none>";
+        }
+    }
+    
+    QString toString() const
+    {
+        return toString( m_value );
     }
 
 private:
