@@ -1,5 +1,9 @@
 #include <QKeyEvent>
+#include <QResizeEvent>
 #include <QDialogButtonBox>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QPushButton>
 
 #include "trainerdialog.h"
@@ -30,9 +34,9 @@ TrainerDialog::TrainerDialog(QWidget *parent) :
     m_keyLabels.append( m_ui->la9 );
 
 #ifdef __SYMBIAN32__
-//    showMaximized();
-    QRect rect = m_appUi.GetAppRect();
-    setGeometry( rect );
+    showFullScreen();
+//    QRect rect = m_appUi.GetAppRect();
+//    setGeometry( rect );
 #else
     QRect rect = m_appUi.GetClientRect();
     setGeometry( rect );
@@ -50,13 +54,42 @@ TrainerDialog::~TrainerDialog()
 
 void TrainerDialog::changeEvent(QEvent *e)
 {
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        m_ui->retranslateUi(this);
-        break;
-    default:
-        break;
+//    qDebug() << "Change event" << e->type();
+    switch (e->type()) 
+    {
+        case QEvent::LanguageChange:
+            m_ui->retranslateUi(this);
+            break;
+        default:
+            break;
     }
+}
+
+// ----------------------------------------------------------------------------
+
+void TrainerDialog::resizeEvent( QResizeEvent *e )
+{
+    qDebug() << "Resized to" << e->size();
+    const QSize& s = e->size(); 
+    if ( s.width() <= s.height() )
+    {
+        // portrait
+        m_ui->vlTest->addWidget( m_ui->frmKeypad );
+        ((QBoxLayout*)m_ui->frmQuestion->layout())->insertWidget( 0, m_ui->mark );
+    }
+    else
+    {
+        // landscape
+        this->layout()->addWidget( m_ui->frmKeypad );
+        m_ui->frmAnswer->layout()->addWidget( m_ui->mark );
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+void TrainerDialog::moveEvent( QMoveEvent *e )
+{
+    qDebug() << "Moved to" << e->pos();
 }
 
 // ----------------------------------------------------------------------------

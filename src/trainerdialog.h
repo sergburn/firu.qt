@@ -36,7 +36,9 @@ protected:
     virtual void changeEvent( QEvent *e );
     virtual void keyPressEvent( QKeyEvent *keyEvent );
     virtual void mousePressEvent( QMouseEvent *mouseEvent );
-
+    virtual void resizeEvent(QResizeEvent *e);
+    virtual void moveEvent( QMoveEvent *e ); 
+    
 private:
     void setKeypadMode();
     void checkNextLetter( QString letter );
