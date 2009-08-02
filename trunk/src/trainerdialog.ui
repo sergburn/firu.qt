@@ -5,14 +5,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>240</width>
-    <height>321</height>
+    <width>183</width>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Trainer</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_2" >
+  <layout class="QHBoxLayout" name="horizontalLayout" >
    <property name="spacing" >
     <number>3</number>
    </property>
@@ -20,7 +20,7 @@
     <number>3</number>
    </property>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2" >
+    <layout class="QVBoxLayout" name="vlTest" >
      <item>
       <widget class="QFrame" name="frmQuestion" >
        <property name="frameShape" >
@@ -128,6 +128,9 @@
          </widget>
         </item>
        </layout>
+       <zorder>laAnswer</zorder>
+       <zorder>frmQuestion</zorder>
+       <zorder>frmKeypad</zorder>
       </widget>
      </item>
      <item>
@@ -403,11 +406,6 @@
         </item>
         <item>
          <widget class="QProgressBar" name="progressBar" >
-          <property name="font" >
-           <font>
-            <pointsize>8</pointsize>
-           </font>
-          </property>
           <property name="maximum" >
            <number>3</number>
           </property>
@@ -428,6 +426,18 @@
     </layout>
    </item>
   </layout>
+  <zorder>horizontalLayoutWidget</zorder>
+  <zorder>frmAnswer</zorder>
+  <zorder>frmAnswer</zorder>
+  <zorder>frmAnswer_2</zorder>
+  <zorder>frmQuestion</zorder>
+  <zorder></zorder>
+  <zorder>frmQuestion</zorder>
+  <zorder></zorder>
+  <zorder>frmKeypad</zorder>
+  <zorder>frmQuestion</zorder>
+  <zorder>frmQuestion</zorder>
+  <zorder>frmQuestion</zorder>
  </widget>
  <resources/>
  <connections/>
