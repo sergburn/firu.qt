@@ -1,6 +1,9 @@
 #include <QMenu>
 #include <QAction>
 #include <QKeyEvent>
+#include <QSqlTableModel>
+#include <QSqlRecord>
+#include <QDebug>
 
 #include "firuapp.h"
 #include "firumainwindow.h"
@@ -20,6 +23,7 @@ FiruMainWindow::FiruMainWindow( QWidget *parent )
     menuBar()->addAction( m_ui.actionOpenDict );
     menuBar()->addAction( m_ui.actionOpenTrainer );
     menuBar()->addAction( m_ui.actionSearch_reverse );
+    menuBar()->addAction( m_ui.actionRebuild_Hashes );
 
 #ifdef __SYMBIAN32__
     showMaximized();
@@ -30,7 +34,7 @@ FiruMainWindow::FiruMainWindow( QWidget *parent )
 
     m_ui.listSources->installEventFilter( this );
     m_ui.editInput->installEventFilter( this );
-    m_ui.prgTask->hide();
+    m_ui.progressBar->hide();
     
     m_loadTimer.setSingleShot( true );
     m_loadTimer.setInterval( 1000 );
@@ -74,10 +78,10 @@ bool FiruMainWindow::setDirection( Lang src, Lang trg, bool reverse )
 
 void FiruMainWindow::importDict( const QString& file )
 {
-    m_ui.prgTask->show();
-    m_ui.prgTask->setValue( 0 );
+//    m_ui.prgTask->show();
+//    m_ui.prgTask->setValue( 0 );
     Dictionary::import( file );
-    m_ui.prgTask->hide();
+//    m_ui.prgTask->hide();
 }
 
 // ----------------------------------------------------------------------------
@@ -94,25 +98,41 @@ void FiruMainWindow::updateList()
     m_loadTimer.stop();
 
     QString pattern = m_ui.editInput->text();
-    if ( pattern.length() < 3 )
+
+    int count = m_dictionary->count( pattern );
+    qDebug() << "Found" << count << "words for pattern " << pattern;
+
+    if ( count == 0 )
     {
         m_ui.listSources->clear();
+        m_ui.listSources->setEnabled( false );
+        m_ui.listSources->addItem( "No matches" );
     }
-    else if ( pattern == m_pattern )
-    {
-        fillList( m_words );
-    }
-    else if ( m_pattern.length() >= 3 && 
-        pattern.startsWith( m_pattern ) && 
-        m_words.count() )
-    {
-        Word::List words = Word::filter( m_words, pattern, StartsWith );
-        fillList( words );
-    }
-    else // new pattern
+    else if ( count > 100 )
     {
         m_ui.listSources->clear();
-        m_loadTimer.start();
+        m_ui.listSources->setEnabled( false );
+        m_ui.listSources->addItem( QString("Found %1 matches").arg( count ) );
+    }
+    else
+    {
+        if ( pattern == m_pattern )
+        {
+            fillList( m_words );
+        }
+        else if ( pattern.startsWith( m_pattern ) && m_words.count() )
+        {
+            Word::List words = Word::filter( m_words, pattern, StartsWith );
+            fillList( words );
+        }
+        else // new pattern
+        {
+            m_pattern = pattern;
+            m_words = m_dictionary->findWords( m_pattern, StartsWith );
+            fillList( m_words );
+    //        m_ui.listSources->clear();
+    //        m_loadTimer.start();
+        }
     }
 }
 
@@ -133,12 +153,20 @@ void FiruMainWindow::loadList()
 void FiruMainWindow::fillList( const Word::List& words )
 {
     m_ui.listSources->clear();
-    foreach( const Word::Ptr wp, words )
+    if ( words.count() )
     {
-        QListWidgetItem* item = new QListWidgetItem( wp->text() );
-        item->setData( Qt::UserRole, wp->id() );
-        m_ui.listSources->addItem( item );
+        foreach( const Word::Ptr wp, words )
+        {
+            QListWidgetItem* item = new QListWidgetItem( wp->text() );
+            item->setData( Qt::UserRole, wp->id() );
+            m_ui.listSources->addItem( item );
+        }
     }
+    else
+    {
+        m_ui.listSources->addItem( "No matches" );
+    }
+    m_ui.listSources->setEnabled( words.count() );
 }
 
 // ----------------------------------------------------------------------------
@@ -300,4 +328,41 @@ void FiruMainWindow::updateDirectionLabels()
     m_ui.laSource->setText( QLocale::languageToString( m_dictionary->source() ) );
     m_ui.laTarget->setText( QLocale::languageToString( m_dictionary->target() ) );
     m_ui.laDir->setText( m_reverse ? "<-" : "->" );
+}
+
+void FiruMainWindow::on_actionRebuild_Hashes_triggered()
+{
+    QSqlQuery query;
+    query.prepare("SELECT count(*) FROM entries_Finnish;");
+    query.exec();
+    query.next();
+    int count = query.value(0).toInt();
+
+    QSqlTableModel table( NULL, Database::instance()->db() );
+    table.setTable("entries_Finnish");
+    table.select();
+    table.setEditStrategy( QSqlTableModel::OnManualSubmit );
+    int hashInd = table.record().indexOf("hash");
+
+    m_ui.progressBar->setVisible( true );
+    m_ui.progressBar->setMaximum( count  );
+    m_ui.progressBar->setMinimum( 0 );
+    for ( int i = 0; i < count; i++ )
+    {
+        QSqlRecord rec = table.record( i );
+        QString text = rec.value("text").toString();
+        text.chop(1);
+
+        quint64 hash = WordKey::getStringKey( text );
+        table.setData( table.index(i,hashInd), hash );
+
+        m_ui.progressBar->setValue( i );
+        if ( i % 1000 == 0 )
+        {
+            table.submitAll();
+            qApp->processEvents();
+        }
+    }
+    m_ui.progressBar->setVisible( false );
+    table.submitAll();
 }

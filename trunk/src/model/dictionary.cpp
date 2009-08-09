@@ -180,6 +180,13 @@ Word::List Dictionary::findWords( const QString& pattern, TextMatch match, int l
 
 // ----------------------------------------------------------------------------
 
+int Dictionary::count( const QString& pattern )
+{
+    return Word::count( pattern, source() );
+}
+
+// ----------------------------------------------------------------------------
+
 Translation::List Dictionary::findTranslations( const QString& pattern, TextMatch match, int limit )
 {
     return Translation::find( pattern, m_langs, match, limit );

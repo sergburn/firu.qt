@@ -42,14 +42,14 @@ void EntryViewDialog::changeEvent(QEvent *e)
 
 // ----------------------------------------------------------------------------
 
-void EntryViewDialog::keyPressEvent( QKeyEvent *keyEvent )
+void EntryViewDialog::keyPressEvent( QKeyEvent* /*keyEvent*/ )
 {
     close();
 }
 
 // ----------------------------------------------------------------------------
 
-void EntryViewDialog::mousePressEvent( QMouseEvent *mouseEvent )
+void EntryViewDialog::mousePressEvent( QMouseEvent* /*mouseEvent*/ )
 {
     close();
 }

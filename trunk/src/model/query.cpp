@@ -2,7 +2,7 @@
 #include "database.h"
 #include "sqlgenerator.h"
 #include "../firudebug.h"
-#ifndef FIRU_INTERNAL_SQLITE
+#ifndef FIRU_USE_SQLITE
 #include <QSqlError>
 #endif
 #include <QVariant>
@@ -12,11 +12,13 @@
 Query::Query( Database* db ) :
     QObject( db ),
     m_db( db->db() )
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     , m_stmt( NULL )
 #endif      
 {
+#ifndef FIRU_USE_SQLITE
     m_query.setForwardOnly( true );
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -30,7 +32,7 @@ Query::~Query()
 
 bool Query::start()
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     if ( !m_stmt )
     {
         QString sql = buildSql();
@@ -90,7 +92,7 @@ bool Query::start()
 
 bool Query::next()
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     int err = sqlite3_step( m_stmt );
     switch ( err )
     {
@@ -137,7 +139,7 @@ bool Query::next()
 
 bool Query::execute()
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     if ( start() )
     {
         int steps = 0;
@@ -168,7 +170,7 @@ void Query::setPrimaryKey( qint64 id )
 
 void Query::reset()
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     sqlite3_clear_bindings( m_stmt );
     sqlite3_reset( m_stmt );
 #else
@@ -180,7 +182,7 @@ void Query::reset()
 
 int Query::bindInt( const char* parameter, int value )
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     int pos = sqlite3_bind_parameter_index( m_stmt, parameter );
     int err = sqlite3_bind_int( m_stmt, pos, value );
     if ( err )
@@ -196,9 +198,27 @@ int Query::bindInt( const char* parameter, int value )
 
 // ----------------------------------------------------------------------------
 
+int Query::bindUint( const char* parameter, uint value )
+{
+#ifdef FIRU_USE_SQLITE
+    int pos = sqlite3_bind_parameter_index( m_stmt, parameter );
+    int err = sqlite3_bind_int( m_stmt, pos, value );
+    if ( err )
+        LogSqlError( m_db, "Query::bindUint()" );
+    m_finalSql.replace( parameter, QString::number( value ) );
+    return err;
+#else
+    m_query.bindValue( QString( parameter ), QVariant( value ) );
+    m_finalSql.replace( parameter, QString::number( value ) );
+    return 0;
+#endif
+}
+
+// ----------------------------------------------------------------------------
+
 int Query::bindInt64( const char* parameter, qint64 value )
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     int pos = sqlite3_bind_parameter_index( m_stmt, parameter );
     int err = sqlite3_bind_int64( m_stmt, pos, value );
     if ( err )
@@ -214,9 +234,27 @@ int Query::bindInt64( const char* parameter, qint64 value )
 
 // ----------------------------------------------------------------------------
 
+int Query::bindUint64( const char* parameter, quint64 value )
+{
+#ifdef FIRU_USE_SQLITE
+    int pos = sqlite3_bind_parameter_index( m_stmt, parameter );
+    int err = sqlite3_bind_int64( m_stmt, pos, value );
+    if ( err )
+        LogSqlError( m_db, "Query::bindUint64()" );
+    m_finalSql.replace( parameter, QString::number( value ) );
+    return err;
+#else
+    m_query.bindValue( QString( parameter ), QVariant( value ) );
+    m_finalSql.replace( parameter, QString::number( value ) );
+    return 0;
+#endif
+}
+
+// ----------------------------------------------------------------------------
+
 int Query::bindString( const char* parameter, const QString& value )
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     int pos = sqlite3_bind_parameter_index( m_stmt, parameter );
     int err = sqlite3_bind_text16( m_stmt, pos, value.utf16(), ( value.size() + 1 ) * 2,
         SQLITE_STATIC );

@@ -31,13 +31,13 @@ QString Database::getTransTableName( LangPair langs )
 
 Database::Database( QObject* parent )
 :   QObject( parent ),
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     m_db( NULL ),
 #endif    
     m_transactionLevel( 0 ),
     m_transactionError( 0 )
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     int err = sqlite3_initialize();
     if ( err )
     {
@@ -50,7 +50,7 @@ Database::Database( QObject* parent )
 
 Database::~Database()
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     if ( m_db )
     {
         sqlite3_close( m_db );
@@ -95,7 +95,7 @@ bool Database::doOpen( const QString& dbPath )
     QString path = QDir::toNativeSeparators( dbPath );
     qDebug() << "Db: " << path;
 
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
 #if defined( SYMBIAN ) || defined ( __SYMBIAN32__ )
     int _err = iFs.Connect(); 
     if ( _err != KErrNone )
@@ -146,7 +146,7 @@ bool Database::doOpen( const QString& dbPath )
 
 // ----------------------------------------------------------------------------
 
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
 sqlite3* Database::db()
 {
     return m_db;
@@ -197,7 +197,7 @@ bool Database::tableExists( const QString& table )
     
     QString sql = QString( KSqlFindTable ).arg( table );
 
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     char** azResult = NULL;
     int nRow = 0;
     int nCol = 0;
@@ -231,7 +231,7 @@ int Database::sqlGetTable( const QString& /*sql*/ )
 
 int Database::sqlExecute( QString sql )
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     int err = sqlite3_exec( m_db, sql.toUtf8().constData(), NULL, NULL, NULL );
     if ( err )
     {

@@ -31,7 +31,7 @@ const WordsQuery::Record& WordsQuery::record() const
 
 void WordsQuery::read()
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     m_record.id = sqlite3_column_int64( m_stmt, 0 );
     m_record.text = QString::fromUtf8( (const char*) sqlite3_column_text( m_stmt, 1 ) );
 #else
@@ -87,8 +87,8 @@ void WordsByPatternQuery::setPattern( const QString& pattern, TextMatch match )
 QString WordsByPatternQuery::buildSql() const
 {
     SqlGenerator builder( selectBaseSql() );
-    builder.addCondition( "text LIKE :pattern" );
-//    builder.addLimit( 10 );
+    builder.addCondition( "hash >= :min");
+    builder.addCondition( "hash < :max");
     return builder.sql();
 }
 
@@ -96,8 +96,54 @@ QString WordsByPatternQuery::buildSql() const
 
 int WordsByPatternQuery::bind()
 {
-    QString pattern = SqlGenerator::createPattern( m_pattern, m_match );
-    return bindString( ":pattern", pattern );
+    quint64 min = 0, max = 0;
+    WordKey::getPatternKeyLimits( m_pattern, min, max );
+    bindUint64( ":min", min );
+    bindUint64( ":max", max );
+    return 0;
+}
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+void WordsByPatternCountQuery::setPattern( const QString& pattern )
+{
+    m_pattern = pattern;
+}
+
+// ----------------------------------------------------------------------------
+
+QString WordsByPatternCountQuery::buildSql() const
+{
+    SqlGenerator builder( QString( "SELECT count(*) FROM %1" ).arg( m_tableName ) );
+    builder.addCondition( "hash >= :min");
+    builder.addCondition( "hash < :max");
+    return builder.sql();
+}
+
+// ----------------------------------------------------------------------------
+
+int WordsByPatternCountQuery::bind()
+{
+    quint64 min = 0, max = 0xFFFFFFFFFFFFFFFF;
+    if ( m_pattern.length() )
+    {
+        WordKey::getPatternKeyLimits( m_pattern, min, max );
+    }
+    bindUint64( ":min", min );
+    bindUint64( ":max", max );
+    return 0;
+}
+
+// ----------------------------------------------------------------------------
+
+void WordsByPatternCountQuery::read()
+{
+#ifdef FIRU_USE_SQLITE
+    m_record.id = sqlite3_column_int64( m_stmt, 0 );
+#else
+    m_record.id = m_query.value(0).toLongLong();
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -136,7 +182,7 @@ bool WordInsertQuery::execute()
     int err = WordsQuery::execute();
     if ( !err )
     {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
         m_record.id = sqlite3_last_insert_rowid( m_db );
         return SQLOK( err ) == SQLITE_OK;
 #else

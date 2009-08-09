@@ -125,4 +125,11 @@ private:
     MarkValue m_value;
 };
 
+class WordKey
+{
+public:
+    static quint64 getStringKey( const QString& text );
+    static void getPatternKeyLimits( const QString& text, quint64& min, quint64& max );
+};
+
 #endif // MODEL_H

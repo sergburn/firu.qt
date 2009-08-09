@@ -2,7 +2,7 @@
 #define FIRUDEBUG_H
 
 #include <QDebug>
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
 #include "sqlite3.h"
 #define SQLOK( _e ) ( ((_e) == SQLITE_OK || (_e) == SQLITE_DONE || (_e) == SQLITE_ROW ) ? SQLITE_OK : (_e) )
 void LogSqlError( sqlite3* db, const char* );

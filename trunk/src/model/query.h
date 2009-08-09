@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QSharedPointer>
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
 #include <sqlite3.h>
 #else
 #include <QSqlQuery>
@@ -43,7 +43,9 @@ signals:
 
 protected:
     int bindInt( const char* parameter, int value );
+    int bindUint( const char* parameter, uint value );
     int bindInt64( const char* parameter, qint64 value );
+    int bindUint64( const char* parameter, quint64 value );
     int bindString( const char* parameter, const QString& value );
     int bindPrimaryKey();
 
@@ -62,7 +64,7 @@ private:
     Query( const Query& );
 
 protected:
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     sqlite3* m_db;
     sqlite3_stmt* m_stmt;
 #else

@@ -1,7 +1,8 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>FiruMainWindowClass</class>
- <widget class="QMainWindow" name="FiruMainWindowClass" >
-  <property name="geometry" >
+ <widget class="QMainWindow" name="FiruMainWindowClass">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
@@ -9,36 +10,36 @@
     <height>341</height>
    </rect>
   </property>
-  <property name="windowTitle" >
-   <string>Firu</string>
+  <property name="locale">
+   <locale language="English" country="UnitedKingdom"/>
   </property>
-  <widget class="QWidget" name="centralwidget" >
-   <layout class="QVBoxLayout" name="verticalLayout" >
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" >
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="laSource" >
-        <property name="text" >
+       <widget class="QLabel" name="laSource">
+        <property name="text">
          <string>From</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="laDir" >
-        <property name="text" >
-         <string>&lt;-></string>
+       <widget class="QLabel" name="laDir">
+        <property name="text">
+         <string>&lt;-&gt;</string>
         </property>
-        <property name="alignment" >
+        <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="laTarget" >
-        <property name="text" >
+       <widget class="QLabel" name="laTarget">
+        <property name="text">
          <string>To</string>
         </property>
-        <property name="alignment" >
+        <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
@@ -46,103 +47,93 @@
      </layout>
     </item>
     <item>
-     <widget class="QLineEdit" name="editInput" >
-      <property name="font" >
-       <font>
-        <family>MS Shell Dlg 2</family>
-        <pointsize>10</pointsize>
-        <weight>50</weight>
-        <italic>false</italic>
-        <bold>false</bold>
-       </font>
-      </property>
-      <property name="styleSheet" >
-       <string notr="true" >color: rgb(0, 0, 0);
+     <widget class="QLineEdit" name="editInput">
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);
 background-color: rgb(255, 255, 127);</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="listSources" >
-      <property name="sizePolicy" >
-       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+     <widget class="QListWidget" name="listSources">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="font" >
+      <property name="font">
        <font>
         <pointsize>12</pointsize>
        </font>
       </property>
       <item>
-       <property name="text" >
+       <property name="text">
         <string>aamu</string>
        </property>
       </item>
       <item>
-       <property name="text" >
+       <property name="text">
         <string>kana</string>
        </property>
       </item>
       <item>
-       <property name="text" >
+       <property name="text">
         <string>liha</string>
        </property>
       </item>
       <item>
-       <property name="text" >
+       <property name="text">
         <string>uimahalli</string>
        </property>
       </item>
      </widget>
     </item>
     <item>
-     <widget class="QProgressBar" name="prgTask" >
-      <property name="value" >
+     <widget class="QProgressBar" name="progressBar">
+      <property name="value">
        <number>24</number>
-      </property>
-      <property name="alignment" >
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="textVisible" >
-       <bool>true</bool>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar" >
-   <property name="geometry" >
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
      <width>274</width>
-     <height>24</height>
+     <height>25</height>
     </rect>
    </property>
-   <property name="styleSheet" >
-    <string notr="true" >background-color: rgb(255, 255, 255);
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(255, 255, 255);
 color: rgb(0, 0, 0);
 selection-background-color: rgb(170, 255, 255);</string>
    </property>
   </widget>
-  <action name="actionOpenDict" >
-   <property name="text" >
+  <action name="actionOpenDict">
+   <property name="text">
     <string>OpenDict</string>
    </property>
   </action>
-  <action name="actionOpenTrainer" >
-   <property name="text" >
+  <action name="actionOpenTrainer">
+   <property name="text">
     <string>OpenTrainer</string>
    </property>
   </action>
-  <action name="actionSearch_reverse" >
-   <property name="checkable" >
+  <action name="actionSearch_reverse">
+   <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="text" >
+   <property name="text">
     <string>Search reverse</string>
+   </property>
+  </action>
+  <action name="actionRebuild_Hashes">
+   <property name="text">
+    <string>Rebuild Hashes</string>
    </property>
   </action>
  </widget>
@@ -158,11 +149,11 @@ selection-background-color: rgb(170, 255, 255);</string>
    <receiver>FiruMainWindowClass</receiver>
    <slot>showTranslation(QListWidgetItem*)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>209</x>
      <y>193</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>272</x>
      <y>231</y>
     </hint>
@@ -170,9 +161,9 @@ selection-background-color: rgb(170, 255, 255);</string>
   </connection>
  </connections>
  <slots>
+  <signal>inputWordChanged(QString)</signal>
   <slot>setInputWord(QString)</slot>
   <slot>showTranslation(QString)</slot>
   <slot>showTranslation(QListWidgetItem*)</slot>
-  <signal>inputWordChanged(QString)</signal>
  </slots>
 </ui>
