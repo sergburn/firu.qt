@@ -115,6 +115,23 @@ Word::List Word::filter( const List& list, const QString& pattern, TextMatch mat
 
 // ----------------------------------------------------------------------------
 
+int Word::count( const QString& pattern, Lang lang )
+{
+    WordsByPatternCountQuery::Ptr qry = Database::getQuery<WordsByPatternCountQuery>( lang );
+    int count = 0;
+    if ( qry )
+    {
+        qry->setPattern( pattern );
+        if ( qry->start() && qry->next() )
+        {
+            count = qry->record().id;
+        }
+    }
+    return count;
+}
+
+// ----------------------------------------------------------------------------
+
 bool Word::doUpdate()
 {
     WordUpdateQuery::Ptr query = Database::getQuery<WordUpdateQuery>( m_srcLang );

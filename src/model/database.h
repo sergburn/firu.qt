@@ -9,7 +9,7 @@
 #include <QObject>
 #include <QString>
 #include <QHash>
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
 #include "sqlite3.h"
 #else
 #include <QtSql/QSqlDatabase>
@@ -30,7 +30,7 @@ public:
     static Database* instance();
     static Database* open( const QString& dbPath, QObject* parent );
     
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     sqlite3* db();
 #else
     QSqlDatabase& db();
@@ -92,7 +92,7 @@ private:
     void addQuery( Query::Ptr query, Lang src, Lang trg );
 
 private:
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     sqlite3* m_db;
 #ifdef __SYMBIAN32__
     RFs iFs;

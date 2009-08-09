@@ -51,6 +51,12 @@ int main(int argc, char *argv[])
     {
         FiruMainWindow w;
         w.show();
+
+//        Dictionary::Ptr d = Dictionary::Ptr( new Dictionary( LangPair( QLocale::Finnish, QLocale::Russian ) ) );
+//        if ( d->open() )
+//        {
+//            FiruApp::startTrainer( d );
+//        }
         
 //        QString importDict;
 //        QStringList args = a.arguments();

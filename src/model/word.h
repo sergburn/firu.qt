@@ -26,6 +26,7 @@ public:
     static bool exists( const QString& pattern, Lang lang );
 
     static List filter( const List& list, const QString& pattern, TextMatch match = StartsWith );
+    static int count( const QString& pattern, Lang lang );
 
 public:
     void setText( const QString& text );

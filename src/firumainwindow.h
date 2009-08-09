@@ -36,6 +36,7 @@ private:
     void updateList();
     
 private slots:
+    void on_actionRebuild_Hashes_triggered();
     void loadList();
     void on_actionSearch_reverse_toggled( bool );
     void on_actionOpenDict_triggered();

@@ -30,7 +30,7 @@ TranslationsQuery::Record& TranslationsQuery::record()
 
 void TranslationsQuery::read()
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     m_record.id = sqlite3_column_int64( m_stmt, 0 );
     m_record.sid = sqlite3_column_int64( m_stmt, 1 );
     m_record.text = QString::fromUtf8( (const char*) sqlite3_column_text( m_stmt, 2 ) );
@@ -132,7 +132,7 @@ QString TranslationIdsByRMarkQuery::buildSql() const
 
 void TranslationIdsByRMarkQuery::read()
 {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
     m_record.id = sqlite3_column_int64( m_stmt, 0 );
 #else
     m_record.id = m_query.value(0).toLongLong();
@@ -215,7 +215,7 @@ bool TranslationInsertQuery::execute()
     int err = TranslationsQuery::execute();
     if ( !err )
     {
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
         m_record.id = sqlite3_last_insert_rowid( m_db );
         return SQLOK( err ) == SQLITE_OK;
 #else

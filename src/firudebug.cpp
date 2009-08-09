@@ -4,7 +4,7 @@
 
 // ----------------------------------------------------------------------------
 
-#ifdef FIRU_INTERNAL_SQLITE
+#ifdef FIRU_USE_SQLITE
 void LogSqliteError( sqlite3* db, const char* where )
 {
     QString err( sqlite3_errmsg( db ) );

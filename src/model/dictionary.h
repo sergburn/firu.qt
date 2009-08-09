@@ -34,6 +34,7 @@ public:
     Word::List findWords( const QString& pattern, TextMatch match = StartsWith, int limit = 0 );
     Translation::List findTranslations( qint64 sid );
     Translation::List findTranslations( const QString& pattern, TextMatch match = StartsWith, int limit = 0 );
+    int count( const QString& pattern );
 
     /** Adds all word's translations to learning set, i.e. marks them as ToLearn */
     bool setWordToLearn( qint64 id );

@@ -81,6 +81,26 @@ private:
 
 // ----------------------------------------------------------------------------
 
+class WordsByPatternCountQuery : public WordsQuery
+{
+    Q_OBJECT
+public:
+    SHARED_POINTER( WordsByPatternCountQuery )
+    WordsByPatternCountQuery( Database* db, LangPair langs ) : WordsQuery( db, langs ) {}
+
+    void setPattern( const QString& pattern );
+
+protected: // from Query
+    virtual QString buildSql() const;
+    virtual int bind();
+    virtual void read();
+
+private:
+    QString m_pattern;
+};
+
+// ----------------------------------------------------------------------------
+
 class WordUpdateQuery : public WordsQuery
 {
     Q_OBJECT
