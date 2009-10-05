@@ -2,23 +2,23 @@
 QFrame, QLabel {
     padding: 0px;
     margin: 0px;
-    font-size: 10pt;
-    border-width: 2px;
+    font-size: 8pt;
+    border-width: 1px;
     border-style: solid;
     border-color: darkkhaki;
-    border-radius: 5px;
-    background-color: beige;
+    border-radius: 3px;
+	background-color: beige;
 }
 
 QPushButton#btnLeftCmd, QPushButton#btnRightCmd {
-    font-size: 8pt;
+    font-size: 6pt;
 }
 
 QPushButton {
-    font-size: 10pt;
-    border-width: 2px;
+    font-size: 8pt;
+    border-width: 1px;
     border-style: solid;
-    border-radius: 5px;
+    border-radius: 3px;
     border-color: darkkhaki;
     background-color: beige;
 }
@@ -26,40 +26,40 @@ QPushButton {
 QPushButton:default {
     border-color: darkkhaki;
     background-color: beige;
-    border-width: 2px;
+    border-width: 1px;
     border-style: solid;
-    border-radius: 5px;
+    border-radius: 3px;
 }
 
 QPushButton:checked {
     border-color: beige;
     background-color: darkkhaki;
-    border-width: 2px;
+    border-width: 1px;
     border-style: solid;
-    border-radius: 5px;
+    border-radius: 3px;
 }
 
 QPushButton:pressed {
     border-color: beige;
     background-color: darkkhaki;
-    border-width: 2px;
+    border-width: 1px;
     border-style: solid;
-    border-radius: 5px;
+    border-radius: 3px;
 }
 
 QProgressBar {
     padding: 0px;
     margin: 0px;
-    font-size: 8pt;
-    border-width: 2px;
+    font-size: 6pt;
+    border-width: 1px;
     border-style: solid;
     border-color: darkkhaki;
-    border-radius: 5px;
+    border-radius: 3px;
     text-align: center;
-    background-color: beige;
+	background-color: beige;
 }
 
 QProgressBar::chunk {
-    color: darkkhaki;
-    background-color: khaki;
+	color: darkkhaki;
+	background-color: khaki;
 }

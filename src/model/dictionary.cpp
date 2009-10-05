@@ -4,6 +4,7 @@
 
 #include "dictionary.h"
 #include "database.h"
+#include "translationquery.h"
 #include "../firudebug.h"
 
 // ----------------------------------------------------------------------------
@@ -211,6 +212,18 @@ bool Dictionary::setWordToLearn( qint64 /*id*/ )
 bool Dictionary::addToUserDict( qint64 sid )
 {
     return Translation::addToUserDict( sid, m_langs );
+}
+
+// ----------------------------------------------------------------------------
+
+bool Dictionary::clearLearningSet()
+{
+    ResetMarksQuery::Ptr qry = Database::getQuery<ResetMarksQuery>( m_langs );
+    if ( qry )
+    {
+        return qry->execute();
+    }
+    return false;
 }
 
 // ----------------------------------------------------------------------------

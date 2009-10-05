@@ -1,6 +1,7 @@
 #include <QDir>
 #include <QFile>
 #include <QString>
+#include <QDesktopWidget>
 
 #include "firuapp.h"
 #include "firudebug.h"
@@ -24,10 +25,14 @@ FiruApp::FiruApp( int argc, char *argv[] )
         m_settings->setTargetLanguage( QLocale::Russian );
     }
     
-    QFile styleSheet( ":/files/khaki.qss" );
+    QRect desk = QApplication::desktop()->screenGeometry();
+    qDebug() << "Screen:" << desk;
+    
+    QString style = desk.height() > 320 ? ":/files/khaki.qss" : ":/files/khaki_small.qss"; 
+    QFile styleSheet( style );
     if ( !styleSheet.open( QIODevice::ReadOnly ) ) 
     {
-        qWarning("Unable to open :/files/khaki.qss");
+        qWarning() << "Unable to open " << style;
         return;
     }
     setStyleSheet( styleSheet.readAll() );

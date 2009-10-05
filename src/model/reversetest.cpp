@@ -97,7 +97,7 @@ QString ReverseTest::getNextLetterHint( const QString& current, const QStringLis
         QChar next = answer[ current.length() ];
         foreach( QString g, groups )
         {
-            if ( g.contains( next ) )
+            if ( g.contains( next, Qt::CaseInsensitive ) )
             {
                 hints += next;
             }

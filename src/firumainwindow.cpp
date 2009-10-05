@@ -4,6 +4,7 @@
 #include <QSqlTableModel>
 #include <QSqlRecord>
 #include <QDebug>
+#include <QMessageBox>
 
 #include "firuapp.h"
 #include "firumainwindow.h"
@@ -16,14 +17,18 @@
 // ----------------------------------------------------------------------------
 
 FiruMainWindow::FiruMainWindow( QWidget *parent )
-    : QMainWindow( parent ), m_reverse( false ), m_loadTimer( this )
+    : QMainWindow( parent ), 
+    m_reverse( false ), 
+    m_loadTimer( this ),
+    m_totalWords( 0 )
 {
 	m_ui.setupUi(this);
 
     menuBar()->addAction( m_ui.actionOpenDict );
     menuBar()->addAction( m_ui.actionOpenTrainer );
-    menuBar()->addAction( m_ui.actionSearch_reverse );
+//    menuBar()->addAction( m_ui.actionSearch_reverse );
     menuBar()->addAction( m_ui.actionRebuild_Hashes );
+    menuBar()->addAction( m_ui.actionResetMarks );
 
 #ifdef __SYMBIAN32__
     showMaximized();
@@ -35,21 +40,20 @@ FiruMainWindow::FiruMainWindow( QWidget *parent )
     m_ui.listSources->installEventFilter( this );
     m_ui.editInput->installEventFilter( this );
     m_ui.progressBar->hide();
+    m_ui.laWordCount->hide();
     
     m_loadTimer.setSingleShot( true );
     m_loadTimer.setInterval( 1000 );
     
-    setDirection( QLocale::Finnish, QLocale::Russian );
-//    connect( &m_data, SIGNAL( progress( int ) ), m_ui.prgTask, SLOT( setValue( int ) ) );
-//    connect( m_data, SIGNAL( searchComplete ), this, SLOT( onSearchComplete ) );
-
     connect( 
         m_ui.editInput, SIGNAL( textChanged( const QString& ) ), 
         this, SLOT( onPatternChanged( const QString& ) ) );
 
     connect( 
         &m_loadTimer, SIGNAL( timeout() ), 
-        this, SLOT( loadList() ) );
+        this, SLOT( searchWords() ) );
+
+    setDirection( QLocale::Finnish, QLocale::Russian );
 }
 
 // ----------------------------------------------------------------------------
@@ -68,7 +72,9 @@ bool FiruMainWindow::setDirection( Lang src, Lang trg, bool reverse )
     {
         m_reverse = reverse;
         updateDirectionLabels();
-        updateList();
+        m_totalWords = m_dictionary->count( "" );
+        m_ui.editInput->clear();
+        searchWords();
         return true;
     }
     return false;
@@ -88,85 +94,82 @@ void FiruMainWindow::importDict( const QString& file )
 
 void FiruMainWindow::onPatternChanged( const QString& /*pattern*/ )
 {
-    updateList();
+    m_loadTimer.start();
 }
 
 // ----------------------------------------------------------------------------
 
-void FiruMainWindow::updateList()
+void FiruMainWindow::searchWords()
 {
     m_loadTimer.stop();
 
     QString pattern = m_ui.editInput->text();
+    if ( pattern.length() < 1 )
+    {
+        showWordCount( QString( "There are %1 words in the dictionary.\n"
+            "Enter some letters to filter by." ).arg( m_totalWords ) );
+        return;
+    }
 
     int count = m_dictionary->count( pattern );
     qDebug() << "Found" << count << "words for pattern " << pattern;
 
-    if ( count == 0 )
+    if ( count < 1 )
     {
-        m_ui.listSources->clear();
-        m_ui.listSources->setEnabled( false );
-        m_ui.listSources->addItem( "No matches" );
+        showWordCount( "No matches found." );
     }
-    else if ( count > 100 )
+    else if ( count > 100 && pattern.length() < 5 )
     {
-        m_ui.listSources->clear();
-        m_ui.listSources->setEnabled( false );
-        m_ui.listSources->addItem( QString("Found %1 matches").arg( count ) );
+        showWordCount( QString( "Found %1 matches.\nEnter more letters to filter by.").arg( count ) );
     }
     else
     {
         if ( pattern == m_pattern )
         {
-            fillList( m_words );
+            showList( m_words );
         }
-        else if ( pattern.startsWith( m_pattern ) && m_words.count() )
+        else
         {
+            if ( !pattern.startsWith( m_pattern ) || m_words.count() == 0 )
+            {
+                m_pattern = pattern; // new pattern
+                m_words = m_dictionary->findWords( m_pattern.left( 4 ), StartsWith );
+            }
             Word::List words = Word::filter( m_words, pattern, StartsWith );
-            fillList( words );
-        }
-        else // new pattern
-        {
-            m_pattern = pattern;
-            m_words = m_dictionary->findWords( m_pattern, StartsWith );
-            fillList( m_words );
-    //        m_ui.listSources->clear();
-    //        m_loadTimer.start();
+            showList( words );
         }
     }
 }
 
 // ----------------------------------------------------------------------------
 
-void FiruMainWindow::loadList()
+void FiruMainWindow::showList( const Word::List& words )
 {
-    if ( m_pattern != m_ui.editInput->text() )
+    if ( words.count() > 0 )
     {
-        m_pattern = m_ui.editInput->text();
-        m_words = m_dictionary->findWords( m_pattern, StartsWith );
-        fillList( m_words );
-    }
-}
-
-// ----------------------------------------------------------------------------
-
-void FiruMainWindow::fillList( const Word::List& words )
-{
-    m_ui.listSources->clear();
-    if ( words.count() )
-    {
+        m_ui.laWordCount->hide();
+        m_ui.listSources->clear();
         foreach( const Word::Ptr wp, words )
         {
             QListWidgetItem* item = new QListWidgetItem( wp->text() );
             item->setData( Qt::UserRole, wp->id() );
             m_ui.listSources->addItem( item );
         }
+        m_ui.listSources->show();
     }
     else
     {
-        m_ui.listSources->addItem( "No matches" );
+        showWordCount( "No matches found." );
     }
-    m_ui.listSources->setEnabled( words.count() );
+}
+
+// ----------------------------------------------------------------------------
+
+void FiruMainWindow::showWordCount( QString text )
+{
+    m_ui.listSources->hide();
+    m_ui.laWordCount->setText( text );
+    m_ui.laWordCount->show();
 }
 
 // ----------------------------------------------------------------------------
@@ -283,19 +286,22 @@ bool FiruMainWindow::eventFilter(QObject *obj, QEvent *event)
         }
         else if ( obj == m_ui.listSources )
         {
-            if ( keyEvent->key() == Qt::Key_Up )
+            switch ( keyEvent->key() )
             {
-                if ( m_ui.listSources->currentRow() == 0 )
-                {
+                case Qt::Key_Up:
+                    if ( m_ui.listSources->currentRow() == 0 )
+                    {
+                        m_ui.editInput->setFocus();
+                        return true;
+                    }
+                    break;
+                case Qt::Key_Select:
+                case Qt::Key_Down:
+                    break;
+                default:
                     m_ui.editInput->setFocus();
+                    QApplication::sendEvent( m_ui.editInput, event );
                     return true;
-                }
-            }
-            else if ( keyEvent->key() != Qt::Key_Down )
-            {
-                m_ui.editInput->setFocus();
-                QApplication::sendEvent( m_ui.editInput, event );
-                return true;
             }
         }
     }
@@ -318,7 +324,7 @@ void FiruMainWindow::on_actionSearch_reverse_toggled( bool reverse )
     m_reverse = reverse;
     m_ui.editInput->clear();
     updateDirectionLabels();
-    updateList();
+    searchWords();
 }
 
 // ----------------------------------------------------------------------------
@@ -329,6 +335,8 @@ void FiruMainWindow::updateDirectionLabels()
     m_ui.laTarget->setText( QLocale::languageToString( m_dictionary->target() ) );
     m_ui.laDir->setText( m_reverse ? "<-" : "->" );
 }
+
+// ----------------------------------------------------------------------------
 
 void FiruMainWindow::on_actionRebuild_Hashes_triggered()
 {
@@ -365,4 +373,28 @@ void FiruMainWindow::on_actionRebuild_Hashes_triggered()
     }
     m_ui.progressBar->setVisible( false );
     table.submitAll();
+}
+
+// ----------------------------------------------------------------------------
+
+void FiruMainWindow::on_actionResetMarks_triggered()
+{
+    QMessageBox::StandardButton button  = QMessageBox::question( this, 
+        "Reset all marks", 
+        "It will clear your learning set, are you sure?", 
+        QMessageBox::Yes | QMessageBox::No );
+    
+    if ( button == QMessageBox::Yes )
+    {
+        if ( m_dictionary->clearLearningSet() )
+        {
+            QMessageBox::information( this, "Reset all marks",
+                "All marks are cleared", QMessageBox::Ok );
+        }
+        else
+        {
+            QMessageBox::critical( this, "Reset all marks",
+                "Operation failed", QMessageBox::Ok );
+        }
+    }
 }

@@ -284,3 +284,23 @@ int UpdateMarksBySidQuery::bind()
     if ( !err ) err = bindInt( ":rmark", m_record.rmark );
     return err;
 }
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+ResetMarksQuery::ResetMarksQuery( Database* db, LangPair langs )
+:   TranslationsQuery( db, langs )
+{
+}
+
+// ----------------------------------------------------------------------------
+
+QString ResetMarksQuery::buildSql() const
+{
+    SqlGenerator builder( updateBaseSql() );
+    builder.addSet( "fmark = 0" );
+    builder.addSet( "rmark = 0" );
+    builder.addSet( "modified = julianday('now')" );
+    return builder.sql();
+}
+

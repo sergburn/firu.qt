@@ -181,4 +181,18 @@ protected: // from Query
     virtual int bind();
 };
 
+// ----------------------------------------------------------------------------
+
+class ResetMarksQuery : public TranslationsQuery
+{
+    Q_OBJECT
+public:
+    SHARED_POINTER( ResetMarksQuery )
+
+    ResetMarksQuery( Database* db, LangPair langs );
+
+protected: // from Query
+    virtual QString buildSql() const;
+};
+
 #endif // TRANSLATIONQUERY_H
