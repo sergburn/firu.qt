@@ -137,27 +137,27 @@ void TrainerDialog::mousePressEvent( QMouseEvent *mouseEvent )
     QPoint pos = mouseEvent->pos();
     qDebug() << "Button" << mouseEvent->button() << ", pos" << pos;
 
-    if ( m_test->testResult() != Incomplete )
+    if ( m_test->testResult() != Incomplete ) 
     {
         emit testFinished();
         return;
     }
 
-    QRect r = m_ui->laRightCmd->rect();
-    QRect rect( m_ui->laRightCmd->mapTo( this, r.topLeft() ), m_ui->laRightCmd->mapTo( this, r.bottomRight() ) );
-    if ( rect.contains( pos ) )
-    {
-        rightCommand();
-        return;
-    }
-
-    r = m_ui->laLeftCmd->rect();
-    rect = QRect( m_ui->laLeftCmd->mapTo( this, r.topLeft() ), m_ui->laLeftCmd->mapTo( this, r.bottomRight() ) );
-    if ( rect.contains( pos ) )
-    {
-        leftCommand();
-        return;
-    }
+//    QRect r = m_ui->laRightCmd->rect();
+//    QRect rect( m_ui->laRightCmd->mapTo( this, r.topLeft() ), m_ui->laRightCmd->mapTo( this, r.bottomRight() ) );
+//    if ( rect.contains( pos ) )
+//    {
+//        rightCommand();
+//        return;
+//    }
+//
+//    r = m_ui->laLeftCmd->rect();
+//    rect = QRect( m_ui->laLeftCmd->mapTo( this, r.topLeft() ), m_ui->laLeftCmd->mapTo( this, r.bottomRight() ) );
+//    if ( rect.contains( pos ) )
+//    {
+//        leftCommand();
+//        return;
+//    }
 
     foreach ( QLabel* la, m_keyLabels )
     {

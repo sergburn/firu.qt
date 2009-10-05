@@ -45,13 +45,13 @@ private:
     void showNextLetters();
     void checkAnswer( QString answer );
 
-    void leftCommand();
-    void rightCommand();
     void drawMark( Mark::MarkValue mark );
 
 private slots:
     void showResult();
     void updateMark();
+    void leftCommand();
+    void rightCommand();
 
 private:
     Ui::TrainerDialog *m_ui;

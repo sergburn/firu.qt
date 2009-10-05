@@ -40,6 +40,9 @@ public:
     bool setWordToLearn( qint64 id );
 
     bool addToUserDict( qint64 sid );
+    
+    /** Marks all translations as Unknown */
+    bool clearLearningSet();
 
     Exercise::Ptr createReverseExercise();
 

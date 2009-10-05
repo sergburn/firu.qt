@@ -17,7 +17,10 @@ void LogSqliteError( sqlite3* db, const char* where )
 #else
 void LogSqlError( QSqlDatabase& db, const char* where )
 {
-    qDebug() << "QtSql err in " << where << ":" << db.lastError().text();
+    QSqlError e = db.lastError();
+    qDebug() 
+        << "QtSql err in" << where << ": n" << e.number()
+        << "t" << e.type() << "m" << e.text();
 }
 #endif
 

@@ -31,13 +31,13 @@ protected:
     
 private:
     void updateDirectionLabels();
-    void scheduleListUpdate();
-    void fillList( const Word::List& words );
-    void updateList();
+    void showList( const Word::List& words );
+    void showWordCount( QString text );
     
 private slots:
     void on_actionRebuild_Hashes_triggered();
-    void loadList();
+    void on_actionResetMarks_triggered();
+    void searchWords();
     void on_actionSearch_reverse_toggled( bool );
     void on_actionOpenDict_triggered();
     void on_actionOpenTrainer_triggered();
@@ -53,6 +53,7 @@ private:
     Word::List m_words;
     QList<QListWidgetItem> m_listItems;
     QTimer m_loadTimer;
+    int m_totalWords;
 };
 
 #endif // FIRUMAINWINDOW_H

@@ -89,6 +89,7 @@ QString WordsByPatternQuery::buildSql() const
     SqlGenerator builder( selectBaseSql() );
     builder.addCondition( "hash >= :min");
     builder.addCondition( "hash < :max");
+    builder.addCondition( "text LIKE :pattern" );
     return builder.sql();
 }
 
@@ -100,6 +101,7 @@ int WordsByPatternQuery::bind()
     WordKey::getPatternKeyLimits( m_pattern, min, max );
     bindUint64( ":min", min );
     bindUint64( ":max", max );
+    bindString( ":pattern", m_pattern + "%" );
     return 0;
 }
 
