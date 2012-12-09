@@ -33,6 +33,7 @@
 #include "trainerdialog.h"
 
 #include <QtGui>
+#include <QMessageBox>
 #include "firuapp.h"
 
 int main(int argc, char *argv[])
@@ -58,21 +59,20 @@ int main(int argc, char *argv[])
 //            FiruApp::startTrainer( d );
 //        }
         
-//        QString importDict;
-//        QStringList args = a.arguments();
-//        for ( int i = 1; i < args.count(); i++ )
-//        {
-//            if ( args[i] == "-import" && args.count() > i + 1 )
-//            {
-//                importDict = args[i+1];
-//                i++;
-//            }
-//        }
-//        
-//        if ( importDict.length() )
-//        {
-//            w.importDict( importDict );
-//        }
+        QString importDict;
+        QStringList args = a.arguments();
+        for ( int i = 1; i < args.count(); i++ )
+        {
+            if ( args[i] == "-import" && args.count() > i + 1 )
+            {
+                importDict = args[i+1];
+                i++;
+            }
+        }
+        if ( importDict.length() )
+        {
+            w.importDict( importDict );
+        }
         
         res = a.exec();
     }
