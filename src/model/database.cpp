@@ -333,7 +333,7 @@ int Database::createTransTable( LangPair langs )
             sql = QString( KSqlCreateTransIndex ).arg( transTableName, "fmark" );
             err = sqlExecute( sql );
         }
-        // CREATE INDEX IF NOT EXISTS index_trans_fi_ru_rmark ON trans_fi_ru (fmark ASC);
+        // CREATE INDEX IF NOT EXISTS index_trans_fi_ru_rmark ON trans_fi_ru (rmark ASC);
         if ( !err )
         {
             sql = QString( KSqlCreateTransIndex ).arg( transTableName, "rmark" );
