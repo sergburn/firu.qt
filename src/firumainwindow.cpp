@@ -24,11 +24,20 @@ FiruMainWindow::FiruMainWindow( QWidget *parent )
 {
 	m_ui.setupUi(this);
 
+#ifndef Q_OS_DARWIN
     menuBar()->addAction( m_ui.actionOpenDict );
     menuBar()->addAction( m_ui.actionOpenTrainer );
 //    menuBar()->addAction( m_ui.actionSearch_reverse );
     menuBar()->addAction( m_ui.actionRebuild_Hashes );
     menuBar()->addAction( m_ui.actionResetMarks );
+#else
+    QMenu* fileMenu = menuBar()->addMenu("File");
+    fileMenu->addAction( m_ui.actionOpenDict );
+    fileMenu->addAction( m_ui.actionOpenTrainer );
+//    menuBar->addAction( m_ui.actionSearch_reverse );
+    fileMenu->addAction( m_ui.actionRebuild_Hashes );
+    fileMenu->addAction( m_ui.actionResetMarks );
+#endif
 
 #ifdef __SYMBIAN32__
     showMaximized();

@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = firuqt
 
-// CONFIG += sqlite
+# CONFIG += sqlite
 QT += core \
     gui
 HEADERS += src/AppUi.h \
